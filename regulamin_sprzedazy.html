@@ -1,0 +1,93 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>~projekt_bc:regulamin_sprzedazy</title>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <style>
+        :root { --green: #33ff00; --dim: #1a8000; --bg: #050505; }
+        * { box-sizing: border-box; }
+        body {
+            background-color: var(--bg); color: var(--green);
+            font-family: 'VT323', monospace; padding: 20px;
+            max-width: 800px; margin: 0 auto; line-height: 1.4;
+        }
+        h1, h2 { text-transform: uppercase; border-bottom: 1px solid var(--dim); padding-bottom: 5px; }
+        h1 { text-shadow: 0 0 10px var(--dim); margin-bottom: 30px; }
+        p, li { font-size: 1.1rem; color: #ccc; margin-bottom: 15px; }
+        strong { color: var(--green); }
+        ul { list-style: none; padding-left: 0; }
+        ul li::before { content: "> "; color: var(--dim); }
+        a { color: var(--green); text-decoration: none; border-bottom: 1px dashed var(--dim); }
+
+        .system-frame {
+            border: 2px solid var(--dim); padding: 20px;
+            box-shadow: 0 0 20px rgba(26, 128, 0, 0.2);
+        }
+        .return-btn {
+            display: inline-block; margin-top: 30px; padding: 10px 20px;
+            border: 1px solid var(--green); color: var(--green);
+            text-transform: uppercase; transition: 0.3s;
+        }
+        .return-btn:hover { background: var(--green); color: black; }
+
+        /* Scanlines */
+        body::after {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
+            background-size: 100% 4px; pointer-events: none; z-index: 99;
+        }
+    </style>
+</head>
+<body>
+
+  <div style="text-align: start;">
+        <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+    </div>
+
+    <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
+
+    <div class="system-frame">
+        <p>STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
+
+        <h2>1. POSTANOWIENIA OGÓLNE</h2>
+        <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
+        <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>
+        Podgródkowa 59, 42-470 Dziewki<br>
+        NIP: 569-157-06-12<br>
+        Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>
+        <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu.</p>
+
+        <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
+        <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
+        <p>2.2. Proces nadania uprawnień następuje automatycznie po zaksięgowaniu wpłaty na koncie. Klient otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz linkiem do pobrania treści.</p>
+        <p>2.3. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru.</p>
+
+        <h2>3. WYMOGI TECHNICZNE</h2>
+        <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
+        <ul>
+            <li>Połączenie z internetem.</li>
+            <li>Aktywny adres poczty elektronicznej (e-mail).</li>
+            <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
+        </ul>
+
+        <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
+        <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez zgody Administratora stanowi naruszenie prawa.</p>
+        <p>4.2. <strong>OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania operacyjnego (Watermarking). W metadanych oraz na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres E-mail oraz ID transakcji). W przypadku wykrycia nielagalnego rozpowszechniania, Administrator użyje tych danych do identyfikacji sprawcy.</p>
+
+        <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
+        <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość nie przysługuje konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta).</p>
+        <p>5.2. Akceptując niniejszy regulamin i rozpoczynając pobieranie pliku (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża zgodę na natychmiastowe dostarczenie treści i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu (odstąpienia od umowy).</strong></p>
+
+        <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
+        <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem 24 godzin, Obywatel ma obowiązek zgłosić usterkę na adres: biuro@omnis.pl.</p>
+        <p>6.2. Zgłoszenia rozpatrywane są w trybie pilnym, nie później jednak niż w ciągu 14 dni roboczych. Pozytywnie rozpatrzona reklamacja skutkuje ponownym ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego.</p>
+    </div>
+
+    <div style="text-align: start;">
+          <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+      </div>
+
+</body>
+</html>

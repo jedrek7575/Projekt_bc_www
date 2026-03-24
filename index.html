@@ -1,0 +1,728 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>~projekt_bc:bash — Terminal</title>
+    <meta name="description" content="Oficjalna strona projektu B-C. Nie ma wolności bez sprawiedliwości.">
+    <meta name="keywords" content="historia alternatywna, prl, cyberpunk, powieść, książka, audiobook, fikcja literacka, dystopia">
+    <meta name="robots" content="index, follow">
+    <meta name="author" content="Autor Projektu Biało-Czerwoni">
+
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
+
+    <style>
+        :root {
+            --terminal-green: #33ff00;
+            --terminal-dim: #1a8000;
+            --bg-color: #050505;
+            --glitch-color: #ff00ff;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+                    background-color: var(--bg-color);
+                    color: var(--terminal-green);
+                    font-family: 'VT323', monospace;
+                    min-height: 100vh;
+                    display: flex;
+                    flex-direction: column;
+                    /* USUNIĘTO justify-content i padding z body */
+                    align-items: center;
+                    overflow-x: hidden;
+                    text-align: center;
+                    position: relative;
+                }
+
+        /* Scanlines - CRT Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2;
+            background-size: 100% 2px, 3px 100%;
+            pointer-events: none;
+        }
+
+        .glow { text-shadow: 0 0 5px var(--terminal-dim), 0 0 10px var(--terminal-dim); }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+        #terminal-container {
+                    max-width: 1000px;
+                    width: 100%;
+                    z-index: 1;
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    justify-content: center; /* Centruje boxy w pionie wewnątrz kontenera */
+                    flex-grow: 1; /* Rozpycha główny kontener, spychając stopkę w dół */
+                    gap: 2rem;
+                    padding: 40px 20px; /* Padding przeniesiony tutaj, aby nie zgniatał stopki */
+                }
+
+        /* Sekcja górna: Logo + Tekst */
+        .top-section {
+            display: flex;
+            flex-direction: row;
+            align-items: center;
+            justify-content: center;
+            gap: 40px;
+            width: 100%;
+            min-height: 15rem; /* Sztywna wysokość, zapobiega skakaniu strony */
+        }
+
+        #terminal-container img.logo {
+            opacity: 0;
+            filter: grayscale(100%) contrast(1.5);
+            height: 55rem;
+            width: 55rem;
+            object-fit: contain;
+            will-change: transform, opacity, clip-path;
+        }
+
+        #terminal-container img.logo.stable {
+            opacity: 1;
+            height: 15rem;
+            width: 15rem;
+            filter: none;
+        }
+
+        #typing-text {
+            font-size: 1.5rem;
+            line-height: 1.4;
+            text-align: left; /* Terminalowy klimat do lewej */
+            width: 100%;
+            max-width: 500px;
+            height: 15rem; /* Zablokowanie wysokości bloku z tekstem */
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+        }
+
+        .cursor {
+            display: inline-block;
+            width: 10px; height: 1.2rem;
+            background-color: var(--terminal-green);
+            animation: blink 1s step-end infinite;
+            vertical-align: bottom;
+        }
+
+        /* Sekcja Hakerskich Boxów */
+        #boxes-container {
+            display: flex;
+            gap: 2rem;
+            justify-content: center;
+            width: 100%;
+            position: relative;
+            margin-top: 2rem;
+            margin-bottom: 2rem
+        }
+
+        .hacker-box {
+            width: 250px;
+            height: 280px;
+            border: 1px solid var(--terminal-dim);
+            background: rgba(0, 20, 0, 0.4);
+            padding: 10px;
+            cursor: pointer;
+            transition: all 0.2s ease-in-out;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            opacity: 0;
+        }
+
+        .hacker-box:hover {
+            transform: scale(1.05);
+            border-color: var(--terminal-green);
+            box-shadow: 0 0 15px var(--terminal-green), inset 0 0 15px rgba(51, 255, 0, 0.2);
+            background: rgba(0, 40, 0, 0.8);
+        }
+
+        .hacker-box img {
+            width: 100%;
+            height: 140px;
+            object-fit: cover;
+            border: 1px solid var(--terminal-dim);
+            margin-bottom: 15px;
+            filter: grayscale(30%) contrast(1.2);
+            transition: filter 0.3s;
+        }
+
+        .hacker-box:hover img {
+            filter: grayscale(0%) contrast(1);
+            border-color: var(--terminal-green);
+        }
+
+        .hacker-box .box-title {
+            font-size: 1.3rem;
+            text-transform: uppercase;
+            margin-bottom: 5px;
+            color: var(--terminal-green);
+            text-shadow: 0 0 5px var(--terminal-dim);
+        }
+
+        .hacker-box .box-desc {
+            font-size: 1rem;
+            color: #aaa;
+            text-align: center;
+        }
+
+        #box-center {
+          transform: scale(1.1) !important;
+        }
+
+        #box-right:hover {
+            /* Twoje filtry */
+            filter: grayscale(100%) contrast(1.2) !important;
+
+            /* Poprawna składnia tła */
+            background-image: url("/Images/lock.webp");
+
+            /* Dodatki, żeby obrazek nie był ucięty lub powielony */
+            background-size: 50%;      /* Lub 'contain', zależnie od obrazka */
+            background-position: center;
+            background-repeat: no-repeat;
+
+        }
+
+
+        /* Lightbox */
+        #lightbox {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 5, 0, 0.95);
+            z-index: 9999;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            flex-direction: column;
+            backdrop-filter: blur(5px);
+            max-height: 99vh;
+        }
+
+        .lightbox-content {
+            width: 90%; max-width: 800px;
+            position: relative;
+            padding: 30px;
+            border: 1px solid var(--terminal-green);
+            background: #000;
+            box-shadow: 0 0 40px rgba(51, 255, 0, 0.15);
+            text-align: center;
+            max-height: 99vh;
+        }
+
+        .close-btn {
+            position: absolute;
+            top: 10px; right: 20px;
+            font-size: 2rem;
+            cursor: pointer;
+            color: var(--terminal-green);
+            transition: 0.2s;
+            font-weight: bold;
+        }
+        .close-btn:hover { text-shadow: 0 0 15px var(--terminal-green); transform: scale(1.2); }
+
+        .carousel {
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+        }
+
+        .side-img {
+            width: 120px; height: 120px;
+            object-fit: cover;
+            cursor: pointer;
+            border: 1px solid var(--terminal-dim);
+            filter: grayscale(100%);
+            transition: all 0.3s;
+        }
+        .side-img:hover { filter: grayscale(0%); border-color: var(--terminal-green); transform: scale(1.05); }
+
+        .main-img {
+            width: 450px; height: 300px;
+            object-fit: cover;
+            border: 1px solid var(--terminal-green);
+            box-shadow: 0 0 20px var(--terminal-dim);
+        }
+
+        .lb-title { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
+        .lb-desc { font-size: 1.2rem; color: #ccc; margin-bottom: 25px; line-height: 1.4; }
+
+        /* Przyciski */
+        .btn-link, #footer-links a {
+            color: var(--terminal-green);
+            text-decoration: none;
+            font-family: 'VT323', monospace;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            letter-spacing: 2px;
+            border: 1px solid var(--terminal-dim);
+            padding: 8px 25px;
+            background: rgba(0, 20, 0, 0.4);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            display: inline-block;
+        }
+
+        .btn-link:hover, #footer-links a:hover {
+            background: var(--terminal-green);
+            color: var(--bg-color);
+            border-color: var(--terminal-green);
+            box-shadow: 0 0 15px var(--terminal-green);
+        }
+
+
+        .btn-link:hover::before, .btn-link:hover::after, #footer-links a:hover::before, #footer-links a:hover::after { color: var(--bg-color); }
+
+
+
+        /* --- ANIMACJE CRASH/GLITCH --- */
+        .glitch-boot { animation: glitch-sequence 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        .glitch-box-anim { animation: glitch-sequence 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        @keyframes glitch-sequence {
+            0% { opacity: 0; transform: scale(1.2) skew(20deg); clip-path: inset(50% 0 50% 0); }
+            10% { opacity: 1; transform: scale(1) skew(-10deg); clip-path: inset(10% 0 80% 0); filter: brightness(2) contrast(3); }
+            20% { opacity: 0.8; transform: translateX(-10px); clip-path: inset(0 0 0 0); }
+            30% { opacity: 1; clip-path: inset(40% 0 40% 0); filter: invert(1); }
+            50% { opacity: 1; transform: scale(1.05); filter: hue-rotate(90deg); }
+            70% { opacity: 1; transform: skew(5deg); }
+            80% { opacity: 0.5; clip-path: inset(0 0 50% 0); }
+            100% { opacity: 1; transform: scale(1) skew(0); clip-path: inset(0 0 0 0); filter: none; }
+        }
+
+        @media (max-width: 850px) {
+            .top-section { flex-direction: column; height: auto; text-align: center; }
+            #typing-text { text-align: center; height: auto; min-height: 250px; }
+            #boxes-container { flex-direction: column; align-items: center; }
+            .hacker-box { width: 70% ; }
+            .main-img { width: 40%; height: auto; }
+            .side-img { width: 80px; height: 80px; }
+        }
+
+
+
+        /* Styl dla sekcji zgody w Lightboxie */
+        .consent-container {
+            margin: 20px 0;
+            padding: 15px;
+            border: 1px dashed var(--terminal-dim);
+            background: rgba(20, 0, 0, 0.2);
+            text-align: left;
+            transition: all 0.3s;
+        }
+
+        .consent-container.error-blink {
+            border-color: #ff3333;
+            box-shadow: 0 0 15px #ff3333;
+            background: rgba(50, 0, 0, 0.6);
+        }
+
+        .consent-label {
+            display: flex;
+            align-items: flex-start;
+            gap: 10px;
+            cursor: pointer;
+            font-size: 0.95rem;
+            color: #ccc;
+        }
+
+        .consent-label input {
+            margin-top: 4px;
+            accent-color: var(--terminal-green);
+            transform: scale(1.2);
+        }
+
+        .error-text {
+            color: #ff3333;
+            font-size: 0.8rem;
+            display: none;
+            margin-top: 5px;
+            text-transform: uppercase;
+        }
+
+        .error-blink .error-text {
+            display: block;
+        }
+
+
+
+
+
+        /* --- NOWY FOOTER (TERMINAL_UI) - WERSJA CENTRALNA --- */
+                #footer-links {
+                    width: 100%;
+                    background: #020802;
+                    border-top: 2px solid var(--terminal-dim);
+                    padding: 3rem 2rem;
+                    opacity: 0; /* JS kontroluje pojawienie się */
+                    transition: opacity 1s ease-in;
+                    z-index: 3;
+                    box-shadow: 0 -5px 15px rgba(26, 128, 0, 0.05);
+                }
+
+                .footer-content {
+                    max-width: 1100px;
+                    width: 100%;
+                    margin: 0 auto;
+                    display: flex;
+                    justify-content: space-between;
+                    align-items: end; /* Centruje wszystkie 3 kolumny w poziomie względem siebie */
+                    flex-wrap: wrap;
+                    gap: 2rem;
+                }
+
+                /* 1. Lewa Kolumna: Logo i Prawa */
+                .footer-logo-copy {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-start;
+                    flex: 1;
+                    min-width: 250px;
+                }
+
+                .footer-logo {
+                    width: 70px;
+                    height: 70px;
+                    filter: grayscale(100%) contrast(1.5);
+                    transition: filter 0.3s;
+                    margin-bottom: 10px;
+                }
+
+                .footer-logo:hover { filter: none; }
+
+                .copyright {
+                    color: var(--terminal-dim);
+                    font-size: 1rem;
+                    line-height: 1.3;
+                    display: flex;
+                    text-align: start;
+                }
+
+                /* 2. Środkowa Kolumna: Newsletter (Wielki i wyraźny) */
+                .footer-newsletter-group {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: center;
+                    text-align: center;
+                    flex: 1.5; /* Dajemy mu więcej miejsca */
+                    min-width: 300px;
+                    border: 1px dashed var(--terminal-dim);
+                    padding: 25px;
+                    background: rgba(0, 20, 0, 0.4);
+                    box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+                }
+
+                .footer-nav-title.center {
+                    font-size: 1.5rem;
+                    color: var(--terminal-green);
+                    margin-bottom: 10px;
+                    border-bottom: none;
+                    text-shadow: 0 0 5px var(--terminal-dim);
+                    letter-spacing: 2px;
+                }
+
+                .newsletter-desc {
+                    color: #ccc;
+                    font-size: 1.1rem;
+                    line-height: 1.4;
+                    margin-bottom: 20px;
+                    max-width: 280px;
+                }
+
+                .action-btn {
+                    background: var(--terminal-green);
+                    color: var(--bg-color);
+                    padding: 12px 30px;
+                    font-size: 1.3rem;
+                    text-decoration: none;
+                    border: 1px solid var(--terminal-green);
+                    text-transform: uppercase;
+                    font-weight: bold;
+                    transition: 0.2s;
+                    letter-spacing: 1px;
+                }
+
+                .action-btn:hover {
+                    background: transparent;
+                    color: var(--terminal-green);
+                    box-shadow: 0 0 15px var(--terminal-green);
+                }
+
+                /* 3. Prawa Kolumna: Dokumenty Prawne (Małe, nie rzucające się w oczy) */
+                .footer-nav-group {
+                    display: flex;
+                    flex-direction: column;
+                    align-items: flex-end;
+                    justify-content: end;
+
+                    text-align: right;
+                    flex: 1;
+                    min-width: 200px;
+                    gap: 8px;
+                }
+
+
+                .footer-nav-title {
+                    color: rgba(26, 128, 0, 0.6);
+                    font-size: 0.9rem;
+                    text-transform: uppercase;
+                    border-bottom: 1px solid rgba(26, 128, 0, 0.2);
+                    padding-bottom: 3px;
+                    margin-bottom: 5px;
+                }
+
+                .footer-btn {
+                    color: var(--terminal-dim); /* Szary/Ciemnozielony - ukryty */
+                    text-decoration: none;
+                    font-size: 0.9rem !important; /* Bardzo mała czcionka */
+                    text-transform: uppercase;
+                    transition: 0.2s;
+                }
+
+                .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
+                .footer-btn:hover { color: var(--terminal-green); }
+                .footer-btn:hover::before { opacity: 1; color: var(--terminal-green); }
+
+                /* --- Responsywność dla małych ekranów --- */
+                @media (max-width: 850px) {
+                    .footer-content { flex-direction: column; align-items: center; }
+                    .footer-logo-copy, .footer-nav-group { align-items: center; text-align: center; }
+                    .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; } /* Przerzuca Newsletter na samą górę na telefonie */
+                }
+
+
+
+
+    </style>
+</head>
+<body>
+
+    <h1 class="sr-only">Powieść Biało-Czerwoni - Historia Alternatywna PRL</h1>
+
+    <main id="terminal-container">
+
+        <div class="top-section">
+            <img src="icon512.png" class="logo" alt="Logo">
+            <div id="typing-text">
+                <div><span id="text-content"></span><span class="cursor"></span></div>
+            </div>
+        </div>
+
+        <div id="boxes-container">
+            <div class="hacker-box" id="box-left" data-title="Biało - Czerwoni" data-desc="Powieść jest co najmniej średnia, ale i tak warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało - Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="https://via.placeholder.com/450x300/000/33ff00?text=IMG_2" data-img3="https://via.placeholder.com/450x300/333/1a8000?text=IMG_3" data-link="https://buy.stripe.com/test_aFa5kF9Td7n24yz0zscMM02">
+                <img src="Images/Oferta/okladka.webp" alt="Akta">
+                <div class="box-title">29.99 zł</div>
+                <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
+            </div>
+
+            <div class="hacker-box" id="box-center" data-title="Architektura Systemu" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="https://via.placeholder.com/450x300/000/1a8000?text=MAPA_2" data-img3="https://via.placeholder.com/450x300/111/33ff00?text=MAPA_3" data-link="https://buy.stripe.com/test_7sY8wR7L54aQ8OPbe6cMM04">
+                <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
+                <div class="box-title">49.99 zł</div>
+                <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami.</div>
+            </div>
+
+            <div class="hacker-box" id="box-right" data-title="Zrzut Pamięci" data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." data-img1="https://via.placeholder.com/450x300/000/33ff00?text=MEM_1" data-img2="https://via.placeholder.com/450x300/1a8000/000?text=MEM_2" data-img3="https://via.placeholder.com/450x300/222/33ff00?text=MEM_3" data-link="">
+                <img src="https://via.placeholder.com/250x140/000/33ff00?text=DUMP" alt="Zrzut">
+                <div class="box-title">69.99 zł</div>
+                <div class="box-desc">Pakiet premium. Kto chce się dowiedzieć, ten się dowie.</div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer-links">
+                <div class="footer-content">
+
+                    <div class="footer-logo-copy">
+                        <img src="icon128.png" alt="Godło Wydziału" class="footer-logo">
+                        <p class="copyright">
+                            OMNIS Anna Kiersznowska-Jąderko<br>
+                            [&copy; 2026 WSZELKIE PRAWA ZASTRZEŻONE]<br>
+                            NIEAUTORYZOWANY DOSTĘP BĘDZIE ŚCIGANY.
+                        </p>
+                    </div>
+
+                    <div class="footer-nav-group">
+                        <span class="footer-nav-title">/SYSTEM/EXT/ [NEWSLETTER]</span>
+                        <p class="newsletter-desc">Zapisz się do bazy, aby otrzymywać tajne meldunki prosto z Centrali.</p>
+                        <a href="newsletter.html" class="footer-btn action-btn">ZAPISZ_SIE.exe</a>
+                    </div>
+
+                    <div class="footer-nav-group">
+                        <span class="footer-nav-title">/SYSTEM/DOCS/</span>
+                        <a href="regulamin_sprzedazy.html" class="footer-btn">regulamin_sprzedazy</a>
+                        <a href="polityka_prywatnosci.html" class="footer-btn">polityka_prywatnosci</a>
+                    </div>
+
+
+
+                </div>
+            </footer>
+
+    <div id="lightbox">
+        <div class="lightbox-content glow">
+            <span class="close-btn" onclick="closeLightbox()">[X]</span>
+            <div class="lb-title" id="lb-title">Tytuł Moduł</div>
+
+            <div class="carousel">
+                <img src="" class="side-img" id="lb-img-left" onclick="swapImage(this)">
+                <img src="" class="main-img" id="lb-img-main">
+                <img src="" class="side-img" id="lb-img-right" onclick="swapImage(this)">
+            </div>
+
+            <div class="lb-desc" id="lb-desc">Opis zawartości modułu...</div>
+            <div class="consent-container" id="consent-box">
+                <label class="consent-label">
+                    <input type="checkbox" id="legal-consent">
+                    <span>
+                        Wyrażam zgodę na dostarczenie treści cyfrowej przed upływem terminu do odstąpienia od umowy.
+                        Przyjmuję do wiadomości, że wraz z uzyskaniem dostępu do pliku tracę prawo do odstąpienia od umowy.
+                    </span>
+                </label>
+                <div class="error-text">! WYMAGANA AUTORYZACJA ZGODY !</div>
+            </div>
+            <a href="#" class="btn-link" id="lb-link">Kup_Teraz</a>
+        </div>
+    </div>
+
+    <script>
+        const contentConfig = {
+            text: "SYSTEM_ROOT: Dostęp przyznany.\nŁadowanie symulacji alternatywnej rzeczywistości...\n\nProjekt: B-C.\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
+            typingSpeed: 10
+        };
+
+        const textElement = document.getElementById('text-content');
+        const footerLinks = document.getElementById('footer-links');
+        const terminalImg = document.querySelector('.logo');
+
+        const boxLeft = document.getElementById('box-left');
+        const boxCenter = document.getElementById('box-center');
+        const boxRight = document.getElementById('box-right');
+
+        let i = 0;
+        function typeWriter() {
+            if (i < contentConfig.text.length) {
+                let char = contentConfig.text.charAt(i);
+                if (char === '\n') {
+                    textElement.innerHTML += '<br>';
+                } else {
+                    textElement.innerHTML += char;
+                }
+                i++;
+                setTimeout(typeWriter, contentConfig.typingSpeed);
+            } else {
+                setTimeout(() => { footerLinks.style.opacity = 1; }, 500);
+            }
+        }
+
+        window.onload = () => {
+            const bootDelay = 200;
+
+            setTimeout(() => {
+                terminalImg.classList.add('glitch-boot');
+
+                terminalImg.addEventListener('animationend', () => {
+                    terminalImg.classList.remove('glitch-boot');
+                    terminalImg.classList.add('stable');
+
+                    typeWriter();
+                    triggerBoxes();
+                }, { once: true });
+            }, bootDelay);
+        };
+
+        function triggerBoxes() {
+            boxCenter.style.animationDelay = "0ms";
+            boxCenter.classList.add('glitch-box-anim');
+
+            boxRight.style.animationDelay = "200ms";
+            boxRight.classList.add('glitch-box-anim');
+
+            boxLeft.style.animationDelay = "400ms";
+            boxLeft.classList.add('glitch-box-anim');
+        }
+
+        // --- OBSŁUGA LIGHTBOXA ---
+        const lightbox = document.getElementById('lightbox');
+        const lbImgMain = document.getElementById('lb-img-main');
+        const lbImgLeft = document.getElementById('lb-img-left');
+        const lbImgRight = document.getElementById('lb-img-right');
+        const lbTitle = document.getElementById('lb-title');
+        const lbDesc = document.getElementById('lb-desc');
+        const lbLink = document.getElementById('lb-link');
+
+
+        const consentBox = document.getElementById('consent-box');
+                const legalCheckbox = document.getElementById('legal-consent');
+
+                // Modyfikacja kliknięcia w kafelki (dodaj te dwie linie do istniejącej funkcji)
+                document.querySelectorAll('.hacker-box:not(#box-right)').forEach(box => {
+                            box.addEventListener('click', () => {
+                                // POBIERANIE DANYCH Z KAFLA
+                                lbTitle.innerText = box.getAttribute('data-title');
+                                lbDesc.innerText = box.getAttribute('data-desc');
+                                lbLink.href = box.getAttribute('data-link');
+
+                                // POBIERANIE RADIOGRAMÓW (OBRAZÓW)
+                                lbImgMain.src = box.getAttribute('data-img1');
+                                lbImgLeft.src = box.getAttribute('data-img2');
+                                lbImgRight.src = box.getAttribute('data-img3');
+
+                                // RESET PROCEDUR BEZPIECZEŃSTWA
+                                legalCheckbox.checked = false;
+                                consentBox.classList.remove('error-blink');
+
+                                // OTWARCIE WĘZŁA
+                                lightbox.style.display = 'flex';
+                            });
+                        });
+
+                // OBSŁUGA PRZYCISKU ZAKUPU
+                lbLink.addEventListener('click', (e) => {
+                    if (!legalCheckbox.checked) {
+                        e.preventDefault(); // ZATRZYMAJ OPERACJĘ
+
+                        // URUCHOM ALARM WIZUALNY
+                        consentBox.classList.remove('error-blink');
+                        void consentBox.offsetWidth; // Trigger reflow dla ponownej animacji
+                        consentBox.classList.add('error-blink');
+
+                        console.log("[SYSTEM] ODRZUCONO: Brak akceptacji protokołu 38 pkt 13.");
+                    }
+                });
+
+                // Usuwanie błędu po zaznaczeniu
+                legalCheckbox.addEventListener('change', () => {
+                    if (legalCheckbox.checked) {
+                        consentBox.classList.remove('error-blink');
+                    }
+                });
+
+        function closeLightbox() {
+            lightbox.style.display = 'none';
+        }
+
+        function swapImage(clickedImg) {
+            const tempSrc = lbImgMain.src;
+            lbImgMain.src = clickedImg.src;
+            clickedImg.src = tempSrc;
+        }
+
+        window.onclick = function(event) {
+            if (event.target === lightbox) closeLightbox();
+        }
+    </script>
+</body>
+</html>
