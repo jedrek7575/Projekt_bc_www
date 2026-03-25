@@ -5,89 +5,254 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>~projekt_bc:regulamin_sprzedazy</title>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
     <style>
-        :root { --green: #33ff00; --dim: #1a8000; --bg: #050505; }
-        * { box-sizing: border-box; }
+        :root { 
+            --terminal-green: #33ff00; 
+            --terminal-dim: #1a8000; 
+            --bg-color: #050505; 
+            --taskbar-width: 65px; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
         body {
-            background-color: var(--bg); color: var(--green);
-            font-family: 'VT323', monospace; padding: 20px;
-            max-width: 800px; margin: 0 auto; line-height: 1.4;
+            background-color: var(--bg-color); 
+            color: var(--terminal-green);
+            font-family: 'VT323', monospace; 
+            padding: 20px;
+            line-height: 1.4;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            margin-left: var(--taskbar-width); /* Miejsce na boczny pasek */
         }
-        h1, h2 { text-transform: uppercase; border-bottom: 1px solid var(--dim); padding-bottom: 5px; }
-        h1 { text-shadow: 0 0 10px var(--dim); margin-bottom: 30px; }
-        p, li { font-size: 1.1rem; color: #ccc; margin-bottom: 15px; }
-        strong { color: var(--green); }
-        ul { list-style: none; padding-left: 0; }
-        ul li::before { content: "> "; color: var(--dim); }
-        a { color: var(--green); text-decoration: none; border-bottom: 1px dashed var(--dim); }
 
-        .system-frame {
-            border: 2px solid var(--dim); padding: 20px;
-            box-shadow: 0 0 20px rgba(26, 128, 0, 0.2);
-        }
-        .return-btn {
-            display: inline-block; margin-top: 30px; padding: 10px 20px;
-            border: 1px solid var(--green); color: var(--green);
-            text-transform: uppercase; transition: 0.3s;
-        }
-        .return-btn:hover { background: var(--green); color: black; }
-
-        /* Scanlines */
+        /* Scanlines - CRT Effect */
         body::after {
             content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.1) 50%);
             background-size: 100% 4px; pointer-events: none; z-index: 99;
         }
+
+        /* ========================================= */
+        /* --- NOWY TASKBAR (LINUX STYLE) ---------- */
+        /* ========================================= */
+        #linux-taskbar {
+            position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh;
+            background: rgba(20, 22, 20, 0.7); backdrop-filter: blur(8px);
+            border-right: 1px solid var(--terminal-dim); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.8);
+        }
+
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+
+        .taskbar-logo-btn { 
+            width: 45px; height: 45px; cursor: pointer; transition: 0.3s; 
+            border-radius: 8px; border: 2px solid transparent; 
+        }
+        .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); }
+
+        .social-placeholder { 
+            width: 35px; height: 35px; border-radius: 8px; 
+            background: rgba(0, 20, 0, 0.3); display: flex; justify-content: center; align-items: center; 
+            transition: 0.3s; overflow: hidden; text-decoration: none; color: var(--terminal-dim);
+        }
+        .social-placeholder img { width: 100%; height: 100%; object-fit: contain; }
+        .social-placeholder:hover { border-color: var(--terminal-green); background: var(--terminal-green); }
+
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.7; }
+        .tray-placeholder { 
+            width: 20px; height: 20px; border: 1px solid var(--terminal-dim); border-radius: 50%; 
+            display: flex; justify-content: center; align-items: center; font-size: 0.6rem; 
+        }
+
+        #sys-clock { 
+            color: var(--terminal-green); font-size: 0.9rem; text-align: center; 
+            line-height: 1.1; padding-bottom: 10px; border-bottom: 1px solid rgba(26, 128, 0, 0.4); width: 80%; 
+        }
+
+        .show-desktop-btn { 
+            width: 40px; height: 15px; border: 1px solid var(--terminal-dim); 
+            background: rgba(0, 0, 0, 0.5); border-radius: 4px; cursor: pointer; transition: 0.3s; 
+        }
+        .show-desktop-btn:hover { background: var(--terminal-green); }
+
+        /* Menu Start (Manager Zadań) */
+        #start-menu {
+            position: fixed; top: 15px; left: calc(var(--taskbar-width) + 10px); width: 300px;
+            background: rgba(5, 5, 5, 0.95); border: 1px solid var(--terminal-green);
+            box-shadow: 5px 5px 20px rgba(0,0,0,0.9); padding: 20px;
+            display: flex; flex-direction: column; gap: 15px; transform: translateX(-150%);
+            opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999;
+            backdrop-filter: blur(5px);
+        }
+        #start-menu.active { transform: translateX(0); opacity: 1; }
+
+        .start-menu-title { 
+            color: var(--terminal-dim); font-size: 1.2rem; border-bottom: 1px dashed var(--terminal-dim); 
+            padding-bottom: 5px; text-align: left; text-transform: uppercase; 
+        }
+
+        .start-menu-item { 
+            display: block; padding: 10px; border: 1px solid rgba(26, 128, 0, 0.3); 
+            background: rgba(20, 0, 0, 0.2); color: var(--terminal-green); text-decoration: none; 
+            text-align: left; font-size: 1.1rem; text-transform: uppercase; transition: 0.2s; 
+        }
+        .start-menu-item:hover { background: var(--terminal-green); color: var(--bg-color); padding-left: 20px; }
+        .start-menu-item::before { content: "> "; opacity: 0.5; }
+
+        /* ========================================= */
+        /* --- TREŚĆ DOKUMENTU --------------------- */
+        /* ========================================= */
+
+        .content-wrapper { width: 100%; max-width: 800px; z-index: 5; text-align: left; }
+
+        h1, h2 { text-transform: uppercase; border-bottom: 1px solid var(--terminal-dim); padding-bottom: 5px; color: var(--terminal-green); }
+        h1 { text-shadow: 0 0 10px var(--terminal-dim); margin-bottom: 30px; font-size: 2.5rem; }
+        h2 { margin-top: 30px; margin-bottom: 15px; }
+        
+        p, li { font-size: 1.1rem; color: #ccc; margin-bottom: 15px; }
+        strong { color: var(--terminal-green); }
+        ul { list-style: none; padding-left: 0; }
+        ul li::before { content: "> "; color: var(--terminal-dim); }
+        a { color: var(--terminal-green); text-decoration: none; border-bottom: 1px dashed var(--terminal-dim); }
+
+        .system-frame {
+            border: 2px solid var(--terminal-dim); padding: 20px;
+            box-shadow: 0 0 20px rgba(26, 128, 0, 0.2);
+            margin-bottom: 30px;
+            background: rgba(0, 10, 0, 0.4);
+        }
+
+        .return-btn {
+            display: inline-block; padding: 10px 20px;
+            border: 1px solid var(--terminal-green); color: var(--terminal-green);
+            text-transform: uppercase; transition: 0.3s;
+            margin-bottom: 20px;
+            cursor: pointer;
+        }
+        .return-btn:hover { background: var(--terminal-green); color: black; box-shadow: 0 0 15px var(--terminal-green); }
+
+        /* Responsywność Mobile */
+        @media (max-width: 850px) {
+            body { margin-left: 50px; }
+            #linux-taskbar { width: 50px; }
+            #start-menu { left: 50px; width: calc(100vw - 50px); height: 100vh; top: 0; }
+            h1 { font-size: 1.8rem; }
+        }
     </style>
 </head>
-<body>
+<body id="top">
 
-  <div style="text-align: start;">
-        <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+    <nav id="linux-taskbar">
+        <div class="taskbar-top">
+            <img src="Images/Icons/logo_taskbar.webp" alt="Start" class="taskbar-logo-btn" id="taskbar-start-btn">
+            <a href="https://www.facebook.com/profile.php?id=61587612428002" class="social-placeholder" title="Facebook"><img src="Images/Icons/fb.webp" alt="FB"></a>
+            <a href="https://www.instagram.com/marekdworski26/" class="social-placeholder" title="Instagram"><img src="Images/Icons/ig.webp" alt="IG"></a>
+            <a href="https://www.tiktok.com/@dworski_marek_" class="social-placeholder" title="TikTok"><img src="Images/Icons/tt.webp" alt="TT"></a>
+            <a href="https://www.youtube.com/@marekdworski-x3s" class="social-placeholder" title="YouTube"><img src="Images/Icons/yt.webp" alt="YT"></a>
+        </div>
+
+        <div class="taskbar-bottom">
+            <div class="tray-icons">
+                <div class="tray-placeholder">W</div>
+                <div class="tray-placeholder">B</div>
+                <div class="tray-placeholder">V</div>
+            </div>
+            <div id="sys-clock">
+                <span id="sys-time">00:00</span><br>
+                <span id="sys-date">00.00</span>
+            </div>
+            <a href="index.html" class="show-desktop-btn" title="Pulpit"></a>
+        </div>
+    </nav>
+
+    <div id="start-menu">
+        <div class="start-menu-title">Menedżer Zadań [v1.0]</div>
+        <a href="index.html" class="start-menu-item">Strona Główna</a>
+        <a href="o_nas.html" class="start-menu-item">Akta Personalne (O Nas)</a>
+        <a href="kontakt.html" class="start-menu-item">Raport Operacyjny (Kontakt)</a>
+        <a href="newsletter.html" class="start-menu-item">Newsletter</a>
     </div>
 
-    <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
+    <div class="content-wrapper">
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
 
-    <div class="system-frame">
-        <p>STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
+        <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
 
-        <h2>1. POSTANOWIENIA OGÓLNE</h2>
-        <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
-        <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>
-        Podgródkowa 59, 42-470 Dziewki<br>
-        NIP: 569-157-06-12<br>
-        Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>
-        <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu.</p>
+        <div class="system-frame">
+            <p>STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
 
-        <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
-        <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
-        <p>2.2. Proces nadania uprawnień następuje automatycznie po zaksięgowaniu wpłaty na koncie. Klient otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz linkiem do pobrania treści.</p>
-        <p>2.3. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru.</p>
+            <h2>1. POSTANOWIENIA OGÓLNE</h2>
+            <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
+            <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>
+            Podgródkowa 59, 42-470 Dziewki<br>
+            NIP: 569-157-06-12<br>
+            Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+            <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu i zawarciem umowy sprzedaży na odległość.</p>
 
-        <h2>3. WYMOGI TECHNICZNE</h2>
-        <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
-        <ul>
-            <li>Połączenie z internetem.</li>
-            <li>Aktywny adres poczty elektronicznej (e-mail).</li>
-            <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
-        </ul>
+            <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
+            <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
+            <p>2.2. Proces nadania uprawnień następuje automatycznie po pozytywnej autoryzacji i zaksięgowaniu wpłaty przez operatora płatności.</p>
+            <p>2.3. Kupujący otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz zabezpieczonym linkiem do pobrania treści.</p>
+            <p>2.4. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru i zapisanie go na własnym nośniku.</p>
 
-        <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
-        <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez zgody Administratora stanowi naruszenie prawa.</p>
-        <p>4.2. <strong>OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania operacyjnego (Watermarking). W metadanych oraz na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres E-mail oraz ID transakcji). W przypadku wykrycia nielagalnego rozpowszechniania, Administrator użyje tych danych do identyfikacji sprawcy.</p>
+            <h2>3. WYMOGI TECHNICZNE</h2>
+            <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
+            <ul>
+                <li>Stabilne połączenie z internetem.</li>
+                <li>Aktywny, poprawnie skonfigurowany adres poczty elektronicznej (e-mail).</li>
+                <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
+            </ul>
 
-        <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
-        <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość nie przysługuje konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy o prawach konsumenta).</p>
-        <p>5.2. Akceptując niniejszy regulamin i rozpoczynając pobieranie pliku (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża zgodę na natychmiastowe dostarczenie treści i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu (odstąpienia od umowy).</strong></p>
+            <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
+            <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez wyraźnej, pisemnej zgody Administratora stanowi rażące naruszenie prawa i będzie ścigane.</p>
+            <p>4.2. <strong>OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania operacyjnego (Watermarking). W metadanych oraz w sposób widoczny na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres e-mail oraz unikalne ID transakcji). W przypadku wykrycia nielegalnego rozpowszechniania, Administrator użyje tych danych do natychmiastowej identyfikacji sprawcy i pociągnięcia go do odpowiedzialności cywilno-prawnej.</p>
 
-        <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
-        <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem 24 godzin, Obywatel ma obowiązek zgłosić usterkę na adres: biuro@omnis.pl.</p>
-        <p>6.2. Zgłoszenia rozpatrywane są w trybie pilnym, nie później jednak niż w ciągu 14 dni roboczych. Pozytywnie rozpatrzona reklamacja skutkuje ponownym ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego.</p>
+            <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
+            <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta).</p>
+            <p>5.2. Akceptując niniejszy regulamin i klikając przycisk zakupu (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża wyraźną zgodę na natychmiastowe dostarczenie treści cyfrowej i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu towaru (odstąpienia od umowy).</strong></p>
+
+            <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
+            <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem regulaminowych 24 godzin, Obywatel ma obowiązek niezwłocznie zgłosić usterkę na adres: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>.</p>
+            <p>6.2. Zgłoszenia reklamacyjne rozpatrywane są w trybie pilnym, nie później jednak niż w terminie 14 dni od ich wpłynięcia. Pozytywnie rozpatrzona reklamacja skutkuje ponownym, ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego (przesłaniem nowego linku do pobrania pełnowartościowego pliku).</p>
+        </div>
+
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
     </div>
 
-    <div style="text-align: start;">
-          <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
-      </div>
+    <script>
+        // LOGIKA TASKBARA
+        const startBtn = document.getElementById('taskbar-start-btn');
+        const startMenu = document.getElementById('start-menu');
 
+        startBtn.addEventListener('click', (e) => {
+            e.stopPropagation();
+            startMenu.classList.toggle('active');
+        });
+
+        document.addEventListener('click', () => startMenu.classList.remove('active'));
+
+        // ZEGAR
+        function updateClock() {
+            const now = new Date();
+            const hours = String(now.getHours()).padStart(2, '0');
+            const minutes = String(now.getMinutes()).padStart(2, '0');
+            const day = String(now.getDate()).padStart(2, '0');
+            const month = String(now.getMonth() + 1).padStart(2, '0');
+
+            document.getElementById('sys-time').innerText = `${hours}:${minutes}`;
+            document.getElementById('sys-date').innerText = `${day}.${month}`;
+        }
+        setInterval(updateClock, 1000);
+        updateClock();
+    </script>
 </body>
 </html>

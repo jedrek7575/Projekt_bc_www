@@ -1,0 +1,234 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>~projekt_bc:kontakt</title>
+    <meta name="description" content="Nawiąż bezpieczne połączenie z Centralą.">
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
+
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // TUTAJ WPISZ SWÓJ KLUCZ PUBLICZNY EMAIL.JS
+        (function() {
+            emailjs.init("TWÓJ_KLUCZ_PUBLICZNY_TUTAJ");
+        })();
+    </script>
+
+    <style>
+        :root {
+            --terminal-green: #33ff00;
+            --terminal-dim: #1a8000;
+            --bg-color: #050505;
+            --error-red: #ff3333;
+            --taskbar-width: 65px; 
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color); color: var(--terminal-green);
+            font-family: 'VT323', monospace; min-height: 100vh;
+            display: flex; flex-direction: column; align-items: center;
+            overflow-x: hidden; text-align: center; position: relative;
+            margin-left: var(--taskbar-width);
+        }
+
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            z-index: 2; background-size: 100% 2px, 3px 100%; pointer-events: none;
+        }
+
+        /* --- TASKBAR --- */
+        #linux-taskbar { position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh; background: rgba(20, 22, 20, 0.7); backdrop-filter: blur(8px); border-right: 1px solid var(--terminal-dim); z-index: 1000; display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0; box-shadow: 2px 0 15px rgba(0,0,0,0.8); }
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .taskbar-logo-btn { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; }
+        .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); box-shadow: 0 0 10px var(--terminal-dim); }
+        .social-placeholder { width: 35px; height: 35px; border-radius: 8px; background: rgba(0, 20, 0, 0.3); display: flex; justify-content: center; align-items: center; transition: 0.3s; text-decoration: none; border: 1px solid transparent;}
+        .social-placeholder:hover { border-color: var(--terminal-green); background: var(--terminal-green); }
+        .social-placeholder img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.7; }
+        .tray-placeholder { width: 20px; height: 20px; border: 1px solid var(--terminal-dim); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; }
+        #sys-clock { color: var(--terminal-green); font-size: 0.9rem; text-align: center; line-height: 1.1; padding-bottom: 10px; border-bottom: 1px solid rgba(26, 128, 0, 0.4); width: 80%; }
+        .show-desktop-btn { width: 40px; height: 15px; border: 1px solid var(--terminal-dim); background: rgba(0, 0, 0, 0.5); border-radius: 4px; cursor: pointer; transition: 0.3s; text-decoration: none; }
+        .show-desktop-btn:hover { background: var(--terminal-green); box-shadow: 0 0 10px var(--terminal-green); }
+
+        /* --- START MENU --- */
+        #start-menu { position: fixed; top: 15px; left: calc(var(--taskbar-width) + 10px); width: 300px; background: rgba(5, 5, 5, 0.95); border: 1px solid var(--terminal-green); box-shadow: 5px 5px 20px rgba(0,0,0,0.9), 0 0 15px rgba(26, 128, 0, 0.2); padding: 20px; display: flex; flex-direction: column; gap: 15px; transform: translateX(-150%); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999; backdrop-filter: blur(5px); }
+        #start-menu.active { transform: translateX(0); opacity: 1; }
+        .start-menu-title { color: var(--terminal-dim); font-size: 1.2rem; border-bottom: 1px dashed var(--terminal-dim); padding-bottom: 5px; text-align: left; text-transform: uppercase; }
+        .start-menu-item { display: block; padding: 10px; border: 1px solid rgba(26, 128, 0, 0.3); background: rgba(20, 0, 0, 0.2); color: var(--terminal-green); text-decoration: none; text-align: left; font-size: 1.1rem; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
+        .start-menu-item:hover { background: var(--terminal-green); color: var(--bg-color); padding-left: 20px; }
+        .start-menu-item::before { content: "> "; opacity: 0.5; }
+
+        /* --- CONTENT SPECIFIC: KONTAKT --- */
+        #main-content {
+            flex-grow: 1; width: 100%; max-width: 700px; z-index: 1;
+            padding: 40px 20px; display: flex; flex-direction: column;
+            text-align: left; justify-content: center;
+        }
+
+        .page-title {
+            font-size: 2.5rem; text-transform: uppercase; border-bottom: 2px solid var(--terminal-dim);
+            padding-bottom: 10px; margin-bottom: 30px; text-shadow: 0 0 10px var(--terminal-dim);
+        }
+
+        .contact-form {
+            border: 1px dashed var(--terminal-dim); padding: 30px;
+            background: rgba(0, 15, 0, 0.6); box-shadow: inset 0 0 20px rgba(0,0,0,0.8);
+        }
+
+        .input-group { margin-bottom: 1.5rem; }
+        label { display: block; margin-bottom: 0.5rem; font-size: 1.2rem; text-transform: uppercase; color: var(--terminal-dim); }
+        
+        input[type="text"], input[type="email"], textarea {
+            width: 100%; background: transparent; border: 1px solid var(--terminal-dim);
+            color: var(--terminal-green); font-family: 'VT323', monospace; font-size: 1.3rem;
+            padding: 10px; outline: none; transition: 0.3s;
+        }
+        input:focus, textarea:focus { border-color: var(--terminal-green); box-shadow: 0 0 10px rgba(51, 255, 0, 0.2); }
+        
+        textarea { resize: vertical; min-height: 150px; }
+
+        .submit-btn {
+            background: transparent; color: var(--terminal-green); font-family: 'VT323', monospace;
+            font-size: 1.5rem; border: 1px solid var(--terminal-green); padding: 12px 30px;
+            cursor: pointer; text-transform: uppercase; transition: all 0.2s; width: 100%; margin-top: 10px;
+        }
+        .submit-btn:hover:not(:disabled) { background: var(--terminal-green); color: var(--bg-color); box-shadow: 0 0 15px var(--terminal-green); }
+        .submit-btn:disabled { border-color: var(--terminal-dim); color: var(--terminal-dim); cursor: not-allowed; opacity: 0.5; }
+
+        #form-status { margin-top: 20px; text-align: center; font-size: 1.2rem; min-height: 1.5em; }
+
+        /* --- FOOTER --- */
+        #footer-links { width: 100%; background: #020802; border-top: 2px solid var(--terminal-dim); padding: 3rem 2rem; z-index: 3; box-shadow: 0 -5px 15px rgba(26, 128, 0, 0.05); }
+        .footer-content { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
+        .footer-logo-copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 250px; }
+        .footer-logo { width: 70px; height: 70px; filter: grayscale(100%) contrast(1.5); transition: filter 0.3s; margin-bottom: 10px; }
+        .copyright { color: var(--terminal-dim); font-size: 1rem; line-height: 1.3; display: flex; text-align: start; }
+        .footer-newsletter-group { display: flex; flex-direction: column; align-items: center; text-align: center; flex: 1.5; min-width: 300px; border: 1px dashed var(--terminal-dim); padding: 25px; background: rgba(0, 20, 0, 0.4); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .footer-nav-title { color: rgba(26, 128, 0, 0.6); font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(26, 128, 0, 0.2); padding-bottom: 3px; margin-bottom: 5px; }
+        .footer-nav-title.center { font-size: 1.5rem; color: var(--terminal-green); margin-bottom: 10px; border-bottom: none; text-shadow: 0 0 5px var(--terminal-dim); }
+        .newsletter-desc { color: #ccc; font-size: 1.1rem; line-height: 1.4; margin-bottom: 20px; max-width: 280px; }
+        .action-btn { background: var(--terminal-green); color: var(--bg-color); padding: 12px 30px; font-size: 1.3rem; text-decoration: none; border: 1px solid var(--terminal-green); text-transform: uppercase; font-weight: bold; transition: 0.2s; }
+        .action-btn:hover { background: transparent; color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green); }
+        .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
+        .footer-btn { color: var(--terminal-dim); text-decoration: none; font-size: 0.9rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
+        .footer-btn:hover { color: var(--terminal-green); }
+
+        @media (max-width: 850px) {
+            body { margin-left: 50px; }
+            #linux-taskbar { width: 50px; }
+            .taskbar-logo-btn { width: 35px; height: 35px; }
+            .social-placeholder { width: 30px; height: 30px; }
+            #start-menu { top: 0; left: 50px; width: calc(100vw - 50px); height: 100vh; padding: 40px; }
+            .footer-content { flex-direction: column; align-items: center; }
+            .footer-logo-copy, .footer-nav-group { align-items: center; text-align: center; }
+            .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; }
+        }
+    </style>
+</head>
+<body id="top">
+
+    <nav id="linux-taskbar">
+        <div class="taskbar-top">
+            <img src="Images/Icons/logo_taskbar.webp" alt="Start" class="taskbar-logo-btn" id="taskbar-start-btn">
+            <a href="#" class="social-placeholder" title="Facebook"><img src="Images/Icons/fb.webp" alt="FB"></a>
+            <a href="#" class="social-placeholder" title="Instagram"><img src="Images/Icons/ig.webp" alt="IG"></a>
+            <a href="#" class="social-placeholder" title="TikTok"><img src="Images/Icons/tt.webp" alt="TT"></a>
+            <a href="#" class="social-placeholder" title="YouTube"><img src="Images/Icons/yt.webp" alt="YT"></a>
+        </div>
+        <div class="taskbar-bottom">
+            <div class="tray-icons"><div class="tray-placeholder">W</div><div class="tray-placeholder">B</div><div class="tray-placeholder">V</div></div>
+            <div id="sys-clock"><span id="sys-time">00:00</span><br><span id="sys-date">00.00</span></div>
+            <a href="#top" class="show-desktop-btn" title="Pokaż pulpit"></a>
+        </div>
+    </nav>
+
+    <div id="start-menu">
+        <div class="start-menu-title">Menedżer Zadań [v1.0]</div>
+        <a href="index.html" class="start-menu-item">Strona Główna</a>
+        <a href="o_nas.html" class="start-menu-item">Akta Personalne (O Nas)</a>
+        <a href="kontakt.html" class="start-menu-item">Raport Operacyjny (Kontakt)</a>
+        <a href="newsletter.html" class="start-menu-item">Newsletter</a>
+    </div>
+
+    <main id="main-content">
+        <h1 class="page-title">/SYSTEM/COMMS/NADAJ_RAPORT.EXE</h1>
+
+        <form class="contact-form" id="contact-form">
+            <div class="input-group">
+                <label for="user_name">KRYPTONIM / IMIĘ:</label>
+                <input type="text" id="user_name" name="user_name" required autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label for="user_email">KANAŁ ZWROTNY (E-MAIL):</label>
+                <input type="email" id="user_email" name="user_email" required autocomplete="off">
+            </div>
+
+            <div class="input-group">
+                <label for="message">TREŚĆ MELDUNKU:</label>
+                <textarea id="message" name="message" required></textarea>
+            </div>
+
+            <button type="submit" class="submit-btn" id="submit-btn">[ TRANSMITUJ PAKIET ]</button>
+            
+            <div id="form-status"></div>
+        </form>
+    </main>
+
+
+
+    <script>
+        // Logika Taskbara i Zegara
+        const startBtn = document.getElementById('taskbar-start-btn');
+        const startMenu = document.getElementById('start-menu');
+        startBtn.addEventListener('click', (e) => { e.stopPropagation(); startMenu.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!startMenu.contains(e.target) && e.target !== startBtn) startMenu.classList.remove('active'); });
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('sys-date').innerText = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        // LOGIKA WYSYŁANIA EMAIL.JS
+        window.onload = function() {
+            document.getElementById('contact-form').addEventListener('submit', function(event) {
+                event.preventDefault();
+                
+                const btn = document.getElementById('submit-btn');
+                const status = document.getElementById('form-status');
+                
+                btn.disabled = true;
+                btn.innerText = 'SZYFROWANIE...';
+                status.innerText = '';
+                
+                // UWAGA: Zmień 'SERVICE_ID' oraz 'TEMPLATE_ID' na swoje dane z panelu EmailJS
+                emailjs.sendForm('TWOJE_SERVICE_ID', 'TWOJE_TEMPLATE_ID', this)
+                    .then(function() {
+                        btn.innerText = '[ TRANSMISJA ZAKOŃCZONA ]';
+                        status.style.color = "var(--terminal-green)";
+                        status.innerText = "> MELDUNEK ZAAKCEPTOWANY PRZEZ CENTRALĘ.";
+                        document.getElementById('contact-form').reset();
+                    }, function(error) {
+                        btn.innerText = '[ PONÓW TRANSMISJĘ ]';
+                        btn.disabled = false;
+                        status.style.color = "var(--error-red)";
+                        status.innerText = "> BŁĄD PROTOKOŁU: PAKIET ODRZUCONY.";
+                        console.log('FAILED...', error);
+                    });
+            });
+        }
+    </script>
+</body>
+</html>
