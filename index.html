@@ -495,6 +495,64 @@
             .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; }
         }
 
+        @media (max-width: 850px) {
+    /* Pozwalamy Lightboxowi na przewijanie góra-dół */
+    #lightbox {
+        align-items: flex-start; /* Startuje od góry, nie od środka */
+        overflow-y: auto;        /* Włącza przewijanie pionowe */
+        padding: 20px 0;
+    }
+
+    /* Kontener treści rozciągamy na całą szerokość */
+    .lightbox-content {
+        width: 100%;
+        max-width: 100%;
+        min-height: 100vh;      /* Wypełnia cały ekran */
+        border: none;           /* Opcjonalnie usuwamy ramki dla "full screen" */
+        padding: 60px 15px 40px; /* Miejsce na przycisk [X] */
+    }
+
+    /* Powiększamy główny obrazek */
+    .main-img {
+        width: 100% !important;
+        height: auto !important;
+        max-height: 50vh;       /* Żeby nie zajął całego ekranu samym zdjęciem */
+        object-fit: contain;
+    }
+
+    /* Zmniejszamy boczne obrazki, żeby nie przeszkadzały */
+    .side-img {
+        width: 60px;
+        height: 60px;
+    }
+
+    .carousel {
+        flex-wrap: wrap;        /* Pozwala obrazkom wskoczyć pod spód jeśli braknie miejsca */
+        gap: 10px;
+    }
+
+    /* Powiększamy tekst opisu dla czytelności */
+    .lb-desc {
+        font-size: 1.1rem;
+        text-align: left;
+    }
+
+    /* Przycisk zamknięcia - robimy go większym, by łatwiej było trafić palcem */
+    .close-btn {
+        position: fixed;
+        top: 10px;
+        right: 20px;
+        z-index: 10001;
+        background: rgba(0,0,0,0.8);
+        padding: 5px 10px;
+        border-radius: 5px;
+    }
+
+    .btn-link {
+        margin-bottom: 15%;
+    }
+}
+
     </style>
 </head>
 <body id="top">
@@ -554,13 +612,13 @@
         </div>
 
         <div id="boxes-container">
-            <div class="hacker-box" id="box-left" data-title="Biało - Czerwoni" data-desc="Powieść jest co najmniej średnia, ale i tak warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało - Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="https://via.placeholder.com/450x300/000/33ff00?text=IMG_2" data-img3="https://via.placeholder.com/450x300/333/1a8000?text=IMG_3" data-link="https://buy.stripe.com/test_aFa5kF9Td7n24yz0zscMM02">
+            <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni - ebook" data-desc="Powieść jest co najmniej średnia, więc warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało-Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_aFa5kF9Td7n24yz0zscMM02">
                 <img src="Images/Oferta/okladka.webp" alt="Akta">
                 <div class="box-title">29.99 zł</div>
                 <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
             </div>
 
-            <div class="hacker-box" id="box-center" data-title="Architektura Systemu" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="https://via.placeholder.com/450x300/000/1a8000?text=MAPA_2" data-img3="https://via.placeholder.com/450x300/111/33ff00?text=MAPA_3" data-link="https://buy.stripe.com/test_7sY8wR7L54aQ8OPbe6cMM04">
+            <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni - ilustrowany ebook" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_7sY8wR7L54aQ8OPbe6cMM04">
                 <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
                 <div class="box-title">49.99 zł</div>
                 <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami. Idealny wybór dla tych, którzy do kawy jedzą ciastko.</div>

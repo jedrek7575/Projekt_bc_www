@@ -201,34 +201,52 @@
         }
         setInterval(updateClock, 1000); updateClock();
 
-        // LOGIKA WYSYŁANIA EMAIL.JS
-        window.onload = function() {
-            document.getElementById('contact-form').addEventListener('submit', function(event) {
-                event.preventDefault();
-                
-                const btn = document.getElementById('submit-btn');
-                const status = document.getElementById('form-status');
-                
-                btn.disabled = true;
-                btn.innerText = 'SZYFROWANIE...';
-                status.innerText = '';
-                
-                // UWAGA: Zmień 'SERVICE_ID' oraz 'TEMPLATE_ID' na swoje dane z panelu EmailJS
-                emailjs.sendForm('TWOJE_SERVICE_ID', 'TWOJE_TEMPLATE_ID', this)
-                    .then(function() {
-                        btn.innerText = '[ TRANSMISJA ZAKOŃCZONA ]';
-                        status.style.color = "var(--terminal-green)";
-                        status.innerText = "> MELDUNEK ZAAKCEPTOWANY PRZEZ CENTRALĘ.";
-                        document.getElementById('contact-form').reset();
-                    }, function(error) {
-                        btn.innerText = '[ PONÓW TRANSMISJĘ ]';
-                        btn.disabled = false;
-                        status.style.color = "var(--error-red)";
-                        status.innerText = "> BŁĄD PROTOKOŁU: PAKIET ODRZUCONY.";
-                        console.log('FAILED...', error);
-                    });
+// LOGIKA WYSYŁANIA PRZEZ RESEND (VIA SUPABASE EDGE FUNCTION)
+window.onload = function() {
+    const contactForm = document.getElementById('contact-form');
+    
+    contactForm.addEventListener('submit', async function(event) {
+        event.preventDefault();
+        
+        const btn = document.getElementById('submit-btn');
+        const status = document.getElementById('form-status');
+        
+        // Pobranie danych z formularza
+        const formData = new FormData(this);
+        const payload = {
+            user_name: formData.get('user_name'),
+            user_email: formData.get('user_email'),
+            message: formData.get('message')
+        };
+
+        btn.disabled = true;
+        btn.innerText = 'SZYFROWANIE PAKIETU...';
+        status.innerText = '';
+        
+        try {
+            const response = await fetch('https://zwmqfoyqcvesyckityng.supabase.co/functions/v1/super-action', {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(payload)
             });
+
+            if (response.ok) {
+                btn.innerText = '[ TRANSMISJA ZAKOŃCZONA ]';
+                status.style.color = "var(--terminal-green)";
+                status.innerText = "> MELDUNEK DOSTARCZONY DO CENTRALI.";
+                contactForm.reset();
+            } else {
+                throw new Error('Server error');
+            }
+        } catch (error) {
+            btn.innerText = '[ PONÓW TRANSMISJĘ ]';
+            btn.disabled = false;
+            status.style.color = "var(--error-red)";
+            status.innerText = "> BŁĄD PROTOKOŁU: POŁĄCZENIE PRZERWANE.";
+            console.error('Błąd:', error);
         }
+    });
+}
     </script>
 </body>
 </html>
