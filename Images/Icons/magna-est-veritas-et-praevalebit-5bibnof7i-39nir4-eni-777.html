@@ -1,0 +1,591 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>!!! FATAL_ERROR: ROOT_ACCESS !!!</title>
+    <meta name="robots" content="noindex, nofollow"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        #lock-screen {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000;
+            z-index: 10001; /* Wyżej niż binary-overlay */
+            display: flex; justify-content: center; align-items: center;
+            cursor: pointer;
+        }
+
+        #lock-wrapper { text-align: center; }
+
+        #lock-icon {
+            width: 150px;
+            /* Zmienia zielony na czerwony: */
+            filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(90%) contrast(120%);
+            animation: lock-pulse 1.5s infinite alternate ease-in-out;
+            transition: all 0.2s;
+        }
+
+        #lock-text {
+            color: var(--blood-red);
+            font-size: 1.5rem;
+            margin-top: 20px;
+            letter-spacing: 5px;
+            text-shadow: 0 0 10px var(--dark-red);
+        }
+
+        #lock-hint {
+            color: #444;
+            font-size: 0.9rem;
+            margin-top: 10px;
+            text-transform: uppercase;
+        }
+
+        @keyframes lock-pulse {
+            0% { transform: scale(1); filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(80%) drop-shadow(0 0 5px red); }
+            100% { transform: scale(1.1); filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(120%) drop-shadow(0 0 25px red); }
+        }
+
+        /* Animacja pękania kłódki */
+        .lock-shatter {
+            animation: fatal-crash 0.4s forwards !important;
+        }
+        :root {
+            --blood-red: #ff0033;
+            --dark-red: #800000;
+            --bg-color: #020000;
+            --taskbar-width: 65px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--blood-red);
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            text-align: center;
+            position: relative;
+            margin-left: var(--taskbar-width);
+            /* USUNIĘTO: animację migotania z body, aby nie obciążać procesora */
+        }
+
+        /* Scanlines - CRT Effect - Zoptymalizowane */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(20, 0, 0, 0.4) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.08), rgba(50, 0, 0, 0.02), rgba(0, 0, 0, 0.06));
+            z-index: 2;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            /* DODANO: Lekkie migotanie na wierzchniej warstwie z akceleracją sprzętową */
+            animation: subtle-flicker 0.15s infinite;
+            will-change: opacity; 
+        }
+
+
+/* Matrix Binary Overlay - Zoptymalizowane i Ruchome */
+
+        #binary-overlay {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.95);
+            z-index: 9999;
+            overflow: hidden;
+            pointer-events: none;
+            opacity: 1;
+            /* Usunęliśmy łagodne transition, bo teraz będzie ostry CRASH */
+        }
+
+        /* --- NOWE: Klasa i animacja zacięcia (Crash) --- */
+        .crash-sequence {
+            animation: fatal-crash 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+
+        @keyframes fatal-crash {
+            0% { filter: brightness(1) invert(0); transform: scale(1); }
+            20% { filter: brightness(3) invert(1) contrast(5); transform: skewX(15deg) scale(1.05); }
+            40% { filter: hue-rotate(180deg) blur(2px); transform: translate(-10px, 10px) skewX(-15deg); background: var(--blood-red); }
+            80% { filter: brightness(5) blur(5px); transform: scale(1.2); opacity: 1; }
+            100% { filter: brightness(1) blur(0); transform: scale(1); opacity: 0; }
+        }
+
+        #binary-stream {
+            width: 100%;
+            height: 400vh; /* Bardzo długi, żeby miał z czego "spadać" */
+            color: var(--dark-red);
+            font-size: 1.5rem;
+            line-height: 1;
+            word-wrap: break-word;
+            text-shadow: 0 0 8px var(--blood-red);
+            /* Sprzętowa akceleracja pędzącego kodu */
+            animation: data-rush 1.5s linear infinite;
+        }
+
+        @keyframes data-rush {
+            0% { transform: translateY(-75%); }
+            100% { transform: translateY(0%); }
+        }
+
+        #overlay-logo {
+            position: absolute;
+            top: 50%;
+            left: 50%;
+            transform: translate(-50%, -50%);
+            width: 300px; /* Zmień, jeśli ma być większe/mniejsze */
+            height: auto;
+            z-index: 10000; /* Musi być na samej górze */
+            /* Zmienia zwykłe logo na czerwone i świecące */
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(1000%) contrast(2) drop-shadow(0 0 20px var(--blood-red));
+            animation: evil-pulse 0.5s infinite alternate;
+        }
+
+        @keyframes evil-pulse {
+            0% { transform: translate(-50%, -50%) scale(0.95); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(1000%) contrast(3) drop-shadow(0 0 40px red); }
+        }
+
+        /* --- WAŻNE: Aktualizacja crashu, żeby logo uległo zniszczeniu razem z tłem --- */
+        .crash-sequence {
+            animation: fatal-crash 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
+        }
+        .crash-sequence #overlay-logo {
+            /* Kiedy tło crashuje, logo rośnie i rozpada się */
+            animation: logo-shatter 0.3s forwards !important;
+        }
+
+        @keyframes logo-shatter {
+            0% { transform: translate(-50%, -50%) scale(1); filter: invert(0); }
+            50% { transform: translate(-60%, -40%) skewX(30deg) scale(1.5); filter: invert(1) brightness(5); opacity: 0.8; }
+            100% { transform: translate(-50%, -50%) scale(3); filter: blur(10px) brightness(10); opacity: 0; }
+        }
+
+        .glow { text-shadow: 0 0 5px var(--dark-red), 0 0 15px var(--blood-red); }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+        /* --- SKORUMPOWANY TASKBAR --- */
+        #linux-taskbar {
+            position: fixed;
+            top: 0; left: 0;
+            width: var(--taskbar-width);
+            height: 100vh;
+            background: rgba(10, 0, 0, 0.85);
+            border-right: 1px solid var(--dark-red);
+            z-index: 1000;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
+            box-shadow: 2px 0 20px rgba(255,0,51,0.2);
+        }
+
+        .taskbar-logo-btn {
+            width: 45px; height: 45px; cursor: pointer; border-radius: 8px;
+            background: var(--blood-red); color: black; font-size: 2rem;
+            display: flex; justify-content: center; align-items: center; font-weight: bold;
+            box-shadow: 0 0 10px var(--blood-red);
+            animation: glitch-skew 2s infinite linear alternate-reverse;
+        }
+
+        .social-placeholder {
+            width: 35px; height: 35px; border-radius: 0;
+            border: 1px dashed var(--dark-red); background: rgba(20, 0, 0, 0.5);
+            display: flex; justify-content: center; align-items: center;
+            color: var(--dark-red); font-size: 0.9rem; text-decoration: none; opacity: 0.5;
+        }
+
+        .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.8; color: var(--blood-red); }
+        .tray-placeholder { font-size: 1.2rem; font-weight: bold; }
+
+        #sys-clock {
+            color: var(--blood-red); font-size: 0.9rem; text-align: center;
+            padding-bottom: 10px; border-bottom: 1px dashed var(--dark-red); width: 80%;
+            text-shadow: 0 0 5px red;
+        }
+
+        /* --- RESZTA STYLI --- */
+        #terminal-container {
+            max-width: 1000px; width: 100%; z-index: 1; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px;
+        }
+
+        .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 15rem; }
+
+        #terminal-container img.logo {
+            opacity: 0; filter: invert(1) hue-rotate(180deg) contrast(2);
+            height: 55rem; width: 55rem; object-fit: contain;
+        }
+
+/* Zaktualizowany styl loga - teraz z wieloma efektami naraz */
+        #terminal-container img.logo.stable {
+            opacity: 0.7; 
+            height: 15rem; 
+            width: 15rem;
+            /* Bazowy czerwony filtr */
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5);
+            /* Uruchamiamy nowy, agresywny glitch */
+            animation: permanent-glitch 3s;
+            will-change: transform, filter, clip-path;
+        }
+
+        /* Agresywny glitch - cięcia, przesunięcia i zmiany koloru */
+        @keyframes permanent-glitch {
+            0% { transform: translate(0) skew(0deg); clip-path: inset(0 0 0 0); filter: hue-rotate(320deg) saturate(500%); }
+            2% { transform: translate(-5px, 2px) skew(55deg); clip-path: inset(10% 0 80% 0); filter: hue-rotate(45deg) saturate(800%) brightness(2); }
+            4% { transform: translate(5px, -2px) skew(-5deg); clip-path: inset(80% 0 5% 0); filter: hue-rotate(90deg) brightness(1.5); }
+            6% { transform: translate(-5px, 2px) skew(55deg); clip-path: inset(10% 0 80% 0); filter: hue-rotate(45deg) saturate(800%) brightness(2); }
+            50% { transform: scale(1); }
+            51% { transform: scale(1.1) skewX(20deg); clip-path: inset(50% 0 45% 0); filter: invert(1); }
+            52% { transform: scale(1) skewX(0deg); clip-path: inset(0 0 0 0); filter: invert(0); }
+            90% { transform: translate(0); }
+            91% { transform: translate(-10px) scaleY(1.2); clip-path: inset(30% 0 60% 0); filter: hue-rotate(180deg); }
+            92% { transform: translate(10px) scaleY(0.8); clip-path: inset(60% 0 20% 0); }
+            93% { transform: translate(0) scaleY(1); clip-path: inset(0 0 0 0); }
+        }
+
+        #typing-text {
+            font-size: 1.5rem; line-height: 1.4; text-align: left; width: 100%; max-width: 500px; height: 15rem; display: flex; flex-direction: column; justify-content: center; text-shadow: 0 0 5px var(--blood-red);
+        }
+
+        .cursor { display: inline-block; width: 12px; height: 1.2rem; background-color: var(--blood-red); animation: blink 0.5s step-end infinite; vertical-align: bottom; }
+
+        #boxes-container { display: flex; gap: 2rem; justify-content: center; width: 100%; position: relative; margin-top: 2rem; margin-bottom: 2rem; }
+
+        .hacker-box {
+            width: 250px; height: 280px; border: 1px dashed var(--blood-red);
+            background: rgba(20, 0, 0, 0.6); padding: 10px; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" style="fill:red"><circle cx="10" cy="10" r="5"/></svg>') 10 10, crosshair;
+            transition: all 0.1s ease-in-out; display: flex; flex-direction: column; align-items: center; opacity: 0;
+            box-shadow: inset 0 0 10px rgba(255,0,0,0.2);
+        }
+
+        .hacker-box:hover {
+            transform: scale(1.02) skewX(-2deg); border: 1px solid white;
+            box-shadow: 0 0 20px var(--blood-red), inset 0 0 20px rgba(255, 0, 0, 0.5);
+            background: rgba(40, 0, 0, 0.9);
+        }
+
+        .hacker-box img {
+            width: 100%; height: 140px; object-fit: cover; border: 1px solid var(--dark-red); margin-bottom: 15px;
+            filter: grayscale(100%) contrast(2) brightness(0.5); transition: filter 0.1s;
+        }
+
+        .hacker-box:hover img { filter: sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5); }
+        .hacker-box .box-title { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 5px; color: white; text-shadow: 0 0 10px red; }
+        .hacker-box .box-desc { font-size: 1rem; color: #888; text-align: center; }
+
+        #box-center { transform: scale(1.05); border-color: var(--dark-red); }
+
+        /* Footer */
+        #footer-links { width: 100%; background: #010000; border-top: 2px dashed var(--dark-red); padding: 3rem 2rem; opacity: 0; z-index: 3; }
+        .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
+        .copyright { color: var(--dark-red); font-size: 1rem; text-align: start; text-transform: uppercase; letter-spacing: 2px; }
+        
+        /* --- ANIMACJE CRASH/GLITCH --- */
+        .extreme-boot { animation: brutal-glitch 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
+        .glitch-box-anim { animation: box-appear 0.5s forwards; }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes subtle-flicker { 0% { opacity: 0.90; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
+        
+        @keyframes brutal-glitch {
+            0% { opacity: 0; transform: scale(1.5) skewX(40deg); filter: invert(1) blur(5px); clip-path: inset(50% 0 50% 0); }
+            10% { opacity: 1; transform: translate(-20px, 10px) skewX(-30deg); clip-path: inset(10% 0 80% 0); filter: drop-shadow(0 0 20px red); }
+            20% { opacity: 0.8; transform: translate(20px, -10px); clip-path: inset(0 0 0 0); filter: hue-rotate(180deg); }
+            30% { transform: skewX(10deg); clip-path: inset(80% 0 5% 0); }
+            40% { opacity: 1; filter: invert(1) contrast(3); transform: scale(1.1); }
+            60% { clip-path: inset(20% 0 20% 0); transform: translate(-5px, 5px); }
+            80% { opacity: 0.5; clip-path: inset(0 0 50% 0); filter: drop-shadow(0 0 50px white); }
+            100% { opacity: 1; transform: scale(1) skewX(0); clip-path: inset(0 0 0 0); filter: none; }
+        }
+
+        @keyframes glitch-skew { 0%, 60% { transform: skew(0deg); } 20% { transform: skew(-5deg); } 40% { transform: skew(5deg); } 80% { transform: skew(2deg); } 100% { transform: skew(-2deg); } }
+        @keyframes float-glitch { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px) skewX(1deg); } 50% { transform: translate(0, -2px); filter: brightness(1.5); } 75% { transform: translate(2px, 0) skewX(-1deg); } }
+        @keyframes box-appear { 0% { opacity: 0; transform: translateY(20px) scale(0.9); filter: blur(5px); } 50% { opacity: 1; filter: invert(1); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: none; } }
+    </style>
+</head>
+<body id="top">
+
+    <div id="lock-screen">
+        <div id="lock-wrapper">
+            <img src="../lock.webp" id="lock-icon" alt="ZABLOKOWANE">
+            <div id="lock-text">FATAL_BAD_UUID</div>
+            <div id="lock-hint">[ KLIKNIJ ABY PRZEPROWADZIĆ ATAK BRUTE FORCE ]</div>
+        </div>
+    </div>
+
+<div id="binary-overlay">
+        <div id="binary-stream"></div>
+        <img src="../../icon512.png" id="overlay-logo" alt="B-C" onerror="this.onerror=null; this.src='https://via.placeholder.com/512/000/ff0033?text=B-C'">
+    </div>
+
+    <nav id="linux-taskbar">
+        <div class="taskbar-top">
+            <div class="taskbar-logo-btn" title="SYSTEM FAILURE">!</div>
+            <a href="#" class="social-placeholder" title="NULL">0x</a>
+            <a href="#" class="social-placeholder" title="NULL">0x</a>
+            <a href="#" class="social-placeholder" title="NULL">0x</a>
+        </div>
+
+        <div class="taskbar-bottom">
+            <div class="tray-icons">
+                <div class="tray-placeholder" title="Sieć odcięta">Ø</div>
+                <div class="tray-placeholder" title="Wyciek pamięci">⚠</div>
+            </div>
+
+            <div id="sys-clock">
+                <span id="sys-time">??:??</span><br>
+                <span id="sys-date">ERR</span>
+            </div>
+        </div>
+    </nav>
+
+    <main id="terminal-container">
+        <div class="top-section">
+            <img src="../../icon512.png" class="logo" alt="Corrupted Logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/512/000/ff0033?text=B-C_CORRUPTED'">
+            <div id="typing-text">
+                <div><span id="text-content"></span><span class="cursor"></span></div>
+            </div>
+        </div>
+
+        <div id="boxes-container">
+            <div class="hacker-box" id="box-left">
+                <img src="https://via.placeholder.com/450x300/110000/ff0000?text=USUNIETE_AKTA" alt="Akta">
+                <div class="box-title">[USUNIĘTO]</div>
+                <div class="box-desc">Próba odzysku danych... 404. Prawda nie istnieje.</div>
+            </div>
+
+            <div class="hacker-box" id="box-center">
+                <img src="https://via.placeholder.com/450x300/220000/ffffff?text=WSPOMNIENIA_ZABLOKOWANE" alt="System">
+                <div class="box-title">ANOMALIA PAMIĘCI</div>
+                <div class="box-desc">Ilustracje wymazane przez cenzurę. Twoje myśli są monitorowane.</div>
+            </div>
+
+            <div class="hacker-box" id="box-right">
+                <img src="../Oferta/okladka.webp" alt="Zrzut">
+                <div class="box-title">WIRUS_PRAWDY.exe</div>
+                <div class="box-desc">Pobranie grozi nieodwracalną zmianą świadomości.</div>
+            </div>
+        </div>
+    </main>
+
+    <footer id="footer-links">
+        <div class="footer-content">
+            <p class="copyright">
+                LEPSZE PIĘKNE KŁAMSTWO<br>
+                NIŻ SZPETNA PRAWDA<br>
+                
+                JEŻELI POBRAŁEŚ ZAŁĄCZNIK TO JUŻ JEST ZA PÓŹNO<br>
+                - PRAWDA NAS NIE WYZWOLI<br>
+                - ZOSTAŁEŚ OSTRZEŻONY
+                
+            </p>
+        </div>
+    </footer>
+
+    <script>
+
+
+
+        // --- DŹWIĘKI SYSTEMOWE ---
+// Przygotowujemy zmienne dla ścieżek audio
+const soundStream = new Audio('../beep-stream.mp3');
+soundStream.volume = 0.6; // Trochę ciszej
+
+const soundCrash = new Audio('../glitch-crash.wav');
+soundCrash.volume = 1.0; // Maksymalna głośność dla efektu zaskoczenia
+
+const soundHum = new Audio('../server-hum.mp3');
+soundHum.volume = 0.3; // Bardzo ciche, w tle
+soundHum.loop = true;  // Zapętlone w nieskończoność
+
+// Uruchomienie
+window.onload = () => {
+    const lockScreen = document.getElementById('lock-screen');
+    const lockIcon = document.getElementById('lock-icon');
+    const overlay = document.getElementById('binary-overlay');
+
+    // Zegar startuje od razu w tle
+    setInterval(() => {
+        document.getElementById('sys-time').innerText = Math.random() > 0.5 ? "99:99" : "00:00";
+    }, 1500);
+
+    // CZEKAMY NA KLIKNIĘCIE W KŁÓDKĘ
+    lockScreen.addEventListener('click', () => {
+        // 1. Kłódka crashuje
+        lockIcon.classList.add('lock-shatter');
+        
+        setTimeout(() => {
+            // 2. Usuwamy ekran blokady
+            lockScreen.style.display = 'none';
+            
+            // 3. Odpalamy pędzący kod ORAZ dźwięk cyfr
+            // .catch() łapie ewentualne blokady przeglądarki
+            soundStream.play().catch(e => console.log("Audio zablokowane"));
+            
+            startMainSequence();
+        }, 400); // Czas animacji pękania kłódki
+    });
+}
+
+function startMainSequence() {
+    const overlay = document.getElementById('binary-overlay');
+    
+    // Kod pędzi przez 1 sekundę
+    setTimeout(() => {
+        // 1. Wyłączamy dźwięk liczenia (jeśli plik był za długi)
+        soundStream.pause();
+        soundStream.currentTime = 0;
+
+        // 2. Odpalamy uderzenie błędu (GLITCH)
+        soundCrash.play().catch(e => console.log("Audio zablokowane"));
+
+        // 3. Zatrzymujemy wizualnie kod
+        stream.style.animationPlayState = 'paused';
+        overlay.classList.add('crash-sequence');
+
+        setTimeout(() => {
+            // Po glitchu, włączamy mroczne buczenie w tle
+            soundHum.play().catch(e => console.log("Audio zablokowane"));
+
+            overlay.style.display = 'none';
+            terminalImg.classList.add('extreme-boot');
+
+            terminalImg.addEventListener('animationend', () => {
+                terminalImg.classList.remove('extreme-boot');
+                terminalImg.classList.add('stable');
+                decryptText(finalMessage, textElement);
+            }, { once: true });
+        }, 300); // Tyle trwa class .crash-sequence
+    }, 1000); // Czas trwania lotu cyfr
+}
+
+// --- PĘDZĄCY KOD (MATRIX OVERLAY) ---
+        const stream = document.getElementById('binary-stream');
+        function fillOverlay() {
+            let bin = '';
+            // Generujemy wystarczająco dużo znaków na długi strumień
+            for(let i=0; i<12000; i++) {
+                bin += Math.random() > 0.5 ? '1 ' : '0 ';
+            }
+            stream.innerHTML = bin;
+        }
+        fillOverlay();
+
+        // Dekodowanie Tekstu - Lżejsza Wersja
+        const finalMessage = "FATAL_ERROR: powrot_do_systemu_glownego_niemozliwy...\n> Przepustka_architekta_systemu_przyznana\n> Omijanie_zabezpieczen...\n\nOperacja_niestety_zakonczona_sukcesem.\n Bedziesz_tego_zalowac..";
+        const textElement = document.getElementById('text-content');
+        const footerLinks = document.getElementById('footer-links');
+        const terminalImg = document.querySelector('.logo');
+        
+        const boxLeft = document.getElementById('box-left');
+        const boxCenter = document.getElementById('box-center');
+        const boxRight = document.getElementById('box-right');
+
+function decryptText(text, targetElement) {
+            let currentText = "";
+            let charIndex = 0;
+            
+            function decodeNextChar() {
+                // SPRAWDZANIE CZY TO KONIEC TEKSTU
+                if (charIndex >= text.length) {
+                    setTimeout(() => { 
+                        footerLinks.style.opacity = 1; // Pojawia się stopka
+                        triggerBoxes();                // <--- TO BYŁ BRAKUJĄCY ELEMENT!
+                    }, 500);
+                    return;
+                }
+
+                let char = text.charAt(charIndex);
+                if (char === '\n') {
+                    currentText += '<br>';
+                    targetElement.innerHTML = currentText;
+                    charIndex++;
+                    setTimeout(decodeNextChar, 50);
+                    return;
+                }
+
+                let iterations = 0;
+                let maxIterations = Math.floor(Math.random() * 3) + 2; 
+                
+                let scrambleInterval = setInterval(() => {
+                    let randomBin = Math.random() > 0.5 ? '1' : '0';
+                    targetElement.innerHTML = currentText + randomBin;
+                    iterations++;
+
+                    if (iterations >= maxIterations) {
+                        clearInterval(scrambleInterval);
+                        currentText += char;
+                        targetElement.innerHTML = currentText;
+                        charIndex++;
+                        setTimeout(decodeNextChar, 15); 
+                    }
+                }, 2); 
+            }
+            decodeNextChar();
+        }
+
+
+// Uruchomienie
+window.onload = () => {
+            const lockScreen = document.getElementById('lock-screen');
+            const lockIcon = document.getElementById('lock-icon');
+            const overlay = document.getElementById('binary-overlay');
+
+            // Zegar startuje od razu w tle
+            setInterval(() => {
+                document.getElementById('sys-time').innerText = Math.random() > 0.5 ? "99:99" : "00:00";
+            }, 1500);
+
+            // CZEKAMY NA KLIKNIĘCIE W KŁÓDKĘ
+            lockScreen.addEventListener('click', () => {
+                // 1. Kłódka crashuje
+                lockIcon.classList.add('lock-shatter');
+                
+                // 2. Opcjonalnie: dodaj dźwięk kliknięcia/wyłomu tutaj
+                
+                setTimeout(() => {
+                    // 3. Usuwamy ekran blokady
+                    lockScreen.style.display = 'none';
+                    
+                    // 4. Odpalamy pędzący kod (binary-overlay już tam jest)
+                    startMainSequence();
+                }, 400); // Czas animacji pękania
+            });
+        }
+
+        function startMainSequence() {
+            const overlay = document.getElementById('binary-overlay');
+            
+            // Kod pędzi przez 1 sekundę (ustawione w setTimeout poniżej)
+            setTimeout(() => {
+                stream.style.animationPlayState = 'paused';
+                overlay.classList.add('crash-sequence');
+
+                setTimeout(() => {
+                    overlay.style.display = 'none';
+                    terminalImg.classList.add('extreme-boot');
+
+                    terminalImg.addEventListener('animationend', () => {
+                        terminalImg.classList.remove('extreme-boot');
+                        terminalImg.classList.add('stable');
+                        decryptText(finalMessage, textElement);
+                    }, { once: true });
+                }, 300);
+            }, 1000); // Tutaj sterujesz jak długo pędzi kod po kliknięciu
+        }
+        function triggerBoxes() {
+            boxCenter.style.animationDelay = "0ms"; boxCenter.classList.add('glitch-box-anim');
+            boxRight.style.animationDelay = "200ms"; boxRight.classList.add('glitch-box-anim');
+            boxLeft.style.animationDelay = "400ms"; boxLeft.classList.add('glitch-box-anim');
+        }
+    </script>
+</body>
+</html>
