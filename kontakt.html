@@ -226,7 +226,11 @@ window.onload = function() {
         try {
             const response = await fetch('https://zwmqfoyqcvesyckityng.supabase.co/functions/v1/super-action', {
                 method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
+                headers: { 
+        'Content-Type': 'application/json',
+        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM', // Opcjonalnie, ale zalecane
+        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'              // Wymagane przez Supabase
+    },
                 body: JSON.stringify(payload)
             });
 
