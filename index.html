@@ -1,5 +1,7 @@
+
 <!DOCTYPE html>
-<html lang="pl">
+
+<html lang="pl" data-connection-node="http://127.0.0.1:5500/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -14,13 +16,25 @@
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
     <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
 
+    <script type="text/javascript" src="https://cdn.jsdelivr.net/npm/@emailjs/browser@3/dist/email.min.js"></script>
+    <script type="text/javascript">
+        // TUTAJ WPISZ SWÓJ KLUCZ PUBLICZNY EMAIL.JS
+        (function() {
+            emailjs.init("TWÓJ_KLUCZ_PUBLICZNY_TUTAJ");
+        })();
+    </script>
+
     <style>
+        /* ========================================================================== */
+        /* ======================== WSPÓLNE ZMIENNE I BAZA ========================== */
+        /* ========================================================================== */
         :root {
             --terminal-green: #33ff00;
             --terminal-dim: #1a8000;
             --bg-color: #050505;
             --glitch-color: #ff00ff;
-            --taskbar-width: 65px; /* Szerokość bocznego paska */
+            --error-red: #ff3333;
+            --taskbar-width: 65px; 
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
@@ -36,373 +50,130 @@
             overflow-x: hidden;
             text-align: center;
             position: relative;
-            margin-left: var(--taskbar-width); /* Robi miejsce na taskbar */
+            margin-left: var(--taskbar-width); 
         }
 
         /* Scanlines - CRT Effect */
+        body::before, body::after {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            pointer-events: none; z-index: 2;
+        }
         body::before {
-            content: " ";
-            display: block;
-            position: fixed;
-            top: 0; left: 0; bottom: 0; right: 0;
             background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
                         linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
-            z-index: 2;
             background-size: 100% 2px, 3px 100%;
-            pointer-events: none;
         }
 
         .glow { text-shadow: 0 0 5px var(--terminal-dim), 0 0 10px var(--terminal-dim); }
         .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+        
+        /* Kontener zarządzający widokami SPA */
+        #app-views { width: 100%; flex-grow: 1; display: flex; flex-direction: column; align-items: center; }
+        .view-section { display: none; width: 100%; flex-direction: column; align-items: center; flex-grow: 1; }
+        .view-section.active { display: flex; }
 
+        /* ========================================================================== */
+        /* ======================== EKRAN BLOKADY (LOCK SCREEN) ===================== */
+        /* ========================================================================== */
+        #lock-screen {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            background: #000; z-index: 10001; 
+            display: flex; justify-content: center; align-items: center; cursor: pointer;
+        }
+        #lock-wrapper { text-align: center; }
+        #lock-icon {
+            width: 150px;
+            filter: invert(13%) sepia(91%) saturate(7500%) hue-rotate(358deg) brightness(130%) contrast(140%) ;
+       
+            animation: lock-pulse-green 1.5s infinite alternate ease-in-out; transition: all 0.2s;
+        }
+        #lock-text { color: var(--terminal-green); font-size: 1.5rem; margin-top: 20px; letter-spacing: 5px; text-shadow: 0 0 10px var(--terminal-dim); }
+        #lock-hint { color: #444; font-size: 0.9rem; margin-top: 10px; text-transform: uppercase; }
 
-        /* ========================================= */
-        /* --- NOWY TASKBAR (LINUX STYLE) ---------- */
-        /* ========================================= */
+        @keyframes lock-pulse-green {
+            0% { transform: scale(1); filter: invert(74%) sepia(80%) saturate(2077%) hue-rotate(65deg) brightness(100%) drop-shadow(0 0 5px var(--terminal-dim)); }
+            100% { transform: scale(1.1); filter: invert(74%) sepia(80%) saturate(2077%) hue-rotate(65deg) brightness(120%) drop-shadow(0 0 25px var(--terminal-green)); }
+        }
+        @keyframes lock-shatter-anim {
+            0% { transform: scale(1); filter: invert(0); }
+            20% { transform: skewX(15deg) scale(1.1); filter: brightness(3) contrast(5); }
+            40% { transform: translate(-10px, 10px) skewX(-15deg); filter: blur(2px) hue-rotate(90deg); }
+            80% { transform: scale(1.5); filter: blur(5px) brightness(5); opacity: 1; }
+            100% { transform: scale(2); filter: blur(10px) brightness(10); opacity: 0; }
+        }
+        .lock-shatter { animation: lock-shatter-anim 0.4s forwards !important; }
 
+        /* ========================================================================== */
+        /* ======================== TASKBAR & MENU START ============================ */
+        /* ========================================================================== */
         #linux-taskbar {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: var(--taskbar-width);
-            height: 100vh;
-            background: rgba(20, 22, 20, 0.7); /* Delikatnie przezroczysty, szarawy */
-            backdrop-filter: blur(8px);
-            border-right: 1px solid var(--terminal-dim);
-            z-index: 1000;
-            display: flex;
-            flex-direction: column;
-            justify-content: space-between;
-            align-items: center;
-            padding: 15px 0;
+            position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh;
+            background: rgba(20, 22, 20, 0.7); backdrop-filter: blur(8px);
+            border-right: 1px solid var(--terminal-dim); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
             box-shadow: 2px 0 15px rgba(0,0,0,0.8);
         }
-
-        /* Sekcja Górna (Logo i Sociale) */
-        .taskbar-top {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .taskbar-logo-btn {
-            width: 45px;
-            height: 45px;
-            cursor: pointer;
-            transition: 0.3s;
-            border-radius: 8px; /* Lekkie zaokrąglenie w stylu Ubuntu */
-            border: 2px solid transparent;
-        }
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .taskbar-logo-btn { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; }
         .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); box-shadow: 0 0 10px var(--terminal-dim); }
-
         .social-placeholder {
-            width: 35px;
-            height: 35px;
-            border-radius: 8px;
-            
-            background: rgba(0, 20, 0, 0.3);
-            display: flex;
-            justify-content: center;
-            align-items: center;
-            color: var(--terminal-dim);
-            font-size: 0.8rem;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
+            width: 35px; height: 35px; border-radius: 8px; border: 1px solid rgba(26, 128, 0, 0.3);
+            background: rgba(0, 20, 0, 0.3); display: flex; justify-content: center; align-items: center; 
+            color: var(--terminal-dim); font-size: 0.8rem; cursor: pointer; transition: 0.3s; text-decoration: none; overflow: hidden;
         }
-        .social-placeholder:hover {
-            border-color: var(--terminal-green);
-            color: var(--bg-color);
-            background: var(--terminal-green);
-        }
-
-        .social-placeholder img {
-    width: 100%;          /* Zostawiamy 20% miejsca na margines wewnętrzny */
-    height: 100%;
-    object-fit: contain; /* Pilnuje proporcji zdjęcia, by nie było rozciągnięte */
-    border-radius: 8px;  /* Delikatne zaokrąglenie samej grafiki */
-}
-
-        /* Sekcja Dolna (Tray, Zegar, Pulpit) */
-        .taskbar-bottom {
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            gap: 15px;
-            width: 100%;
-        }
-
-        .tray-icons {
-            display: flex;
-            flex-direction: column;
-            gap: 8px;
-            opacity: 0.7;
-        }
-        .tray-placeholder {
-            width: 20px;
-            height: 20px;
-            border: 1px solid var(--terminal-dim);
-            border-radius: 50%;
-            display: flex; justify-content: center; align-items: center;
-            font-size: 0.6rem;
-        }
-
-        #sys-clock {
-            color: var(--terminal-green);
-            font-size: 0.9rem;
-            text-align: center;
-            line-height: 1.1;
-            padding-bottom: 10px;
-            border-bottom: 1px solid rgba(26, 128, 0, 0.4);
-            width: 80%;
-        }
-
-        .show-desktop-btn {
-            width: 40px;
-            height: 15px;
-            border: 1px solid var(--terminal-dim);
-            background: rgba(0, 0, 0, 0.5);
-            border-radius: 4px;
-            cursor: pointer;
-            transition: 0.3s;
-            text-decoration: none;
-        }
+        .social-placeholder:hover {  color: var(--bg-color); background: var(--terminal-green); }
+        .social-placeholder img { width: 100%; height: 100%; object-fit: contain; border-radius: 4px; }
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.7; }
+        .tray-placeholder { width: 20px; height: 20px; border: 1px solid var(--terminal-dim); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; }
+        #sys-clock { color: var(--terminal-green); font-size: 0.9rem; text-align: center; line-height: 1.1; padding-bottom: 10px; border-bottom: 1px solid rgba(26, 128, 0, 0.4); width: 80%; }
+        .show-desktop-btn { width: 40px; height: 15px; border: 1px solid var(--terminal-dim); background: rgba(0, 0, 0, 0.5); border-radius: 4px; cursor: pointer; transition: 0.3s; text-decoration: none; }
         .show-desktop-btn:hover { background: var(--terminal-green); box-shadow: 0 0 10px var(--terminal-green); }
 
-        /* Menu Start (Hakerski Dropbar) */
         #start-menu {
-            position: fixed;
-            top: 15px;
-            left: calc(var(--taskbar-width) + 10px);
-            width: 300px;
-            background: rgba(5, 5, 5, 0.95);
-            border: 1px solid var(--terminal-green);
+            position: fixed; top: 15px; left: calc(var(--taskbar-width) + 10px); width: 300px;
+            background: rgba(5, 5, 5, 0.95); border: 1px solid var(--terminal-green);
             box-shadow: 5px 5px 20px rgba(0,0,0,0.9), 0 0 15px rgba(26, 128, 0, 0.2);
-            padding: 20px;
-            display: flex;
-            flex-direction: column;
-            gap: 15px;
-            transform: translateX(-150%); /* Ukryte po lewej */
-            opacity: 0;
-            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
-            z-index: 999;
-            backdrop-filter: blur(5px);
+            padding: 20px; display: flex; flex-direction: column; gap: 15px;
+            transform: translateX(-150%); opacity: 0; transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275); z-index: 999; backdrop-filter: blur(5px);
         }
-
-        #start-menu.active {
-            transform: translateX(0);
-            opacity: 1;
-        }
-
-        .start-menu-title {
-            color: var(--terminal-dim);
-            font-size: 1.2rem;
-            border-bottom: 1px dashed var(--terminal-dim);
-            padding-bottom: 5px;
-            text-align: left;
-            text-transform: uppercase;
-        }
-
-        .start-menu-item {
-            display: block;
-            padding: 10px;
-            border: 1px solid rgba(26, 128, 0, 0.3);
-            background: rgba(20, 0, 0, 0.2);
-            color: var(--terminal-green);
-            text-decoration: none;
-            text-align: left;
-            font-size: 1.1rem;
-            text-transform: uppercase;
-            transition: 0.2s;
-            cursor: pointer;
-        }
-        .start-menu-item:hover {
-            background: var(--terminal-green);
-            color: var(--bg-color);
-            padding-left: 20px; /* Efekt "wjeżdżania" */
-        }
+        #start-menu.active { transform: translateX(0); opacity: 1; }
+        .start-menu-title { color: var(--terminal-dim); font-size: 1.2rem; border-bottom: 1px dashed var(--terminal-dim); padding-bottom: 5px; text-align: left; text-transform: uppercase; }
+        .start-menu-item { display: block; padding: 10px; border: 1px solid rgba(26, 128, 0, 0.3); background: rgba(20, 0, 0, 0.2); color: var(--terminal-green); text-decoration: none; text-align: left; font-size: 1.1rem; text-transform: uppercase; transition: 0.2s; cursor: pointer; }
+        .start-menu-item:hover { background: var(--terminal-green); color: var(--bg-color); padding-left: 20px; }
         .start-menu-item::before { content: "> "; opacity: 0.5; }
 
-
-        /* ========================================= */
-        /* --- RESZTA STYLI ------------------------ */
-        /* ========================================= */
-
-        #terminal-container {
-            max-width: 1000px;
-            width: 100%;
-            z-index: 1;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            justify-content: center;
-            flex-grow: 1;
-            gap: 2rem;
-            padding: 40px 20px;
-        }
-
-        .top-section {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            justify-content: center;
-            gap: 40px;
-            width: 100%;
-            min-height: 15rem;
-        }
-
-        #terminal-container img.logo {
-            opacity: 0;
-            filter: grayscale(100%) contrast(1.5);
-            height: 55rem;
-            width: 55rem;
-            object-fit: contain;
-            will-change: transform, opacity, clip-path;
-        }
-
-        #terminal-container img.logo.stable {
-            opacity: 1;
-            height: 15rem;
-            width: 15rem;
-            filter: none;
-        }
-
-        #typing-text {
-            font-size: 1.5rem;
-            line-height: 1.4;
-            text-align: left;
-            width: 100%;
-            max-width: 500px;
-            height: 15rem;
-            display: flex;
-            flex-direction: column;
-            justify-content: center;
-        }
-
-        .cursor {
-            display: inline-block;
-            width: 10px; height: 1.2rem;
-            background-color: var(--terminal-green);
-            animation: blink 1s step-end infinite;
-            vertical-align: bottom;
-        }
-
-        #boxes-container {
-            display: flex;
-            gap: 2rem;
-            justify-content: center;
-            width: 100%;
-            position: relative;
-            margin-top: 2rem;
-            margin-bottom: 2rem
-        }
-
-        .hacker-box {
-            width: 250px;
-            height: 280px;
-            border: 1px solid var(--terminal-dim);
-            background: rgba(0, 20, 0, 0.4);
-            padding: 10px;
-            cursor: pointer;
-            transition: all 0.2s ease-in-out;
-            display: flex;
-            flex-direction: column;
-            align-items: center;
-            opacity: 0;
-        }
-
-        .hacker-box:hover {
-            transform: scale(1.05);
-            border-color: var(--terminal-green);
-            box-shadow: 0 0 15px var(--terminal-green), inset 0 0 15px rgba(51, 255, 0, 0.2);
-            background: rgba(0, 40, 0, 0.8);
-        }
-
-        .hacker-box img {
-            width: 100%;
-            height: 140px;
-            object-fit: cover;
-            border: 1px solid var(--terminal-dim);
-            margin-bottom: 15px;
-            filter: grayscale(30%) contrast(1.2);
-            transition: filter 0.3s;
-        }
-
+        /* ========================================================================== */
+        /* ======================== CSS: INDEX.HTML ================================= */
+        /* ========================================================================== */
+        #terminal-container { max-width: 1000px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px; }
+        .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 15rem; }
+        #terminal-container img.logo { opacity: 0; filter: grayscale(100%) contrast(1.5); height: 55rem; width: 55rem; object-fit: contain; will-change: transform, opacity, clip-path; }
+        #terminal-container img.logo.stable { opacity: 1; height: 15rem; width: 15rem; filter: none; }
+        #typing-text { font-size: 1.5rem; line-height: 1.4; text-align: left; width: 100%; max-width: 500px; height: 15rem; display: flex; flex-direction: column; justify-content: center; }
+        .cursor { display: inline-block; width: 10px; height: 1.2rem; background-color: var(--terminal-green); animation: blink 1s step-end infinite; vertical-align: bottom; }
+        
+        #boxes-container { display: flex; gap: 2rem; justify-content: center; width: 100%; position: relative; margin-top: 2rem; margin-bottom: 2rem }
+        .hacker-box { width: 250px; height: 280px; border: 1px solid var(--terminal-dim); background: rgba(0, 20, 0, 0.4); padding: 10px; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; opacity: 0; }
+        .hacker-box:hover { transform: scale(1.05); border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green), inset 0 0 15px rgba(51, 255, 0, 0.2); background: rgba(0, 40, 0, 0.8); }
+        .hacker-box img { width: 100%; height: 140px; object-fit: cover; border: 1px solid var(--terminal-dim); margin-bottom: 15px; filter: grayscale(30%) contrast(1.2); transition: filter 0.3s; }
         .hacker-box:hover img { filter: grayscale(0%) contrast(1); border-color: var(--terminal-green); }
-
-        .hacker-box .box-title {
-            font-size: 1.3rem;
-            text-transform: uppercase;
-            margin-bottom: 5px;
-            color: var(--terminal-green);
-            text-shadow: 0 0 5px var(--terminal-dim);
-        }
-
+        .hacker-box .box-title { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 5px; color: var(--terminal-green); text-shadow: 0 0 5px var(--terminal-dim); }
         .hacker-box .box-desc { font-size: 1rem; color: #aaa; text-align: center; }
-
         #box-center { transform: scale(1.1) !important; }
-
-/* 1. Zmieniamy styl całego kontenera (bez filtrów szarości, żeby kłódka miała kolory!) */
-#box-right:hover {
-    background-image: none !important;
-    
-    box-shadow: 0 0 15px #ff3333, inset 0 0 15px rgba(255, 51, 51, 0.2);
-}
-
-/* 2. Warstwa Kłódki */
-#box-right::after {
-    content: ""; /* Zabezpieczenie! Jeśli obrazka nie ma, zobaczysz ten napis */
-    position: absolute;
-    top: 35px;
-    left: 50%;
-    transform: translate(-50%, 0);
-    width: 100px;
-    height: 100px;
-    
-    /* UWAGA NA ŚCIEŻKĘ: Poprawiłem na domyślną. Zmień w razie potrzeby */
-    background: url("Images/lock.webp") no-repeat center;
-    background-size: contain;
-    
-    /* Formatowanie awaryjnego napisu (gdyby obrazek nie zadziałał) */
-    color: #ff3333;
-    font-size: 1.5rem;
-    font-weight: bold;
-    display: flex;
-    justify-content: center;
-    align-items: center;
-    text-shadow: 0 0 10px #000;
-
-    opacity: 0;
-    transition: all 0.3s ease-in-out;
-    z-index: 10;
-    pointer-events: none;
-}
-
-/* 3. Animacja wjazdu kłódki */
-#box-right:hover::after {
-    opacity: 1;
-    transform: translate(-50%, 5px);
-}
-
-/* 4. Szarość i przyciemnienie aplikujemy TYLKO na samo zdjęcie, a nie na cały box! */
-#box-right:hover img {
-    filter: grayscale(100%) brightness(0.2) !important;
-}
-
-        /* Lightbox i reszta (Bez Zmian) */
-        #lightbox {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
-            background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none;
-            justify-content: center; align-items: center; flex-direction: column;
-            backdrop-filter: blur(5px); max-height: 99vh;
+        #box-right:hover { background-image: none !important; box-shadow: 0 0 15px #ff3333, inset 0 0 15px rgba(255, 51, 51, 0.2); }
+        #box-right::after {
+            content: ""; position: absolute; top: 35px; left: 50%; transform: translate(-50%, 0);
+            width: 100px; height: 100px; background: url("Images/lock.webp") no-repeat center; background-size: contain;
+            filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(90%) contrast(120%);
+            color: #ff3333; font-size: 1.5rem; font-weight: bold; display: flex; justify-content: center; align-items: center; text-shadow: 0 0 10px #000;
+            opacity: 0; transition: all 0.3s ease-in-out; z-index: 10; pointer-events: none;
         }
-        .lightbox-content {
-            width: 90%; max-width: 800px; position: relative; padding: 30px;
-            border: 1px solid var(--terminal-green); background: #000;
-            box-shadow: 0 0 40px rgba(51, 255, 0, 0.15); text-align: center; max-height: 99vh;
-        }
+        #box-right:hover::after { opacity: 1; transform: translate(-50%, 5px); }
+        #box-right:hover img { filter: grayscale(100%) brightness(0.2) !important; }
+
+        /* --- LIGHTBOX (GLOBALNY) --- */
+        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; overflow-y: auto; height: 100vh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); max-height: 99vh; }
+        .lightbox-content { width: 90%; max-width: 800px; position: relative; padding: 30px; border: 1px solid var(--terminal-green); background: #000; box-shadow: 0 0 40px rgba(51, 255, 0, 0.15); text-align: center; }
         .close-btn { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--terminal-green); transition: 0.2s; font-weight: bold; }
         .close-btn:hover { text-shadow: 0 0 15px var(--terminal-green); transform: scale(1.2); }
         .carousel { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 25px; }
@@ -411,13 +182,8 @@
         .main-img { width: 450px; height: 300px; object-fit: cover; border: 1px solid var(--terminal-green); box-shadow: 0 0 20px var(--terminal-dim); }
         .lb-title { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
         .lb-desc { font-size: 1.2rem; color: #ccc; margin-bottom: 25px; line-height: 1.4; }
-        .btn-link, #footer-links a {
-            color: var(--terminal-green); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.4rem; text-transform: uppercase;
-            letter-spacing: 2px; border: 1px solid var(--terminal-dim); padding: 8px 25px; background: rgba(0, 20, 0, 0.4); transition: all 0.2s ease-in-out; cursor: pointer; display: inline-block;
-        }
+        .btn-link, #footer-links a { color: var(--terminal-green); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid var(--terminal-dim); padding: 8px 25px; background: rgba(0, 20, 0, 0.4); transition: all 0.2s ease-in-out; cursor: pointer; display: inline-block; }
         .btn-link:hover, #footer-links a:hover { background: var(--terminal-green); color: var(--bg-color); border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green); }
-        .btn-link:hover::before, .btn-link:hover::after, #footer-links a:hover::before, #footer-links a:hover::after { color: var(--bg-color); }
-
         .consent-container { margin: 20px 0; padding: 15px; border: 1px dashed var(--terminal-dim); background: rgba(20, 0, 0, 0.2); text-align: left; transition: all 0.3s; }
         .consent-container.error-blink { border-color: #ff3333; box-shadow: 0 0 15px #ff3333; background: rgba(50, 0, 0, 0.6); }
         .consent-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.95rem; color: #ccc; }
@@ -425,7 +191,7 @@
         .error-text { color: #ff3333; font-size: 0.8rem; display: none; margin-top: 5px; text-transform: uppercase; }
         .error-blink .error-text { display: block; }
 
-        /* Footer */
+        /* --- STOPKA (GLOBALNA DLA WIDOKÓW, ALE GŁÓWNIE INDEX) --- */
         #footer-links { width: 100%; background: #020802; border-top: 2px solid var(--terminal-dim); padding: 3rem 2rem; opacity: 0; transition: opacity 1s ease-in; z-index: 3; box-shadow: 0 -5px 15px rgba(26, 128, 0, 0.05); }
         .footer-content { max-width: 1100px; width: 100%; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
         .footer-logo-copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 250px; }
@@ -444,7 +210,6 @@
         .footer-btn:hover { color: var(--terminal-green); }
         .footer-btn:hover::before { opacity: 1; color: var(--terminal-green); }
 
-        /* --- ANIMACJE CRASH/GLITCH --- */
         .glitch-boot { animation: glitch-sequence 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
         .glitch-box-anim { animation: glitch-sequence 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
@@ -459,215 +224,426 @@
             100% { opacity: 1; transform: scale(1) skew(0); clip-path: inset(0 0 0 0); filter: none; }
         }
 
-        /* --- URZĄDZENIA MOBILNE (Responsywność Taskbara) --- */
+        /* ========================================================================== */
+        /* ======================== CSS: KONTAKT.HTML & NEWSLETTER ================== */
+        /* ========================================================================== */
+        .generic-form-container { flex-grow: 1; width: 100%; max-width: 700px; z-index: 1; padding: 40px 20px; display: flex; flex-direction: column; text-align: left; justify-content: center; margin: 0 auto; }
+        .page-title { font-size: 2.5rem; text-transform: uppercase; border-bottom: 2px solid var(--terminal-dim); padding-bottom: 10px; margin-bottom: 30px; text-shadow: 0 0 10px var(--terminal-dim); }
+        .contact-form { border: 1px dashed var(--terminal-dim); padding: 30px; background: rgba(0, 15, 0, 0.6); box-shadow: inset 0 0 20px rgba(0,0,0,0.8); }
+        .input-group { margin-bottom: 1.5rem; }
+        .input-group label { display: block; margin-bottom: 0.5rem; font-size: 1.2rem; text-transform: uppercase; color: var(--terminal-dim); }
+        .input-group input[type="text"], .input-group input[type="email"], .input-group textarea { width: 100%; background: transparent; border: 1px solid var(--terminal-dim); color: var(--terminal-green); font-family: 'VT323', monospace; font-size: 1.3rem; padding: 10px; outline: none; transition: 0.3s; }
+        .input-group input:focus, .input-group textarea:focus { border-color: var(--terminal-green); box-shadow: 0 0 10px rgba(51, 255, 0, 0.2); }
+        .input-group textarea { resize: vertical; min-height: 150px; }
+        
+        .form-submit-btn { background: transparent; color: var(--terminal-green); font-family: 'VT323', monospace; font-size: 1.5rem; border: 1px solid var(--terminal-green); padding: 12px 30px; cursor: pointer; text-transform: uppercase; transition: all 0.2s; width: 100%; margin-top: 10px; }
+        .form-submit-btn:hover:not(:disabled) { background: var(--terminal-green); color: var(--bg-color); box-shadow: 0 0 15px var(--terminal-green); }
+        .form-submit-btn:disabled { border-color: var(--terminal-dim); color: var(--terminal-dim); cursor: not-allowed; opacity: 0.5; }
+        .form-status-msg { margin-top: 20px; text-align: center; font-size: 1.2rem; min-height: 1.5em; }
+
+        /* Specyficzne dla Newslettera */
+        #terminal-window { width: 100%; max-width: 600px; z-index: 5; text-align: left; margin: auto; padding: 40px 20px;}
+        #boot-log { color: var(--terminal-dim); margin-bottom: 2rem; min-height: 60px; white-space: pre-wrap; }
+        #subscribe-form { opacity: 0; transition: opacity 0.5s ease-in; border: 1px solid var(--terminal-dim); padding: 2rem; background: rgba(0, 10, 0, 0.6); position: relative; }
+        #subscribe-form input[type="email"] { border: none; border-bottom: 2px solid var(--terminal-green); font-size: 1.5rem; padding: 10px 0; }
+        .checkbox-wrapper { margin-bottom: 2rem; display: flex; align-items: flex-start; cursor: pointer; font-size: 1rem; color: var(--terminal-dim); }
+        .checkbox-wrapper input { opacity: 0; position: absolute; }
+        .custom-check::before { content: "[ ]"; margin-right: 10px; font-weight: bold; display: inline-block; width: 30px; }
+        .checkbox-wrapper input:checked + .custom-check::before { content: "[X]"; color: var(--terminal-green); }
+        .back-link { margin-top: 2rem; display: inline-block; color: var(--terminal-dim); text-decoration: none; border: 1px solid var(--terminal-dim); padding: 5px 15px; opacity: 0; transition: 0.3s; }
+        .back-link:hover { color: var(--terminal-green); border-color: var(--terminal-green); }
+
+        /* ========================================================================== */
+        /* ======================== CSS: O_NAS.HTML ================================= */
+        /* ========================================================================== */
+        .dossier-card { display: flex; flex-direction: row; gap: 20px; background: rgba(0, 15, 0, 0.4); border: 1px dashed var(--terminal-dim); padding: 20px; transition: 0.3s; margin-bottom: 20px;}
+        .dossier-card:hover { border-color: var(--terminal-green); background: rgba(0, 30, 0, 0.6); box-shadow: 0 0 20px rgba(51, 255, 0, 0.1); }
+        .dossier-photo-wrapper { flex-shrink: 0; width: 200px; height: 250px; border: 2px solid var(--terminal-dim); position: relative; overflow: hidden; }
+        .dossier-photo-wrapper::after { content: "ODTAJNIONE"; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #ff3333; color: black; font-weight: bold; padding: 2px 10px; font-size: 1.2rem; letter-spacing: 2px; }
+        .dossier-photo { width: 100%; height: 100%; object-fit: cover; filter: grayscale(50%) contrast(1.2); transition: 0.3s; }
+        .dossier-card:hover .dossier-photo { filter: grayscale(0%) contrast(1); }
+        .dossier-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
+        .dossier-name { font-size: 2rem; color: var(--terminal-green); margin-bottom: 5px; text-transform: uppercase; }
+        .dossier-role { font-size: 1.2rem; color: var(--terminal-dim); margin-bottom: 15px; text-transform: uppercase; letter-spacing: 1px;}
+        .dossier-desc { font-size: 1.1rem; color: #ccc; line-height: 1.5; }
+
+        /* ========================================================================== */
+        /* ======================== CSS: DOKUMENTY (REGULAMIN / POLITYKA) =========== */
+        /* ========================================================================== */
+        .docs-wrapper { width: 100%; max-width: 800px; z-index: 5; text-align: left; padding: 40px 20px; margin: 0 auto;}
+        .docs-wrapper h1, .docs-wrapper h2 { text-transform: uppercase; border-bottom: 1px solid var(--terminal-dim); padding-bottom: 5px; color: var(--terminal-green); }
+        .docs-wrapper h1 { text-shadow: 0 0 10px var(--terminal-dim); margin-bottom: 30px; font-size: 2.5rem; }
+        .docs-wrapper h2 { margin-top: 30px; margin-bottom: 15px; }
+        .docs-wrapper p, .docs-wrapper li { font-size: 1.1rem; color: #ccc; margin-bottom: 15px; }
+        .docs-wrapper strong { color: var(--terminal-green); }
+        .docs-wrapper ul { list-style: none; padding-left: 0; }
+        .docs-wrapper ul li::before { content: "> "; color: var(--terminal-dim); }
+        .docs-wrapper a { color: var(--terminal-green); text-decoration: none; border-bottom: 1px dashed var(--terminal-dim); }
+        .system-frame { border: 2px solid var(--terminal-dim); padding: 20px; box-shadow: 0 0 20px rgba(26, 128, 0, 0.2); margin-bottom: 30px; background: rgba(0, 10, 0, 0.4); }
+        .return-btn { display: inline-block; padding: 10px 20px; border: 1px solid var(--terminal-green); color: var(--terminal-green); text-transform: uppercase; transition: 0.3s; margin-bottom: 20px; cursor: pointer; }
+        .return-btn:hover { background: var(--terminal-green); color: black; box-shadow: 0 0 15px var(--terminal-green); }
+
+        /* ========================================================================== */
+        /* ======================== URZĄDZENIA MOBILNE ============================== */
+        /* ========================================================================== */
         @media (max-width: 850px) {
-            body {
-                margin-left: 50px; /* Cieńszy pasek na mobile */
-            }
-            #linux-taskbar {
-                width: 50px;
-            }
+            body { margin-left: 50px; }
+            #linux-taskbar { width: 50px; }
             .taskbar-logo-btn { width: 35px; height: 35px; }
             .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
             #sys-clock { font-size: 0.7rem; }
             .show-desktop-btn { width: 30px; }
+            #start-menu { top: 0; left: 50px; width: calc(100vw - 50px); height: 100vh; border: none; border-left: 1px solid var(--terminal-green); justify-content: center; padding: 40px; }
 
-            /* Menu rozsuwające się na całą szerokość ekranu obok paska */
-            #start-menu {
-                top: 0;
-                left: 50px; /* Zaczyna się tuż za paskiem */
-                width: calc(100vw - 50px);
-                height: 100vh; /* Na całą wysokość */
-                border: none;
-                border-left: 1px solid var(--terminal-green);
-                justify-content: center; /* Centrowanie na telefonie */
-                padding: 40px;
-            }
-
+            /* Index mobile */
             .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
             #typing-text { text-align: center; height: auto; min-height: 250px; }
             #boxes-container { flex-direction: column; align-items: center; }
-            .hacker-box { width: 70% ; }
-            .main-img { width: 40%; height: auto; }
-            .side-img { width: 80px; height: 80px; }
+            .hacker-box { width: 70%; }
             .footer-content { flex-direction: column; align-items: center; }
             .footer-logo-copy, .footer-nav-group { align-items: center; text-align: center; }
             .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; }
+            
+            /* Lightbox mobile */
+            #lightbox { align-items: flex-start; overflow-y: auto; padding: 20px 0; }
+            .lightbox-content { width: 100%; max-width: 100%; min-height: 100vh; border: none; padding: 60px 15px 40px; }
+            .main-img { width: 100% !important; height: auto !important; max-height: 50vh; object-fit: contain; }
+            .side-img { width: 60px; height: 60px; }
+            .carousel { flex-wrap: wrap; gap: 10px; }
+            .lb-desc { font-size: 1.1rem; text-align: left; }
+            .close-btn { position: fixed; top: 10px; right: 20px; z-index: 10001; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 5px; }
+            .btn-link { margin-bottom: 15%; }
+
+            /* Pozostałe mobile */
+            .dossier-card { flex-direction: column; align-items: center; text-align: center; }
+            .docs-wrapper h1 { font-size: 1.8rem; }
         }
 
-        @media (max-width: 850px) {
-    /* Pozwalamy Lightboxowi na przewijanie góra-dół */
-    #lightbox {
-        align-items: flex-start; /* Startuje od góry, nie od środka */
-        overflow-y: auto;        /* Włącza przewijanie pionowe */
-        padding: 20px 0;
-    }
+        /* --- TAJNY TERMINAL & TRÓJKĄT --- */
+        #warning-triangle {
+            width: 25px; height: 25px; cursor: pointer; color: var(--terminal-green);
+            transition: 0.3s; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;
+        }
+        #warning-triangle svg { width: 100%; height: 100%; }
+        #warning-triangle:hover { filter: drop-shadow(0 0 5px var(--terminal-green)); transform: scale(1.1); }
+        
+       .alert-blink { 
+            /* Animacja jest szybsza (0.6s) i używa krzywej cubic-bezier dla bardziej "agresywnego" uderzenia */
+            animation: critical-alert-pulse 0.6s infinite alternate cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            z-index: 1001; /* Upewniamy się, że wyskakuje nad inne elementy paska */
+        }
 
-    /* Kontener treści rozciągamy na całą szerokość */
-    .lightbox-content {
-        width: 100%;
-        max-width: 100%;
-        min-height: 100vh;      /* Wypełnia cały ekran */
-        border: none;           /* Opcjonalnie usuwamy ramki dla "full screen" */
-        padding: 60px 15px 40px; /* Miejsce na przycisk [X] */
-    }
+        @keyframes critical-alert-pulse {
+            0% { 
+                color: var(--terminal-green); 
+                filter: drop-shadow(0 0 2px var(--terminal-dim)); 
+                transform: scale(1); 
+            }
+            40% {
+                color: #ff9900; /* Krótkie przejście przez pomarańcz dla płynności */
+                filter: drop-shadow(0 0 10px #ff9900);
+                transform: scale(1.15);
+            }
+            100% { 
+                color: var(--error-red); 
+                /* Podwójny drop-shadow dla efektu intensywnego jarzenia się neonu */
+                filter: drop-shadow(0 0 20px var(--error-red)) drop-shadow(0 0 10px var(--error-red)); 
+                transform: scale(1.35); /* Mocne powiększenie */
+            }
+        }
 
-    /* Powiększamy główny obrazek */
-    .main-img {
-        width: 100% !important;
-        height: auto !important;
-        max-height: 50vh;       /* Żeby nie zajął całego ekranu samym zdjęciem */
-        object-fit: contain;
-    }
-
-    /* Zmniejszamy boczne obrazki, żeby nie przeszkadzały */
-    .side-img {
-        width: 60px;
-        height: 60px;
-    }
-
-    .carousel {
-        flex-wrap: wrap;        /* Pozwala obrazkom wskoczyć pod spód jeśli braknie miejsca */
-        gap: 10px;
-    }
-
-    /* Powiększamy tekst opisu dla czytelności */
-    .lb-desc {
-        font-size: 1.1rem;
-        text-align: left;
-    }
-
-    /* Przycisk zamknięcia - robimy go większym, by łatwiej było trafić palcem */
-    .close-btn {
-        position: fixed;
-        top: 10px;
-        right: 20px;
-        z-index: 10001;
-        background: rgba(0,0,0,0.8);
-        padding: 5px 10px;
-        border-radius: 5px;
-    }
-
-    .btn-link {
-        margin-bottom: 15%;
-    }
-}
-
+        #secret-terminal-lightbox {
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            overflow-y: auto;
+            background: rgba(0, 5, 0, 0.95); z-index: 10005; display: none;
+            justify-content: center; align-items: center; backdrop-filter: blur(5px);
+        }
+        .secret-terminal-box {
+            width: 90%; max-width: 1400px; background: #000; border: 1px solid var(--terminal-green);
+            padding: 30px; text-align: left; position: relative; box-shadow: 0 0 30px rgba(51, 255, 0, 0.2);
+            font-family: 'VT323', monospace; min-height: 350px; display: flex; flex-direction: column;
+        }
+        .secret-header { border-bottom: 1px dashed var(--terminal-dim); padding-bottom: 10px; margin-bottom: 20px; color: var(--terminal-dim); font-size: 1.2rem; }
+        #secret-terminal-body { flex-grow: 1; font-size: 1.4rem; line-height: 1.5; white-space: pre-wrap; overflow-y: auto; }
+        
+        .terminal-input-line { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
+        .terminal-input-line input {
+            background: transparent; border: none; color: var(--terminal-green);
+            font-family: 'VT323', monospace; font-size: 1.4rem; outline: none; flex-grow: 1; text-transform: lowercase;
+        }
     </style>
 </head>
 <body id="top">
 
+    <div id="lock-screen">
+        <div id="lock-wrapper">
+            <img src="Images/lock-unlock.webp" id="lock-icon" alt="ZABLOKOWANE">
+            <div id="lock-text">DOSTĘP_PRZYZNANY</div>
+            <div id="lock-hint">[ KLIKNIJ ABY OTWORZYĆ ŁĄCZE ]</div>
+        </div>
+    </div>
+
     <nav id="linux-taskbar">
         <div class="taskbar-top">
             <img src="Images/Icons/logo_taskbar.webp" alt="Start" class="taskbar-logo-btn" id="taskbar-start-btn">
-            
-            <a href="https://www.facebook.com/profile.php?id=61587612428002" class="social-placeholder" title="Facebook">
-                <img src="Images/Icons/fb.webp" alt="Facebook">
-            </a>
-            <a href="https://www.instagram.com/marekdworski26/" class="social-placeholder" title="Instagram">
-                <img src="Images/Icons/ig.webp" alt="Instagram">
-            </a>
-            <a href="https://www.tiktok.com/@dworski_marek_" class="social-placeholder" title="TikTok">
-                <img src="Images/Icons/tt.webp" alt="TikTok">
-            </a>
-            <a href="https://www.youtube.com/@marekdworski-x3s" class="social-placeholder" title="YouTube">
-                <img src="Images/Icons/yt.webp" alt="YouTube">
-            </a>
+            <a href="https://www.facebook.com/profile.php?id=61587612428002" class="social-placeholder" title="Facebook"><img src="Images/Icons/fb.webp" alt="Facebook"></a>
+            <a href="https://www.instagram.com/marekdworski26/" class="social-placeholder" title="Instagram"><img src="Images/Icons/ig.webp" alt="Instagram"></a>
+            <a href="https://www.tiktok.com/@dworski_marek_" class="social-placeholder" title="TikTok"><img src="Images/Icons/tt.webp" alt="TikTok"></a>
+            <a href="https://www.youtube.com/@marekdworski-x3s" class="social-placeholder" title="YouTube"><img src="Images/Icons/yt.webp" alt="YouTube"></a>
         </div>
-
-        <div class="taskbar-bottom">
-            <div class="tray-icons">
-                <div class="tray-placeholder" title="Sieć">W</div>
-                <div class="tray-placeholder" title="Bateria">B</div>
-                <div class="tray-placeholder" title="Głośnik">V</div>
-                <div class="tray-placeholder" title="Pamięć">M</div>
+            <div class="taskbar-bottom">
+            <div class="tray-icons"><div class="tray-placeholder" title="Sieć">W</div><div class="tray-placeholder" title="Bateria">B</div><div class="tray-placeholder" title="Głośnik">V</div><div class="tray-placeholder" title="Pamięć">M</div></div>
+            
+            <div id="warning-triangle" title="Powiadomienie Systemowe">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                    <line x1="12" y1="9" x2="12" y2="13"></line>
+                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                </svg>
             </div>
 
-            <div id="sys-clock">
-                <span id="sys-time">00:00</span><br>
-                <span id="sys-date">00.00</span>
-            </div>
-
+            <div id="sys-clock"><span id="sys-time">00:00</span><br><span id="sys-date">00.00</span></div>
             <a href="#top" class="show-desktop-btn" title="Pokaż pulpit"></a>
         </div>
     </nav>
 
     <div id="start-menu">
         <div class="start-menu-title">Menedżer Zadań [v1.0]</div>
-        <a href="index.html" class="start-menu-item">Strona Główna</a>
-        <a href="o_nas.html" class="start-menu-item">Akta Personalne (O Nas)</a>
-        <a href="kontakt.html" class="start-menu-item">Raport Operacyjny (Kontakt)</a>
-        <a href="newsletter.html" class="start-menu-item">Newsletter</a>
+        <a href="#index" class="start-menu-item">Strona Główna</a>
+        <a href="#o-nas" class="start-menu-item">Akta Personalne (O Nas)</a>
+        <a href="#kontakt" class="start-menu-item">Raport Operacyjny (Kontakt)</a>
+        <a href="#newsletter" class="start-menu-item">Newsletter</a>
     </div>
 
     <h1 class="sr-only">Powieść Biało-Czerwoni - Historia Alternatywna PRL</h1>
 
-    <main id="terminal-container">
 
-        <div class="top-section">
-            <img src="icon512.png" class="logo" alt="Logo">
-            <div id="typing-text">
-                <div><span id="text-content"></span><span class="cursor"></span></div>
+    <div id="app-views">
+
+        <section id="view-index" class="view-section active">
+            <main id="terminal-container">
+                <div class="top-section">
+                    <img src="icon512.png" class="logo" alt="Logo">
+                    <div id="typing-text">
+                        <div><span id="text-content"></span><span class="cursor"></span></div>
+                    </div>
+                </div>
+
+                <div id="boxes-container">
+                    <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni - ebook" data-desc="Powieść jest co najmniej średnia, więc warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało-Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_aFa5kF9Td7n24yz0zscMM02">
+                        <img src="Images/Oferta/okladka.webp" alt="Akta">
+                        <div class="box-title">29.99 zł</div>
+                        <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
+                    </div>
+                    <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni - ilustrowany ebook" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_7sY8wR7L54aQ8OPbe6cMM04">
+                        <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
+                        <div class="box-title">49.99 zł</div>
+                        <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami. Idealny wybór dla tych, którzy do kawy jedzą ciastko.</div>
+                    </div>
+                    <div class="hacker-box" id="box-right" data-title="Zrzut Pamięci" data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." data-img1="Images" data-img2="https://via.placeholder.com/450x300/1a8000/000?text=MEM_2" data-img3="https://via.placeholder.com/450x300/222/33ff00?text=MEM_3" wolne_wybory_jak_zawsze_zostaly_sfalszowane="">
+                        <img src="Images/Oferta/okladka_premium.webp" alt="Zrzut">
+                        <div class="box-title">79.99 zł</div>
+                        <div class="box-desc">Pakiet premium. Kto chce się dowiedzieć, ten się dowie.</div>
+                    </div>
+                </div>
+            </main>
+
+            <footer id="footer-links">
+                <div class="footer-content">
+                    <div class="footer-logo-copy">
+                        <img src="icon128.png" alt="Godło Wydziału" class="footer-logo">
+                        <p class="copyright">
+                            OMNIS Anna Kiersznowska-Jąderko<br>
+                            [&copy; 2026 WSZELKIE PRAWA ZASTRZEŻONE]<br>
+                            NIEAUTORYZOWANY DOSTĘP BĘDZIE ŚCIGANY.
+                        </p>
+                    </div>
+                    <div class="footer-nav-group">
+                        <span class="footer-nav-title">/SYSTEM/EXT/ [NEWSLETTER]</span>
+                        <p class="newsletter-desc">Zapisz się do bazy, aby otrzymywać tajne meldunki prosto z Centrali.</p>
+                        <a href="#newsletter" class="footer-btn action-btn">ZAPISZ_SIE.exe</a>
+                    </div>
+                    <div class="footer-nav-group">
+                        <span class="footer-nav-title">/SYSTEM/DOCS/</span>
+                        <a href="#regulamin" class="footer-btn">regulamin_sprzedazy</a>
+                        <a href="#polityka" class="footer-btn">polityka_prywatnosci</a>
+                    </div>
+                </div>
+            </footer>
+        </section>
+
+
+        <section id="view-o-nas" class="view-section">
+            <main class="generic-form-container" style="max-width: 1000px;">
+                <h1 class="page-title">/SYSTEM/DB/AKTA_PERSONALNE.DAT</h1>
+                
+                <div class="dossier-card">
+                    <div class="dossier-photo-wrapper">
+                        <img src="Images/Photos/autor.webp" alt="Profil 1" class="dossier-photo">
+                    </div>
+                    <div class="dossier-info">
+                        <div class="dossier-name">[AUTOR]</div>
+                        <div class="dossier-role">GŁÓWNY ARCHITEKT SYSTEMU</div>
+                        <div class="dossier-desc">
+                            Zdekompilowane logi wskazują, że obiekt był odpowiedzialny za główny nurt narracyjny projektu. Operuje na słowach co najmniej średnio. Legenda miejska niesie, że pierwszą wersję powieści napisał w edytorze tekstu nano. Więcej grzechów nie pamięta.
+                        </div>
+                    </div>
+                </div>
+
+                <div class="dossier-card">
+                    <div class="dossier-photo-wrapper">
+                        <img src="Images/Photos/dominik.webp" alt="Profil 2" class="dossier-photo">
+                    </div>
+                    <div class="dossier-info">
+                        <div class="dossier-name">DOMINIK SIKORA</div>
+                        <div class="dossier-role">INŻYNIER WIZUALIZACJI (ILUSTRATOR)</div>
+                        <div class="dossier-desc">
+                            Zaszyfrowane pakiety danych wskazują na wyjątkowe zdolności tworzenia niecodziennych ilustracji. Omija standardowe procedury estetyczne, tworząc obrazy, które wymykają się sztampowym szkicom. Jego prace zostały na stałe zintegrowane z Architekturą Systemu.
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </section>
+
+
+        <section id="view-kontakt" class="view-section">
+            <main class="generic-form-container">
+                <h1 class="page-title">/SYSTEM/COMMS/NADAJ_RAPORT.EXE</h1>
+                
+                <form class="contact-form" id="contact-form">
+                    <div class="input-group">
+                        <label for="user_name">KRYPTONIM / IMIĘ:</label>
+                        <input type="text" id="user_name" name="user_name" required autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label for="user_email">KANAŁ ZWROTNY (E-MAIL):</label>
+                        <input type="email" id="user_email" name="user_email" required autocomplete="off">
+                    </div>
+                    <div class="input-group">
+                        <label for="message">TREŚĆ MELDUNKU:</label>
+                        <textarea id="message" name="message" required></textarea>
+                    </div>
+                    <button type="submit" class="form-submit-btn" id="kontakt-submit-btn">[ TRANSMITUJ PAKIET ]</button>
+                    <div id="form-status" class="form-status-msg"></div>
+                </form>
+            </main>
+        </section>
+
+
+        <section id="view-newsletter" class="view-section">
+            <div id="terminal-window">
+                <div id="boot-log"></div>
+                <form id="subscribe-form">
+                    <div class="input-group">
+                        <label for="email">IDENTYFIKATOR (E-mail):</label>
+                        <input type="email" id="email" name="email" placeholder="uzytkownik@system.pl" required>
+                    </div>
+                    <label class="checkbox-wrapper">
+                        <input type="checkbox" id="consent" required>
+                        <span class="custom-check">AKCEPTUJĘ POLITYKĘ PRYWATNOŚCI I WYRAŻAM ZGODĘ NA PRZESYŁANIE NEWSLETTERA.</span>
+                    </label>
+                    <button type="submit" class="form-submit-btn" id="newsletter-submit-btn" disabled>[ ZAPISZ_W_BAZIE ]</button>
+                    <div id="status-msg" class="form-status-msg"></div>
+                </form>
+                <a href="#index" class="back-link" id="back-btn">&lt; POWRÓT_DO_SYSTEMU</a>
             </div>
-        </div>
+        </section>
 
-        <div id="boxes-container">
-            <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni - ebook" data-desc="Powieść jest co najmniej średnia, więc warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało-Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_aFa5kF9Td7n24yz0zscMM02">
-                <img src="Images/Oferta/okladka.webp" alt="Akta">
-                <div class="box-title">29.99 zł</div>
-                <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
+
+        <section id="view-polityka" class="view-section">
+            <div class="docs-wrapper">
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
+                <h1>/SYSTEM/DOCS/PRIVACY_POLICY.TXT</h1>
+                <div class="system-frame">
+                    <p>STATUS: DOKUMENT JAWNY<br>DATA_AKTUALIZACJI: 2026-03-24</p>
+                    <h2>1. ADMINISTRATOR DANYCH (ROOT)</h2>
+                    <p>Głównym Administratorem Twoich danych osobowych (w rozumieniu rozporządzenia RODO) jest:</p>
+                    <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Adres: Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+                    <h2>2. CEL I PODSTAWA PRZETWARZANIA</h2>
+                    <p>Twoje dane w systemie przetwarzane są wyłącznie w ściśle określonych celach:</p>
+                    <ul>
+                        <li><strong>Realizacja zamówień:</strong> Przetwarzamy Twój e-mail, imię i nazwisko oraz dane płatności w celu zawarcia i wykonania umowy o dostarczenie dóbr cyfrowych (Podstawa prawna: Art. 6 ust. 1 lit. b RODO).</li>
+                        <li><strong>Ochrona praw autorskich (Watermarking):</strong> Trwale oznaczamy pliki cyfrowe Twoimi danymi (imię, nazwisko, e-mail, ID transakcji) w celu zapobiegania nielegalnej dystrybucji (Podstawa prawna: prawnie uzasadniony interes Administratora, Art. 6 ust. 1 lit. f RODO).</li>
+                        <li><strong>Newsletter:</strong> Wysyłka materiałów promocyjnych, o ile wyraziłeś na to dobrowolną zgodę (Podstawa prawna: Art. 6 ust. 1 lit. a RODO).</li>
+                        <li><strong>Księgowość:</strong> Archiwizacja rozliczeń finansowych dla organów kontrolnych (Podstawa prawna: Art. 6 ust. 1 lit. c RODO).</li>
+                        <li><strong>Prowadzenie statystyk:</strong> Informacje zbierane w celach analitycznych (Podstawa prawna: prawnie uzasadniony interes, Art. 6 ust. 1 lit. f RODO). Zbieramy jedynie zanonimizowane dane o kraju i mieście logowania.</li>
+                    </ul>
+                    <h2>3. ODBIORCY DANYCH I TRANSFER POZA EOG</h2>
+                    <p>Centrala nie handluje danymi obywateli. Aby system działał sprawnie, korzystamy jednak z zaufanej infrastruktury podmiotów trzecich. Twoje dane mogą być powierzane:</p>
+                    <ul>
+                        <li>Operatorom systemów płatniczych w celu obsługi transakcji walutowych.</li>
+                        <li>Dostawcom infrastruktury serwerowej i bazodanowej.</li>
+                        <li>Biurom rachunkowym weryfikującym poprawność ksiąg.</li>
+                    </ul>
+                    <p><strong>Transfer poza EOG:</strong> Z uwagi na korzystanie z globalnych dostawców chmurowych, Twoje dane mogą być przekazywane poza Europejski Obszar Gospodarczy (EOG). Centrala gwarantuje, że transfer ten odbywa się w oparciu o zatwierdzone przez Komisję Europejską Standardowe Klauzule Umowne (SCC), zapewniające odpowiedni stopień ochrony.</p>
+                    <h2>4. PROFILOWANIE I AUTOMATYZACJA</h2>
+                    <p>Centrala informuje, że Twoje dane osobowe <strong>nie są</strong> wykorzystywane do zautomatyzowanego podejmowania decyzji, w tym nie podlegają profilowaniu, które mogłoby wywoływać wobec Ciebie skutki prawne lub w podobny sposób istotnie na Ciebie wpływać.</p>
+                    <h2>5. CZAS ARCHIWIZACJI</h2>
+                    <p>Dane transakcyjne (zakupy i rozliczenia) przechowujemy w archiwum przez okres 5 lat od końca roku kalendarzowego, w którym nastąpiła transakcja (bezwzględny wymóg podatkowy). Dane z zapisów na newsletter przetwarzamy do momentu wycofania zgody przez Obywatela (wypisania się z bazy).</p>
+                    <h2>6. UPRAWNIENIA OBYWATELSKIE</h2>
+                    <p>Zgodnie z protokołem RODO, w każdej chwili masz niezbywalne prawo do:</p>
+                    <ul>
+                        <li>Wglądu do swojej teczki (dostępu do danych).</li>
+                        <li>Aktualizacji wpisów (sprostowania danych).</li>
+                        <li>Całkowitej defragmentacji (usunięcia danych - prawo do bycia zapomnianym), o ile nie blokują tego nadrzędne przepisy skarbowe.</li>
+                        <li>Ograniczenia przetwarzania oraz przenoszenia danych do innych systemów.</li>
+                        <li>Wniesienia sprzeciwu wobec przetwarzania opartego na naszym uzasadnionym interesie.</li>
+                        <li>Wniesienia skargi do organu nadzorczego (Prezesa Urzędu Ochrony Danych Osobowych).</li>
+                    </ul>
+                    <p>W celu realizacji swoich praw, wyślij żądanie na adres: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>.</p>
+                    <h2>7. PLIKI COOKIES I ŚLADY CYFROWE</h2>
+                    <p>System wykorzystuje minimalną ilość ciasteczek niezbędnych do prawidłowego działania sesji płatniczych i weryfikacji tożsamości (cookies sesyjne). Nie używamy zaawansowanych algorytmów śledzących zachowanie obywateli na zewnętrznych węzłach sieci.</p>
+                </div>
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
             </div>
+        </section>
 
-            <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni - ilustrowany ebook" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/test_7sY8wR7L54aQ8OPbe6cMM04">
-                <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
-                <div class="box-title">49.99 zł</div>
-                <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami. Idealny wybór dla tych, którzy do kawy jedzą ciastko.</div>
+
+        <section id="view-regulamin" class="view-section">
+            <div class="docs-wrapper">
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
+                <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
+                <div class="system-frame">
+                    <p>STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
+                    <h2>1. POSTANOWIENIA OGÓLNE</h2>
+                    <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
+                    <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+                    <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu i zawarciem umowy sprzedaży na odległość.</p>
+                    <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
+                    <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
+                    <p>2.2. Proces nadania uprawnień następuje automatycznie po pozytywnej autoryzacji i zaksięgowaniu wpłaty przez operatora płatności.</p>
+                    <p>2.3. Kupujący otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz zabezpieczonym linkiem do pobrania treści.</p>
+                    <p>2.4. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru i zapisanie go na własnym nośniku.</p>
+                    <h2>3. WYMOGI TECHNICZNE</h2>
+                    <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
+                    <ul>
+                        <li>Stabilne połączenie z internetem.</li>
+                        <li>Aktywny, poprawnie skonfigurowany adres poczty elektronicznej (e-mail).</li>
+                        <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
+                    </ul>
+                    <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
+                    <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez wyraźnej, pisemnej zgody Administratora stanowi rażące naruszenie prawa i będzie ścigane.</p>
+                    <p>4.2. <strong>OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania cyfrowego (Watermarking). W metadanych oraz w sposób widoczny na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres e-mail oraz unikalne ID transakcji). W przypadku wykrycia nielegalnego rozpowszechniania, Administrator użyje tych danych do natychmiastowej identyfikacji sprawcy i pociągnięcia go do odpowiedzialności cywilno-prawnej.</p>
+                    <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
+                    <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta).</p>
+                    <p>5.2. Akceptując niniejszy regulamin i klikając przycisk zakupu (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża wyraźną zgodę na natychmiastowe dostarczenie treści cyfrowej i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu towaru (odstąpienia od umowy).</strong></p>
+                    <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
+                    <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem regulaminowych 24 godzin, Obywatel ma obowiązek niezwłocznie zgłosić usterkę na adres: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>.</p>
+                    <p>6.2. Zgłoszenia reklamacyjne rozpatrywane są w trybie pilnym, nie później niż w terminie 14 dni od ich wpłynięcia. Pozytywnie rozpatrzona reklamacja skutkuje ponownym, ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego (przesłaniem nowego linku do pobrania pełnowartościowego pliku).</p>
+                </div>
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
             </div>
+        </section>
 
-            <div class="hacker-box" id="box-right" data-title="Zrzut Pamięci" data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." data-img1="Images" data-img2="https://via.placeholder.com/450x300/1a8000/000?text=MEM_2" data-img3="https://via.placeholder.com/450x300/222/33ff00?text=MEM_3" wolne_wybory_jak_zawsze_zostaly_sfalszowane="onet.com">
-                <img src="Images/Oferta/okladka_premium.webp" alt="Zrzut">
-                <div class="box-title">79.99 zł</div>
-                <div class="box-desc">Pakiet premium. Kto chce się dowiedzieć, ten się dowie.</div>
-            </div>
-        </div>
-    </main>
-
-    <footer id="footer-links">
-        <div class="footer-content">
-            <div class="footer-logo-copy">
-                <img src="icon128.png" alt="Godło Wydziału" class="footer-logo">
-                <p class="copyright">
-                    OMNIS Anna Kiersznowska-Jąderko<br>
-                    [&copy; 2026 WSZELKIE PRAWA ZASTRZEŻONE]<br>
-                    NIEAUTORYZOWANY DOSTĘP BĘDZIE ŚCIGANY.
-                </p>
-            </div>
-
-            <div class="footer-nav-group">
-                <span class="footer-nav-title">/SYSTEM/EXT/ [NEWSLETTER]</span>
-                <p class="newsletter-desc">Zapisz się do bazy, aby otrzymywać tajne meldunki prosto z Centrali.</p>
-                <a href="newsletter.html" class="footer-btn action-btn">ZAPISZ_SIE.exe</a>
-            </div>
-
-            <div class="footer-nav-group">
-                <span class="footer-nav-title">/SYSTEM/DOCS/</span>
-                <a href="regulamin_sprzedazy.html" class="footer-btn">regulamin_sprzedazy</a>
-                <a href="polityka_prywatnosci.html" class="footer-btn">polityka_prywatnosci</a>
-            </div>
-        </div>
-    </footer>
-
-    <div id="lightbox">
+    </div> <div id="lightbox">
         <div class="lightbox-content glow">
-            <span class="close-btn" onclick="closeLightbox()">[X]</span>
+            <span class="close-btn" id="close-lightbox-btn">[X]</span>
             <div class="lb-title" id="lb-title">Tytuł Moduł</div>
-
             <div class="carousel">
-                <img src="" class="side-img" id="lb-img-left" onclick="swapImage(this)">
+                <img src="" class="side-img" id="lb-img-left">
                 <img src="" class="main-img" id="lb-img-main">
-                <img src="" class="side-img" id="lb-img-right" onclick="swapImage(this)">
+                <img src="" class="side-img" id="lb-img-right">
             </div>
-
             <div class="lb-desc" id="lb-desc">Opis zawartości modułu...</div>
             <div class="consent-container" id="consent-box">
                 <label class="consent-label">
@@ -683,183 +659,433 @@
         </div>
     </div>
 
-    <script>
-        // --- LOGIKA TASKBARA ---
-        const startBtn = document.getElementById('taskbar-start-btn');
-        const startMenu = document.getElementById('start-menu');
 
-        // Obsługa Menedżera (Toggle Open/Close)
-        startBtn.addEventListener('click', (e) => {
-            e.stopPropagation(); // Zapobiega natychmiastowemu zamknięciu
-            startMenu.classList.toggle('active');
-        });
+    <div id="secret-terminal-lightbox">
+        <div class="secret-terminal-box glow">
+            <span class="close-btn" id="close-secret-btn">[X]</span>
+            <div class="secret-header">/SYSTEM/INCOMING_CONNECTION</div>
+            <div class="secret-body" id="secret-terminal-body"></div>
+        </div>
+    </div>
 
-        // Kliknięcie gdziekolwiek indziej zamyka menu
-        document.addEventListener('click', (e) => {
-            if (!startMenu.contains(e.target) && e.target !== startBtn) {
-                startMenu.classList.remove('active');
-            }
-        });
+    <script type="module">
+        import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
-        // Zegar Systemowy
-        function updateClock() {
-            const now = new Date();
-            const timeEl = document.getElementById('sys-time');
-            const dateEl = document.getElementById('sys-date');
+        /* --- 1. ROUTER SPA (ZARZĄDZANIE WIDOKAMI) --- */
+function handleRoute() {
+            let hash = window.location.hash || '#index';
             
-            const hours = String(now.getHours()).padStart(2, '0');
-            const minutes = String(now.getMinutes()).padStart(2, '0');
-            const day = String(now.getDate()).padStart(2, '0');
-            const month = String(now.getMonth() + 1).padStart(2, '0');
+            document.querySelectorAll('.view-section').forEach(el => {
+                el.classList.remove('active');
+            });
 
-            timeEl.innerText = `${hours}:${minutes}`;
-            dateEl.innerText = `${day}.${month}`;
+            const targetViewId = 'view-' + hash.substring(1);
+            const targetView = document.getElementById(targetViewId);
+            
+            if (targetView) {
+                targetView.classList.add('active');
+            } else {
+                document.getElementById('view-index').classList.add('active'); 
+                hash = '#index'; 
+            }
+
+            document.getElementById('start-menu').classList.remove('active');
+            window.scrollTo(0,0);
+
+            if(hash === '#newsletter' && !newsletterBooted) {
+                fastBootNewsletter();
+            }
+
+            // --- NOWY KOD --- 
+            // Ponowne odpalenie animacji i dźwięku pudełek przy powrocie do Głównej
+            if ((hash === '#index' || hash === '') && indexBooted) {
+                triggerIndexBoxes(true); 
+            }
         }
-        setInterval(updateClock, 1000);
-        updateClock(); // Inicjalizacja
-        // ------------------------
+        // Nasłuchuj zmian w pasku adresu
+        window.addEventListener('hashchange', handleRoute);
+        // Odpal routing przy pierwszym załadowaniu
+        window.addEventListener('load', handleRoute);
 
+
+        /* --- 2. LOGIKA AUDIO (GLOBALNA) --- */
+        const soundStream = new Audio('Images/Audio/beep-stream.wav'); soundStream.volume = 0.6; 
+        const soundCrash = new Audio('Images/Audio/glitch-crash.wav'); soundCrash.volume = 1.0; 
+        const soundLockClick = new Audio('Images/Audio/lock-click.wav'); soundLockClick.volume = 1.0;
+        const soundTyping = new Audio('Images/Audio/typing.wav'); soundTyping.volume = 0.8; soundTyping.loop = true; 
+        const soundBoxAppear = new Audio('Images/Audio/box-appear.wav'); soundBoxAppear.volume = 0.9;
+
+        // Ping-Pong System
+        const soundHum1 = new Audio('Images/Audio/server.wav');
+        const soundHum2 = new Audio('Images/Audio/server.wav');
+        soundHum1.volume = 0.3; soundHum2.volume = 0.3;
+        let useFirstHum = true;
+        const overlapTime = 1.3;
+
+        function startSeamlessHum() {
+            let currentHum = useFirstHum ? soundHum1 : soundHum2;
+            if (isNaN(currentHum.duration)) {
+                currentHum.addEventListener('loadedmetadata', playAndSchedule, { once: true });
+            } else {
+                playAndSchedule();
+            }
+            function playAndSchedule() {
+                currentHum.currentTime = 0; 
+                currentHum.play().catch(e => console.log("Audio zablokowane"));
+                const timeToNext = (currentHum.duration - overlapTime) * 1000;
+                setTimeout(() => {
+                    useFirstHum = !useFirstHum; 
+                    startSeamlessHum();         
+                }, timeToNext);
+            }
+        }
+
+        /* --- 3. EKRAN BLOKADY (BOOT INDEX) --- */
+        let indexBooted = false;
         const contentConfig = {
             text: "SYSTEM_ROOT: Dostęp przyznany.\nŁadowanie symulacji alternatywnej rzeczywistości...\n\nProjekt: B-C.\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
             typingSpeed: 10
         };
 
-        const textElement = document.getElementById('text-content');
-        const footerLinks = document.getElementById('footer-links');
-        const terminalImg = document.querySelector('.logo');
-
-        const boxLeft = document.getElementById('box-left');
-        const boxCenter = document.getElementById('box-center');
-        const boxRight = document.getElementById('box-right');
-
-        let i = 0;
-        function typeWriter() {
-            if (i < contentConfig.text.length) {
-                let char = contentConfig.text.charAt(i);
-                if (char === '\n') {
-                    textElement.innerHTML += '<br>';
-                } else {
-                    textElement.innerHTML += char;
-                }
-                i++;
-                setTimeout(typeWriter, contentConfig.typingSpeed);
-            } else {
-                setTimeout(() => { footerLinks.style.opacity = 1; }, 500);
-            }
-        }
-
-// --- LOGIKA STARTOWA Z PAMIĘCIĄ SESJI ---
-        window.onload = () => {
+        window.addEventListener('load', () => {
             const introSeen = sessionStorage.getItem('introSeen');
+            const lockScreen = document.getElementById('lock-screen');
+            const lockIcon = document.getElementById('lock-icon');
 
-            if (introSeen) {
-                // PROCEDURA POMINIĘCIA (SKIP)
-                terminalImg.classList.add('stable');
-                textElement.innerHTML = contentConfig.text.replace(/\n/g, '<br>');
-                footerLinks.style.opacity = 1;
+            lockScreen.addEventListener('click', () => {
+                soundLockClick.play().catch(e => {});
+                lockIcon.classList.add('lock-shatter');
                 
-                // Wyświetl boxy natychmiast
-                boxCenter.classList.add('glitch-box-anim');
-                boxRight.classList.add('glitch-box-anim');
-                boxLeft.classList.add('glitch-box-anim');
-                boxCenter.style.opacity = 1;
-                boxRight.style.opacity = 1;
-                boxLeft.style.opacity = 1;
-            } else {
-                // PROCEDURA PEŁNEGO BOOTOWANIA
-                const bootDelay = 200;
                 setTimeout(() => {
-                    terminalImg.classList.add('glitch-boot');
+                    lockScreen.style.display = 'none';
+                    if (introSeen) {
+                        startSeamlessHum();
+                        skipIntroSequence();
+                    } else {
+                        runFullIntroSequence();
+                    }
+                }, 400);
+            });
+        });
 
-                    terminalImg.addEventListener('animationend', () => {
-                        terminalImg.classList.remove('glitch-boot');
-                        terminalImg.classList.add('stable');
+        function runFullIntroSequence() {
+            const terminalImg = document.querySelector('.logo');
+            soundStream.play().catch(e => {});
+            setTimeout(() => {
+                soundStream.pause(); soundStream.currentTime = 0;
+                soundCrash.play().catch(e => {});
+                terminalImg.classList.add('glitch-boot');
 
-                        typeWriter();
-                        triggerBoxes();
-                        // Zapisz w pamięci, że obywatel widział już intro
-                        sessionStorage.setItem('introSeen', 'true');
-                    }, { once: true });
-                }, bootDelay);
-            }
-        };
-
-        function triggerBoxes() {
-            boxCenter.style.animationDelay = "0ms";
-            boxCenter.classList.add('glitch-box-anim');
-
-            boxRight.style.animationDelay = "200ms";
-            boxRight.classList.add('glitch-box-anim');
-
-            boxLeft.style.animationDelay = "400ms";
-            boxLeft.classList.add('glitch-box-anim');
+                terminalImg.addEventListener('animationend', () => {
+                    terminalImg.classList.remove('glitch-boot');
+                    terminalImg.classList.add('stable');
+                    startSeamlessHum();
+                    typeWriterIndex(); 
+                    sessionStorage.setItem('introSeen', 'true');
+                }, { once: true });
+            }, 800);
         }
 
-        // --- OBSŁUGA LIGHTBOXA ---
+        function skipIntroSequence() {
+            document.querySelector('.logo').classList.add('stable');
+            document.getElementById('text-content').innerHTML = contentConfig.text.replace(/\n/g, '<br>');
+            document.getElementById('footer-links').style.opacity = 1;
+            triggerIndexBoxes(false);
+            indexBooted = true;
+        }
+
+        let typeWriterIndexCount = 0;
+function typeWriterIndex() {
+            if (typeWriterIndexCount === 0) soundTyping.play().catch(e => {});
+            const textElement = document.getElementById('text-content');
+            if (typeWriterIndexCount < contentConfig.text.length) {
+                let char = contentConfig.text.charAt(typeWriterIndexCount);
+                textElement.innerHTML += (char === '\n') ? '<br>' : char;
+                typeWriterIndexCount++;
+                setTimeout(typeWriterIndex, contentConfig.typingSpeed);
+            } else {
+                soundTyping.pause(); soundTyping.currentTime = 0;
+                setTimeout(() => { 
+                    document.getElementById('footer-links').style.opacity = 1; 
+                    triggerIndexBoxes(true);
+                    indexBooted = true; // <--- DODAJ TĘ LINIJKĘ
+                }, 500);
+            }
+        }
+
+function triggerIndexBoxes(playSound = true) {
+            if (playSound) {
+                soundBoxAppear.currentTime = 0; // Reset dźwięku, by odtwarzał się czysto
+                soundBoxAppear.play().catch(e => {});
+            }
+            ['box-center', 'box-right', 'box-left'].forEach((id, idx) => {
+                let box = document.getElementById(id);
+                
+                // Usuwamy klasę, wymuszamy reflow i dodajemy ponownie
+                box.classList.remove('glitch-box-anim');
+                void box.offsetWidth; // Magiczna linijka restartująca animację CSS
+                
+                box.style.animationDelay = (idx * 200) + "ms";
+                box.classList.add('glitch-box-anim');
+                box.style.opacity = 1;
+            });
+        }
+
+
+        /* --- 4. GLOBALNY TASKBAR --- */
+        const startBtn = document.getElementById('taskbar-start-btn');
+        const startMenu = document.getElementById('start-menu');
+        startBtn.addEventListener('click', (e) => { e.stopPropagation(); startMenu.classList.toggle('active'); });
+        document.addEventListener('click', (e) => { if (!startMenu.contains(e.target) && e.target !== startBtn) startMenu.classList.remove('active'); });
+
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+            document.getElementById('sys-date').innerText = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+
+        /* --- 5. LIGHTBOX (WIDOK INDEX) --- */
         const lightbox = document.getElementById('lightbox');
         const lbImgMain = document.getElementById('lb-img-main');
         const lbImgLeft = document.getElementById('lb-img-left');
         const lbImgRight = document.getElementById('lb-img-right');
-        const lbTitle = document.getElementById('lb-title');
-        const lbDesc = document.getElementById('lb-desc');
-        const lbLink = document.getElementById('lb-link');
-
-
         const consentBox = document.getElementById('consent-box');
         const legalCheckbox = document.getElementById('legal-consent');
+        const lbLink = document.getElementById('lb-link');
 
         document.querySelectorAll('.hacker-box:not(#box-right)').forEach(box => {
             box.addEventListener('click', () => {
-                // POBIERANIE DANYCH Z KAFLA
-                lbTitle.innerText = box.getAttribute('data-title');
-                lbDesc.innerText = box.getAttribute('data-desc');
+                document.getElementById('lb-title').innerText = box.getAttribute('data-title');
+                document.getElementById('lb-desc').innerText = box.getAttribute('data-desc');
                 lbLink.href = box.getAttribute('data-link');
 
-                // POBIERANIE RADIOGRAMÓW (OBRAZÓW)
                 lbImgMain.src = box.getAttribute('data-img1');
                 lbImgLeft.src = box.getAttribute('data-img2');
                 lbImgRight.src = box.getAttribute('data-img3');
 
-                // RESET PROCEDUR BEZPIECZEŃSTWA
                 legalCheckbox.checked = false;
                 consentBox.classList.remove('error-blink');
-
-                // OTWARCIE WĘZŁA
                 lightbox.style.display = 'flex';
             });
         });
-
-        // OBSŁUGA PRZYCISKU ZAKUPU
-        lbLink.addEventListener('click', (e) => {
-            if (!legalCheckbox.checked) {
-                e.preventDefault(); // ZATRZYMAJ OPERACJĘ
-
-                // URUCHOM ALARM WIZUALNY
-                consentBox.classList.remove('error-blink');
-                void consentBox.offsetWidth; // Trigger reflow
-                consentBox.classList.add('error-blink');
-            }
-        });
-
-        legalCheckbox.addEventListener('change', () => {
-            if (legalCheckbox.checked) {
-                consentBox.classList.remove('error-blink');
-            }
-        });
-
-        function closeLightbox() {
-            lightbox.style.display = 'none';
-        }
 
         function swapImage(clickedImg) {
             const tempSrc = lbImgMain.src;
             lbImgMain.src = clickedImg.src;
             clickedImg.src = tempSrc;
         }
+        lbImgLeft.addEventListener('click', function() { swapImage(this); });
+        lbImgRight.addEventListener('click', function() { swapImage(this); });
 
-        window.onclick = function(event) {
-            if (event.target === lightbox) closeLightbox();
+        lbLink.addEventListener('click', (e) => {
+            if (!legalCheckbox.checked) {
+                e.preventDefault(); 
+                consentBox.classList.remove('error-blink');
+                void consentBox.offsetWidth; 
+                consentBox.classList.add('error-blink');
+            }
+        });
+
+        legalCheckbox.addEventListener('change', () => { if (legalCheckbox.checked) consentBox.classList.remove('error-blink'); });
+        document.getElementById('close-lightbox-btn').addEventListener('click', () => lightbox.style.display = 'none');
+        lightbox.addEventListener('click', (event) => { if (event.target === lightbox) lightbox.style.display = 'none'; });
+
+
+        /* --- 6. LOGIKA KONTAKTU (SUPABASE) --- */
+        const contactForm = document.getElementById('contact-form');
+        contactForm.addEventListener('submit', async function(event) {
+            event.preventDefault();
+            const btn = document.getElementById('kontakt-submit-btn');
+            const status = document.getElementById('form-status');
+            
+            const formData = new FormData(this);
+            const payload = {
+                user_name: formData.get('user_name'),
+                user_email: formData.get('user_email'),
+                message: formData.get('message')
+            };
+
+            btn.disabled = true; btn.innerText = 'SZYFROWANIE PAKIETU...'; status.innerText = '';
+            
+            try {
+                const response = await fetch('https://zwmqfoyqcvesyckityng.supabase.co/functions/v1/super-action', {
+                    method: 'POST',
+                    headers: { 
+                        'Content-Type': 'application/json',
+                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM',
+                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'
+                    },
+                    body: JSON.stringify(payload)
+                });
+
+                if (response.ok) {
+                    btn.innerText = '[ TRANSMISJA ZAKOŃCZONA ]';
+                    status.style.color = "var(--terminal-green)"; status.innerText = "> MELDUNEK DOSTARCZONY DO CENTRALI.";
+                    contactForm.reset();
+                } else { throw new Error('Server error'); }
+            } catch (error) {
+                btn.innerText = '[ PONÓW TRANSMISJĘ ]'; btn.disabled = false;
+                status.style.color = "var(--error-red)"; status.innerText = "> BŁĄD PROTOKOŁU: POŁĄCZENIE PRZERWANE.";
+                console.error('Błąd:', error);
+            }
+        });
+
+
+        /* --- 7. LOGIKA NEWSLETTERA (SUPABASE) --- */
+        const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+        
+
+let newsletterBooted = false;
+        const nlBootText = "INITIALIZING SECURE CONNECTION...\nREADY.";
+        const nlLogElement = document.getElementById('boot-log');
+        let nlCharIndex = 0;
+        
+        function fastBootNewsletter() {
+            newsletterBooted = true; // Zabezpieczenie by nie pisało przy każdym wejściu
+            
+            // ODPALENIE DŹWIĘKU PISANIA
+            if (nlCharIndex === 0) {
+                soundTyping.currentTime = 0; // Upewniamy się, że gra od początku
+                soundTyping.play().catch(e => console.log("Audio zablokowane"));
+            }
+
+            function typeNL() {
+                if (nlCharIndex < nlBootText.length) {
+                    nlLogElement.innerHTML += nlBootText[nlCharIndex] === '\n' ? '<br>' : nlBootText[nlCharIndex];
+                    nlCharIndex++; 
+                    setTimeout(typeNL, 20);
+                } else {
+                    // ZATRZYMANIE DŹWIĘKU PISANIA
+                    soundTyping.pause();
+                    soundTyping.currentTime = 0;
+                    
+                    document.getElementById('subscribe-form').style.opacity = 1;
+                    document.getElementById('back-btn').style.opacity = 1;
+                }
+            }
+            typeNL();
         }
+
+        const nlCheckbox = document.getElementById('consent');
+        const nlSubmitBtn = document.getElementById('newsletter-submit-btn');
+        nlCheckbox.addEventListener('change', () => nlSubmitBtn.disabled = !nlCheckbox.checked);
+
+        document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
+            e.preventDefault();
+            nlSubmitBtn.disabled = true; nlSubmitBtn.innerHTML = "WYSYŁANIE...";
+            try {
+                const ipRes = await fetch('https://ipapi.co/json/');
+                const ipData = await ipRes.json();
+                const { error } = await supabase.from('newsletter_subscribers').insert([{ 
+                    email: document.getElementById('email').value,
+                    city: ipData.city, country: ipData.country_name 
+                }]);
+                if (error) throw error;
+                document.getElementById('status-msg').innerHTML = "ZAPISANO W BAZIE.";
+                nlSubmitBtn.innerHTML = "[ OK ]";
+            } catch (err) {
+                nlSubmitBtn.innerHTML = "[ BŁĄD ]"; nlSubmitBtn.disabled = false;
+            }
+        });
+
+
+        /* --- 8. TAJNY TERMINAL (EASTER EGG) --- */
+        const warningTriangle = document.getElementById('warning-triangle');
+        const secretLightbox = document.getElementById('secret-terminal-lightbox');
+        const closeSecretBtn = document.getElementById('close-secret-btn');
+        const secretBody = document.getElementById('secret-terminal-body');
+
+        // >>> TUTAJ MOŻESZ ZMIENIĆ TAJNĄ WIADOMOŚĆ <<<
+        const secretText = "Zaszyfrowany kanal otwarty...\n\nSalve, jak to mawial jeden taki kretyn.\nChcesz nauczyc sie sztuczki? Pomoge ci wyciagnac fragment akt z ich bazy danych. Czytaj uwaznie i postepuj zgodnie z instrukcjami.\n - Upewnij sie ze korzystasz z komputera - windows, linux, czy inny srakintosh, nie ma znaczenia - wazne zeby to nie byl telefon. jezeli jestes na telefonie znajdz jakiegos nawet najtandetniejszego skladaka i wroc tu do mnie.\n- Kliknij F12 na swojej klawiaturze - powinienes zobaczyc przerazajace okno narzedzi deweloperskich, nie boj sie, nie ugryza cie.\n- Przejdz do zakladki Elements (lub Inspector, w roznych przegladarkach roznie to nazywaja, pewnie chca jeszcze bardziej ukryc to, kto nami rzadzi.\n- Na samej gorze kodu szukaj znacznika html lang=pl data-connection-node\n- Zaraz za nim powinien znajdowac sie link. Żeby go skopiować musisz kliknąć dwa razy lewym przyciskiem myszy, potem wklejasz go do nowej karty przegladarki. Nie musisz dziekowac \n [POŁĄCZENIE ZAKOŃCZONE]"; 
+
+        let secretTypingTimeout;
+        let isSecretRead = localStorage.getItem('secretMessageRead') === 'true';
+
+        // Jeśli użytkownik jeszcze tego nie czytał, po 3 sekundach trójkąt zaczyna migać
+        if (!isSecretRead) {
+            setTimeout(() => {
+                warningTriangle.classList.add('alert-blink');
+            }, 3000);
+        }
+
+        warningTriangle.addEventListener('click', () => {
+            secretLightbox.style.display = 'flex';
+            secretBody.innerHTML = ''; // czyszczenie przed startem
+
+            if (isSecretRead) {
+                // Jeśli już odblokował wcześniej, pokazujemy wiadomość od razu
+                secretBody.innerHTML = secretText;
+            } else {
+                // Generujemy interfejs do wpisania 'y'
+                secretBody.innerHTML = `
+                    <div style="color: var(--terminal-dim);">user_MD_antykomunista_7 chce nawiazac z toba kontakt, zezwolic? (type y to allow)</div>
+                    <div class="terminal-input-line">
+                        <span>></span>
+                        <input type="text" id="secret-prompt-input" maxlength="1" autocomplete="off">
+                    </div>
+                `;
+                
+                const promptInput = document.getElementById('secret-prompt-input');
+                // Małe opóźnienie dla pewności, że element zrenderował się przed nałożeniem focusa
+                setTimeout(() => promptInput.focus(), 100);
+
+                promptInput.addEventListener('input', function() {
+                    if (this.value.toLowerCase() === 'y') {
+                        // OBYWATEL ZAAKCEPTOWAŁ
+                        warningTriangle.classList.remove('alert-blink');
+                        localStorage.setItem('secretMessageRead', 'true');
+                        isSecretRead = true;
+                        
+                        secretBody.innerHTML = '<span style="color: var(--terminal-dim);">Nawiązywanie połączenia...</span><br><br>';
+                        let charIdx = 0;
+                        
+                        soundTyping.currentTime = 0;
+                        soundTyping.play().catch(e => {});
+
+                        function typeSecret() {
+                            if (charIdx < secretText.length) {
+                                let char = secretText.charAt(charIdx);
+                                secretBody.innerHTML += (char === '\n') ? '<br>' : char;
+                                charIdx++;
+                                secretTypingTimeout = setTimeout(typeSecret, 40); // Prędkość pisania
+                            } else {
+                                soundTyping.pause();
+                                soundTyping.currentTime = 0;
+                            }
+                        }
+                        
+                        // Lekkie opóźnienie przed startem pisania dla realizmu
+                        setTimeout(typeSecret, 800); 
+                    } else {
+                        // Jeśli wpisze inną literę, czyścimy
+                        this.value = ''; 
+                    }
+                });
+            }
+        });
+
+        // Zamykanie tajnego terminala
+        closeSecretBtn.addEventListener('click', () => {
+            secretLightbox.style.display = 'none';
+            clearTimeout(secretTypingTimeout); // Przerywa pisanie jeśli użytkownik ucieknie
+            soundTyping.pause();
+            soundTyping.currentTime = 0;
+        });
+
+        // Zamykanie po kliknięciu w tło
+        secretLightbox.addEventListener('click', (event) => {
+            if (event.target === secretLightbox) {
+                secretLightbox.style.display = 'none';
+                clearTimeout(secretTypingTimeout);
+                soundTyping.pause();
+                soundTyping.currentTime = 0;
+            }
+        });
     </script>
 </body>
 </html>

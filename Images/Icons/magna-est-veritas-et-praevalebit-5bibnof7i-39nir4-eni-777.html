@@ -24,7 +24,7 @@
         #lock-icon {
             width: 150px;
             /* Zmienia zielony na czerwony: */
-            filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(90%) contrast(120%);
+            
             animation: lock-pulse 1.5s infinite alternate ease-in-out;
             transition: all 0.2s;
         }
@@ -44,10 +44,18 @@
             text-transform: uppercase;
         }
 
-        @keyframes lock-pulse {
-            0% { transform: scale(1); filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(80%) drop-shadow(0 0 5px red); }
-            100% { transform: scale(1.1); filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(120%) drop-shadow(0 0 25px red); }
-        }
+@keyframes lock-pulse {
+    0% { 
+        transform: scale(1); 
+        /* brightness(0) robi z obrazka czarną sylwetkę, reszta nakłada idealny #ff0033 */
+        filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(3000%) hue-rotate(345deg) brightness(95%) contrast(120%) drop-shadow(0 0 8px rgba(255, 0, 51, 0.9)); 
+    }
+    100% { 
+        transform: scale(1.15); 
+        filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(6000%) hue-rotate(345deg) brightness(130%) contrast(140%) drop-shadow(0 0 35px #ff0033); 
+    
+    }
+}
 
         /* Animacja pękania kłódki */
         .lock-shatter {
@@ -287,7 +295,14 @@
         #footer-links { width: 100%; background: #010000; border-top: 2px dashed var(--dark-red); padding: 3rem 2rem; opacity: 0; z-index: 3; }
         .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
         .copyright { color: var(--dark-red); font-size: 1rem; text-align: start; text-transform: uppercase; letter-spacing: 2px; }
+
+        .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
         
+
+         .footer-btn { color: var(--terminal-dim); text-decoration: none; font-size: 1.2rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
+        .footer-btn:hover { color: var(--terminal-green); }
+        .footer-btn:hover::before { opacity: 1; color: var(--terminal-green); }
         /* --- ANIMACJE CRASH/GLITCH --- */
         .extreme-boot { animation: brutal-glitch 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
         .glitch-box-anim { animation: box-appear 0.5s forwards; }
@@ -309,6 +324,81 @@
         @keyframes glitch-skew { 0%, 60% { transform: skew(0deg); } 20% { transform: skew(-5deg); } 40% { transform: skew(5deg); } 80% { transform: skew(2deg); } 100% { transform: skew(-2deg); } }
         @keyframes float-glitch { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px) skewX(1deg); } 50% { transform: translate(0, -2px); filter: brightness(1.5); } 75% { transform: translate(2px, 0) skewX(-1deg); } }
         @keyframes box-appear { 0% { opacity: 0; transform: translateY(20px) scale(0.9); filter: blur(5px); } 50% { opacity: 1; filter: invert(1); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: none; } }
+    
+    /* --- HACKER LIGHTBOX --- */
+        #download-modal {
+            position: fixed;
+            top: 0; left: 0; width: 100vw; height: 100vh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9000; /* Nad wszystkim, ale pod binary-overlay */
+            display: flex; justify-content: center; align-items: center;
+            opacity: 0; pointer-events: none;
+            transition: opacity 0.3s ease-in-out;
+        }
+
+        #download-modal.active {
+            opacity: 1; pointer-events: auto;
+        }
+
+        .modal-content {
+            background: rgba(15, 0, 0, 0.95);
+            border: 2px dashed var(--blood-red);
+            width: 90%; max-width: 800px;
+            padding: 30px; position: relative;
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.3), inset 0 0 20px rgba(255, 0, 51, 0.2);
+            display: flex; flex-direction: column;
+            /* Używamy Twojej istniejącej animacji wejścia boxa! */
+            animation: box-appear 0.4s forwards;
+        }
+
+        #close-modal {
+            position: absolute; top: 15px; right: 20px;
+            color: var(--dark-red); font-size: 1.2rem; cursor: pointer;
+            transition: 0.2s; letter-spacing: 2px;
+        }
+
+        #close-modal:hover {
+            color: white; text-shadow: 0 0 10px var(--blood-red);
+            transform: scale(1.05);
+        }
+
+        .modal-body {
+            display: flex; gap: 30px; margin-top: 20px; flex-wrap: wrap;
+        }
+
+        .modal-img {
+            flex: 1; min-width: 200px; max-width: 250px; object-fit: cover;
+            border: 1px solid var(--blood-red);
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(300%) contrast(1.5);
+            box-shadow: 0 0 15px rgba(255,0,0,0.2);
+        }
+
+        .modal-info {
+            flex: 2; display: flex; flex-direction: column; justify-content: space-between; text-align: left;
+        }
+
+        .modal-info h2 { color: white; font-size: 2rem; margin-bottom: 15px; }
+        .modal-desc { color: #aaa; font-size: 1.1rem; line-height: 1.5; margin-bottom: 25px; }
+
+        .modal-buttons { display: flex; flex-direction: column; gap: 15px; }
+
+        .dl-btn {
+            background: transparent; border: 1px dashed var(--dark-red);
+            color: var(--blood-red); padding: 12px 20px;
+            font-family: 'VT323', monospace; font-size: 1.3rem;
+            text-decoration: none; text-align: center; text-transform: uppercase;
+            transition: all 0.2s; cursor: crosshair;
+        }
+
+        .dl-btn:hover {
+            background: rgba(255, 0, 51, 0.1); border: 1px solid var(--blood-red);
+            color: white; text-shadow: 0 0 5px var(--blood-red);
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.5), inset 0 0 10px rgba(255, 0, 51, 0.3);
+            transform: translateX(5px);
+        }
+    
+    
     </style>
 </head>
 <body id="top">
@@ -370,11 +460,31 @@
 
             <div class="hacker-box" id="box-right">
                 <img src="../Oferta/okladka.webp" alt="Zrzut">
-                <div class="box-title">WIRUS_PRAWDY.exe</div>
+                <div class="box-title">AKTA_SPRAWY</div>
                 <div class="box-desc">Pobranie grozi nieodwracalną zmianą świadomości.</div>
             </div>
         </div>
     </main>
+
+    <div id="download-modal">
+        <div class="modal-content">
+            <span id="close-modal">[X] ZAMKNIJ_PROCES</span>
+            <div class="modal-body">
+                <img src="../Oferta/okladka.webp" alt="AKTA SPRAWY" class="modal-img">
+                <div class="modal-info">
+                    <h2 class="glow">> AKTA_SPRAWY</h2>
+                    <p class="modal-desc">
+                        [ OSTRZEZENIE_SYSTEMOWE ]<br>
+                        Skoro dotarłeś aż tutaj, udowodniłeś, że zasługujesz na zapoznanie się z aktami sprawy. Pobierasz na własne ryzyko. <br> Wybierz format nośnika:
+                    </p>
+                    <div class="modal-buttons">
+                        <a href="#" download class="dl-btn">>> INICJUJ_POBIERANIE [.PDF]</a>
+                        <a href="#" download class="dl-btn">>> INICJUJ_POBIERANIE [.EPUB]</a>
+                    </div>
+                </div>
+            </div>
+        </div>
+    </div>
 
     <footer id="footer-links">
         <div class="footer-content">
@@ -387,205 +497,205 @@
                 - ZOSTAŁEŚ OSTRZEŻONY
                 
             </p>
+                        <div class="footer-nav-group">
+                <span class="footer-nav-title">/SYSTEM/DOCS/</span>
+                <a href="../../index.html" class="footer-btn">powrot_do_systemu_glownego</a>
+                
+            </div>
         </div>
     </footer>
 
-    <script>
+    
 
 
 
-        // --- DŹWIĘKI SYSTEMOWE ---
-// Przygotowujemy zmienne dla ścieżek audio
-const soundStream = new Audio('../beep-stream.mp3');
-soundStream.volume = 0.6; // Trochę ciszej
+<script>
 
-const soundCrash = new Audio('../glitch-crash.wav');
-soundCrash.volume = 1.0; // Maksymalna głośność dla efektu zaskoczenia
+// --- DŹWIĘKI SYSTEMOWE ---
+const soundStream = new Audio('../Audio/beep-stream.wav');
+soundStream.volume = 0.6; 
 
-const soundHum = new Audio('../server-hum.mp3');
-soundHum.volume = 0.3; // Bardzo ciche, w tle
-soundHum.loop = true;  // Zapętlone w nieskończoność
+const soundCrash = new Audio('../Audio/glitch-crash.wav');
+soundCrash.volume = 1.0; 
 
-// Uruchomienie
+const soundHum = new Audio('../Audio/server-hum-dark.wav');
+soundHum.volume = 0.3; 
+soundHum.loop = true;  
+
+const soundLockClick = new Audio('../Audio/lock-click.wav');
+soundLockClick.volume = 1.0;
+
+
+const soundTyping = new Audio('../Audio/typing.wav'); // <-- PODMIEŃ NA SWOJĄ ŚCIEŻKĘ
+soundTyping.volume = 0.8;
+soundTyping.loop = true; // Zapętlamy, aby dźwięk trwał aż do końca pisania
+
+const soundBoxAppear = new Audio('../Audio/box-appear.wav'); // <-- PODMIEŃ NA SWOJĄ ŚCIEŻKĘ
+soundBoxAppear.volume = 0.9;
+
+
+// --- PĘDZĄCY KOD (MATRIX OVERLAY) ---
+const stream = document.getElementById('binary-stream');
+function fillOverlay() {
+    let bin = '';
+    for(let i=0; i<12000; i++) {
+        bin += Math.random() > 0.5 ? '1 ' : '0 ';
+    }
+    stream.innerHTML = bin;
+}
+fillOverlay();
+
+
+// --- ZMIENNE DO ANIMACJI ---
+const finalMessage = "FATAL_ERROR: czasu_nie_da_sie_cofnac...\n> Przepustka_architekta_systemu_przyznana\n> Omijanie_zabezpieczen...\n\nOperacja_niestety_zakonczona_sukcesem.\n Bedziesz_tego_zalowac..";
+const textElement = document.getElementById('text-content');
+const footerLinks = document.getElementById('footer-links');
+const terminalImg = document.querySelector('.logo');
+
+const boxLeft = document.getElementById('box-left');
+const boxCenter = document.getElementById('box-center');
+const boxRight = document.getElementById('box-right');
+
+
+// --- FUNKCJA DEKODOWANIA TEKSTU ---
+function decryptText(text, targetElement) {
+    let currentText = "";
+    let charIndex = 0;
+    
+    // 2. ODPALAMY DŹWIĘK PISANIA ZARAZ PO ROZPOCZĘCIU FUNKCJI
+    soundTyping.play().catch(e => console.log("Audio zablokowane"));
+    
+    function decodeNextChar() {
+        if (charIndex >= text.length) {
+            // 3. ZATRZYMUJEMY DŹWIĘK PISANIA, BO TEKST SIĘ SKOŃCZYŁ
+            soundTyping.pause();
+            soundTyping.currentTime = 0;
+
+            setTimeout(() => { 
+                footerLinks.style.opacity = 1;
+                triggerBoxes();
+            }, 500);
+            return;
+        }
+
+        let char = text.charAt(charIndex);
+        if (char === '\n') {
+            currentText += '<br>';
+            targetElement.innerHTML = currentText;
+            charIndex++;
+            setTimeout(decodeNextChar, 50);
+            return;
+        }
+
+        let iterations = 0;
+        let maxIterations = Math.floor(Math.random() * 3) + 2; 
+        
+        let scrambleInterval = setInterval(() => {
+            let randomBin = Math.random() > 0.5 ? '1' : '0';
+            targetElement.innerHTML = currentText + randomBin;
+            iterations++;
+
+            if (iterations >= maxIterations) {
+                clearInterval(scrambleInterval);
+                currentText += char;
+                targetElement.innerHTML = currentText;
+                charIndex++;
+                setTimeout(decodeNextChar, 15); 
+            }
+        }, 2); 
+    }
+    decodeNextChar();
+}
+
+function triggerBoxes() {
+
+    soundBoxAppear.play().catch(e => console.log("Audio zablokowane"));
+    boxCenter.style.animationDelay = "0ms"; boxCenter.classList.add('glitch-box-anim');
+    boxRight.style.animationDelay = "200ms"; boxRight.classList.add('glitch-box-anim');
+    boxLeft.style.animationDelay = "400ms"; boxLeft.classList.add('glitch-box-anim');
+}
+
+
+// --- JEDEN, SCALONY WINDOW.ONLOAD ---
 window.onload = () => {
     const lockScreen = document.getElementById('lock-screen');
     const lockIcon = document.getElementById('lock-icon');
     const overlay = document.getElementById('binary-overlay');
 
-    // Zegar startuje od razu w tle
     setInterval(() => {
         document.getElementById('sys-time').innerText = Math.random() > 0.5 ? "99:99" : "00:00";
     }, 1500);
 
-    // CZEKAMY NA KLIKNIĘCIE W KŁÓDKĘ
     lockScreen.addEventListener('click', () => {
-        // 1. Kłódka crashuje
+        
+        soundLockClick.play().catch(e => console.log("Audio zablokowane przez przeglądarkę"));
         lockIcon.classList.add('lock-shatter');
         
         setTimeout(() => {
-            // 2. Usuwamy ekran blokady
             lockScreen.style.display = 'none';
-            
-            // 3. Odpalamy pędzący kod ORAZ dźwięk cyfr
-            // .catch() łapie ewentualne blokady przeglądarki
             soundStream.play().catch(e => console.log("Audio zablokowane"));
-            
-            startMainSequence();
-        }, 400); // Czas animacji pękania kłódki
+            startMainSequence(overlay);
+        }, 400);
     });
 }
 
-function startMainSequence() {
-    const overlay = document.getElementById('binary-overlay');
-    
-    // Kod pędzi przez 1 sekundę
+// --- GŁÓWNA SEKWENCJA URUCHAMIANIA ---
+function startMainSequence(overlay) {
     setTimeout(() => {
-        // 1. Wyłączamy dźwięk liczenia (jeśli plik był za długi)
         soundStream.pause();
         soundStream.currentTime = 0;
-
-        // 2. Odpalamy uderzenie błędu (GLITCH)
         soundCrash.play().catch(e => console.log("Audio zablokowane"));
 
-        // 3. Zatrzymujemy wizualnie kod
         stream.style.animationPlayState = 'paused';
         overlay.classList.add('crash-sequence');
 
         setTimeout(() => {
-            // Po glitchu, włączamy mroczne buczenie w tle
             soundHum.play().catch(e => console.log("Audio zablokowane"));
-
             overlay.style.display = 'none';
             terminalImg.classList.add('extreme-boot');
 
             terminalImg.addEventListener('animationend', () => {
                 terminalImg.classList.remove('extreme-boot');
                 terminalImg.classList.add('stable');
+                
+                // Odpalenie funkcji pisania tekstu (z dźwiękiem) po gltichu
                 decryptText(finalMessage, textElement);
             }, { once: true });
-        }, 300); // Tyle trwa class .crash-sequence
-    }, 1000); // Czas trwania lotu cyfr
+        }, 300); 
+    }, 1000); 
 }
 
-// --- PĘDZĄCY KOD (MATRIX OVERLAY) ---
-        const stream = document.getElementById('binary-stream');
-        function fillOverlay() {
-            let bin = '';
-            // Generujemy wystarczająco dużo znaków na długi strumień
-            for(let i=0; i<12000; i++) {
-                bin += Math.random() > 0.5 ? '1 ' : '0 ';
-            }
-            stream.innerHTML = bin;
-        }
-        fillOverlay();
 
-        // Dekodowanie Tekstu - Lżejsza Wersja
-        const finalMessage = "FATAL_ERROR: powrot_do_systemu_glownego_niemozliwy...\n> Przepustka_architekta_systemu_przyznana\n> Omijanie_zabezpieczen...\n\nOperacja_niestety_zakonczona_sukcesem.\n Bedziesz_tego_zalowac..";
-        const textElement = document.getElementById('text-content');
-        const footerLinks = document.getElementById('footer-links');
-        const terminalImg = document.querySelector('.logo');
-        
-        const boxLeft = document.getElementById('box-left');
-        const boxCenter = document.getElementById('box-center');
-        const boxRight = document.getElementById('box-right');
+// --- LOGIKA LIGHTBOXA ---
+const downloadModal = document.getElementById('download-modal');
+const closeModalBtn = document.getElementById('close-modal');
 
-function decryptText(text, targetElement) {
-            let currentText = "";
-            let charIndex = 0;
-            
-            function decodeNextChar() {
-                // SPRAWDZANIE CZY TO KONIEC TEKSTU
-                if (charIndex >= text.length) {
-                    setTimeout(() => { 
-                        footerLinks.style.opacity = 1; // Pojawia się stopka
-                        triggerBoxes();                // <--- TO BYŁ BRAKUJĄCY ELEMENT!
-                    }, 500);
-                    return;
-                }
+// Otwieranie po kliknięciu w box-right
+boxRight.addEventListener('click', () => {
+    // Odpalamy dźwięk kliknięcia dla lepszego efektu
+    soundLockClick.play().catch(e => console.log("Audio zablokowane"));
+    downloadModal.classList.add('active');
+});
 
-                let char = text.charAt(charIndex);
-                if (char === '\n') {
-                    currentText += '<br>';
-                    targetElement.innerHTML = currentText;
-                    charIndex++;
-                    setTimeout(decodeNextChar, 50);
-                    return;
-                }
+// Zamykanie krzyżykiem
+closeModalBtn.addEventListener('click', () => {
+    downloadModal.classList.remove('active');
+});
 
-                let iterations = 0;
-                let maxIterations = Math.floor(Math.random() * 3) + 2; 
-                
-                let scrambleInterval = setInterval(() => {
-                    let randomBin = Math.random() > 0.5 ? '1' : '0';
-                    targetElement.innerHTML = currentText + randomBin;
-                    iterations++;
+// Zamykanie po kliknięciu w tło (poza oknem)
+window.addEventListener('click', (e) => {
+    if (e.target === downloadModal) {
+        downloadModal.classList.remove('active');
+    }
+});
 
-                    if (iterations >= maxIterations) {
-                        clearInterval(scrambleInterval);
-                        currentText += char;
-                        targetElement.innerHTML = currentText;
-                        charIndex++;
-                        setTimeout(decodeNextChar, 15); 
-                    }
-                }, 2); 
-            }
-            decodeNextChar();
-        }
+</script>
 
 
-// Uruchomienie
-window.onload = () => {
-            const lockScreen = document.getElementById('lock-screen');
-            const lockIcon = document.getElementById('lock-icon');
-            const overlay = document.getElementById('binary-overlay');
 
-            // Zegar startuje od razu w tle
-            setInterval(() => {
-                document.getElementById('sys-time').innerText = Math.random() > 0.5 ? "99:99" : "00:00";
-            }, 1500);
 
-            // CZEKAMY NA KLIKNIĘCIE W KŁÓDKĘ
-            lockScreen.addEventListener('click', () => {
-                // 1. Kłódka crashuje
-                lockIcon.classList.add('lock-shatter');
-                
-                // 2. Opcjonalnie: dodaj dźwięk kliknięcia/wyłomu tutaj
-                
-                setTimeout(() => {
-                    // 3. Usuwamy ekran blokady
-                    lockScreen.style.display = 'none';
-                    
-                    // 4. Odpalamy pędzący kod (binary-overlay już tam jest)
-                    startMainSequence();
-                }, 400); // Czas animacji pękania
-            });
-        }
 
-        function startMainSequence() {
-            const overlay = document.getElementById('binary-overlay');
-            
-            // Kod pędzi przez 1 sekundę (ustawione w setTimeout poniżej)
-            setTimeout(() => {
-                stream.style.animationPlayState = 'paused';
-                overlay.classList.add('crash-sequence');
 
-                setTimeout(() => {
-                    overlay.style.display = 'none';
-                    terminalImg.classList.add('extreme-boot');
 
-                    terminalImg.addEventListener('animationend', () => {
-                        terminalImg.classList.remove('extreme-boot');
-                        terminalImg.classList.add('stable');
-                        decryptText(finalMessage, textElement);
-                    }, { once: true });
-                }, 300);
-            }, 1000); // Tutaj sterujesz jak długo pędzi kod po kliknięciu
-        }
-        function triggerBoxes() {
-            boxCenter.style.animationDelay = "0ms"; boxCenter.classList.add('glitch-box-anim');
-            boxRight.style.animationDelay = "200ms"; boxRight.classList.add('glitch-box-anim');
-            boxLeft.style.animationDelay = "400ms"; boxLeft.classList.add('glitch-box-anim');
-        }
-    </script>
 </body>
 </html>
