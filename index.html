@@ -1,4 +1,3 @@
-
 <!DOCTYPE html>
 
 <html lang="pl" data-connection-node="http://127.0.0.1:5500/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html">
@@ -113,7 +112,7 @@
             display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
             box-shadow: 2px 0 15px rgba(0,0,0,0.8);
         }
-        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; position: relative;}
         .taskbar-logo-btn { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; }
         .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); box-shadow: 0 0 10px var(--terminal-dim); }
         .social-placeholder {
@@ -317,9 +316,22 @@
             /* Pozostałe mobile */
             .dossier-card { flex-direction: column; align-items: center; text-align: center; }
             .docs-wrapper h1 { font-size: 1.8rem; }
+            
+            /* Poprawki dla powiadomienia na mobile */
+            #secret-notification {
+                left: 60px !important; /* Dostosowane do węższego paska */
+            }
         }
 
         /* --- TAJNY TERMINAL & TRÓJKĄT --- */
+        .notification-anchor {
+            position: relative;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            width: 100%;
+        }
+
         #warning-triangle {
             width: 25px; height: 25px; cursor: pointer; color: var(--terminal-green);
             transition: 0.3s; margin-bottom: 5px; display: flex; justify-content: center; align-items: center;
@@ -327,7 +339,34 @@
         #warning-triangle svg { width: 100%; height: 100%; }
         #warning-triangle:hover { filter: drop-shadow(0 0 5px var(--terminal-green)); transform: scale(1.1); }
         
-       .alert-blink { 
+        /* NOWE: Wyskakujące powiadomienie - przeniesione na zewnątrz trójkąta */
+        #secret-notification {
+            position: absolute;
+            left: 70px; /* Ustawia okienko tuż za prawą krawędzią paska zadań */
+            top: 50%;
+            transform: translateY(-50%) translateX(-15px);
+            background: rgba(20, 0, 0, 0.95);
+            border: 1px dashed var(--error-red);
+            color: var(--error-red);
+            padding: 8px 15px;
+            font-size: 1.1rem;
+            white-space: nowrap;
+            pointer-events: none; /* Żeby nie blokowało kliknięć pod spodem */
+            opacity: 0;
+            transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
+            box-shadow: 0 0 15px rgba(255, 51, 51, 0.3), inset 0 0 10px rgba(255, 51, 51, 0.2);
+            z-index: 1000;
+            letter-spacing: 1px;
+            text-transform: uppercase;
+        }
+
+        /* Klasa dodawana przez JS aby wysunąć powiadomienie */
+        #secret-notification.show-notify {
+            opacity: 1;
+            transform: translateY(-50%) translateX(0);
+        }
+
+        .alert-blink { 
             /* Animacja jest szybsza (0.6s) i używa krzywej cubic-bezier dla bardziej "agresywnego" uderzenia */
             animation: critical-alert-pulse 0.6s infinite alternate cubic-bezier(0.25, 0.46, 0.45, 0.94); 
             z-index: 1001; /* Upewniamy się, że wyskakuje nad inne elementy paska */
@@ -364,7 +403,7 @@
             font-family: 'VT323', monospace; min-height: 350px; display: flex; flex-direction: column;
         }
         .secret-header { border-bottom: 1px dashed var(--terminal-dim); padding-bottom: 10px; margin-bottom: 20px; color: var(--terminal-dim); font-size: 1.2rem; }
-        #secret-terminal-body { flex-grow: 1; font-size: 1.4rem; line-height: 1.5; white-space: pre-wrap; overflow-y: auto; }
+        #secret-terminal-body { flex-grow: 1; font-size: 1.0rem; line-height: 1.5; white-space: pre-wrap; overflow-y: auto; }
         
         .terminal-input-line { display: flex; align-items: center; gap: 10px; margin-top: 15px; }
         .terminal-input-line input {
@@ -394,12 +433,15 @@
             <div class="taskbar-bottom">
             <div class="tray-icons"><div class="tray-placeholder" title="Sieć">W</div><div class="tray-placeholder" title="Bateria">B</div><div class="tray-placeholder" title="Głośnik">V</div><div class="tray-placeholder" title="Pamięć">M</div></div>
             
-            <div id="warning-triangle" title="Powiadomienie Systemowe">
-                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
-                    <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
-                    <line x1="12" y1="9" x2="12" y2="13"></line>
-                    <line x1="12" y1="17" x2="12.01" y2="17"></line>
-                </svg>
+            <div class="notification-anchor">
+                <div id="warning-triangle" title="Powiadomienie Systemowe">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <div id="secret-notification">> MASZ 1 NIEODCZYTANĄ WIADOMOŚĆ_</div>
             </div>
 
             <div id="sys-clock"><span id="sys-time">00:00</span><br><span id="sys-date">00.00</span></div>
@@ -1006,16 +1048,29 @@ let newsletterBooted = false;
         let secretTypingTimeout;
         let isSecretRead = localStorage.getItem('secretMessageRead') === 'true';
 
+        const secretNotification = document.getElementById('secret-notification'); // Pobierz nowy element
+
         // Jeśli użytkownik jeszcze tego nie czytał, po 3 sekundach trójkąt zaczyna migać
         if (!isSecretRead) {
             setTimeout(() => {
                 warningTriangle.classList.add('alert-blink');
+                
+                // Równo 1 sekundę po rozpoczęciu migania (czyli w 4. sekundzie) wysuń powiadomienie
+                setTimeout(() => {
+                    // Sprawdzamy, czy w ciągu tej sekundy ktoś nie zdążył już w to kliknąć
+                    if (!isSecretRead) {
+                        secretNotification.classList.add('show-notify');
+                    }
+                }, 1000);
             }, 3000);
         }
 
         warningTriangle.addEventListener('click', () => {
+            // Natychmiast schowaj chmurkę przy kliknięciu (o ile jest widoczna)
+            secretNotification.classList.remove('show-notify');
+            
             secretLightbox.style.display = 'flex';
-            secretBody.innerHTML = ''; // czyszczenie przed startem
+            secretBody.innerHTML = '';
 
             if (isSecretRead) {
                 // Jeśli już odblokował wcześniej, pokazujemy wiadomość od razu
