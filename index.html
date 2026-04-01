@@ -1141,6 +1141,20 @@ let newsletterBooted = false;
                 soundTyping.currentTime = 0;
             }
         });
+        function checkUrlForPopup() {
+    // Sprawdzamy czy w adresie URL jest #ilustrowany
+    if (window.location.hash === '#ilustrowany') {
+        const boxIlustrowany = document.getElementById('box-center');
+        if (boxIlustrowany) {
+            boxIlustrowany.click(); // Symulujemy kliknięcie, które otwiera popup
+        }
+    }
+}
+
+// Uruchom przy załadowaniu strony
+window.addEventListener('load', checkUrlForPopup);
+// Uruchom, gdy użytkownik zmieni hash będąc już na stronie
+window.addEventListener('hashchange', checkUrlForPopup);
     </script>
 </body>
 </html>
