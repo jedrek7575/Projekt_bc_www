@@ -14,7 +14,7 @@
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: #000;
-            z-index: 10001; /* Wyżej niż binary-overlay */
+            z-index: 10001; /* Wyzej niz binary-overlay */
             display: flex; justify-content: center; align-items: center;
             cursor: pointer;
         }
@@ -23,8 +23,6 @@
 
         #lock-icon {
             width: 150px;
-            /* Zmienia zielony na czerwony: */
-            
             animation: lock-pulse 1.5s infinite alternate ease-in-out;
             transition: all 0.2s;
         }
@@ -44,23 +42,22 @@
             text-transform: uppercase;
         }
 
-@keyframes lock-pulse {
-    0% { 
-        transform: scale(1); 
-        /* brightness(0) robi z obrazka czarną sylwetkę, reszta nakłada idealny #ff0033 */
-        filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(3000%) hue-rotate(345deg) brightness(95%) contrast(120%) drop-shadow(0 0 8px rgba(255, 0, 51, 0.9)); 
-    }
-    100% { 
-        transform: scale(1.15); 
-        filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(6000%) hue-rotate(345deg) brightness(130%) contrast(140%) drop-shadow(0 0 35px #ff0033); 
-    
-    }
-}
+        @keyframes lock-pulse {
+            0% { 
+                transform: scale(1); 
+                filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(3000%) hue-rotate(345deg) brightness(95%) contrast(120%) drop-shadow(0 0 8px rgba(255, 0, 51, 0.9)); 
+            }
+            100% { 
+                transform: scale(1.15); 
+                filter: brightness(0) saturate(100%) invert(15%) sepia(90%) saturate(6000%) hue-rotate(345deg) brightness(130%) contrast(140%) drop-shadow(0 0 35px #ff0033); 
+            }
+        }
 
-        /* Animacja pękania kłódki */
+        /* Animacja pekania klodki */
         .lock-shatter {
             animation: fatal-crash 0.4s forwards !important;
         }
+        
         :root {
             --blood-red: #ff0033;
             --dark-red: #800000;
@@ -82,7 +79,6 @@
             text-align: center;
             position: relative;
             margin-left: var(--taskbar-width);
-            /* USUNIĘTO: animację migotania z body, aby nie obciążać procesora */
         }
 
         /* Scanlines - CRT Effect - Zoptymalizowane */
@@ -96,14 +92,11 @@
             z-index: 2;
             background-size: 100% 3px, 3px 100%;
             pointer-events: none;
-            /* DODANO: Lekkie migotanie na wierzchniej warstwie z akceleracją sprzętową */
             animation: subtle-flicker 0.15s infinite;
             will-change: opacity; 
         }
 
-
-/* Matrix Binary Overlay - Zoptymalizowane i Ruchome */
-
+        /* Matrix Binary Overlay - Zoptymalizowane i Ruchome */
         #binary-overlay {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
@@ -112,10 +105,9 @@
             overflow: hidden;
             pointer-events: none;
             opacity: 1;
-            /* Usunęliśmy łagodne transition, bo teraz będzie ostry CRASH */
         }
 
-        /* --- NOWE: Klasa i animacja zacięcia (Crash) --- */
+        /* --- NOWE: Klasa i animacja zaciecia (Crash) --- */
         .crash-sequence {
             animation: fatal-crash 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
         }
@@ -130,13 +122,12 @@
 
         #binary-stream {
             width: 100%;
-            height: 400vh; /* Bardzo długi, żeby miał z czego "spadać" */
+            height: 400vh;
             color: var(--dark-red);
             font-size: 1.5rem;
             line-height: 1;
             word-wrap: break-word;
             text-shadow: 0 0 8px var(--blood-red);
-            /* Sprzętowa akceleracja pędzącego kodu */
             animation: data-rush 1.5s linear infinite;
         }
 
@@ -150,10 +141,9 @@
             top: 50%;
             left: 50%;
             transform: translate(-50%, -50%);
-            width: 300px; /* Zmień, jeśli ma być większe/mniejsze */
+            width: 300px; 
             height: auto;
-            z-index: 10000; /* Musi być na samej górze */
-            /* Zmienia zwykłe logo na czerwone i świecące */
+            z-index: 10000;
             filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(1000%) contrast(2) drop-shadow(0 0 20px var(--blood-red));
             animation: evil-pulse 0.5s infinite alternate;
         }
@@ -163,12 +153,7 @@
             100% { transform: translate(-50%, -50%) scale(1.05); opacity: 1; filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(1000%) contrast(3) drop-shadow(0 0 40px red); }
         }
 
-        /* --- WAŻNE: Aktualizacja crashu, żeby logo uległo zniszczeniu razem z tłem --- */
-        .crash-sequence {
-            animation: fatal-crash 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards !important;
-        }
         .crash-sequence #overlay-logo {
-            /* Kiedy tło crashuje, logo rośnie i rozpada się */
             animation: logo-shatter 0.3s forwards !important;
         }
 
@@ -232,19 +217,15 @@
             height: 55rem; width: 55rem; object-fit: contain;
         }
 
-/* Zaktualizowany styl loga - teraz z wieloma efektami naraz */
         #terminal-container img.logo.stable {
             opacity: 0.7; 
             height: 15rem; 
             width: 15rem;
-            /* Bazowy czerwony filtr */
             filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5);
-            /* Uruchamiamy nowy, agresywny glitch */
             animation: permanent-glitch 3s;
             will-change: transform, filter, clip-path;
         }
 
-        /* Agresywny glitch - cięcia, przesunięcia i zmiany koloru */
         @keyframes permanent-glitch {
             0% { transform: translate(0) skew(0deg); clip-path: inset(0 0 0 0); filter: hue-rotate(320deg) saturate(500%); }
             2% { transform: translate(-5px, 2px) skew(55deg); clip-path: inset(10% 0 80% 0); filter: hue-rotate(45deg) saturate(800%) brightness(2); }
@@ -298,11 +279,11 @@
 
         .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
         
-
-         .footer-btn { color: var(--terminal-dim); text-decoration: none; font-size: 1.2rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-btn { color: var(--terminal-dim); text-decoration: none; font-size: 1.2rem !important; text-transform: uppercase; transition: 0.2s; }
         .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
         .footer-btn:hover { color: var(--terminal-green); }
         .footer-btn:hover::before { opacity: 1; color: var(--terminal-green); }
+
         /* --- ANIMACJE CRASH/GLITCH --- */
         .extreme-boot { animation: brutal-glitch 0.8s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
         .glitch-box-anim { animation: box-appear 0.5s forwards; }
@@ -325,13 +306,13 @@
         @keyframes float-glitch { 0%, 100% { transform: translate(0, 0); } 25% { transform: translate(-2px, 2px) skewX(1deg); } 50% { transform: translate(0, -2px); filter: brightness(1.5); } 75% { transform: translate(2px, 0) skewX(-1deg); } }
         @keyframes box-appear { 0% { opacity: 0; transform: translateY(20px) scale(0.9); filter: blur(5px); } 50% { opacity: 1; filter: invert(1); } 100% { opacity: 1; transform: translateY(0) scale(1); filter: none; } }
     
-    /* --- HACKER LIGHTBOX --- */
+        /* --- HACKER LIGHTBOX --- */
         #download-modal {
             position: fixed;
             top: 0; left: 0; width: 100vw; height: 100vh;
             background: rgba(0, 0, 0, 0.85);
             backdrop-filter: blur(5px);
-            z-index: 9000; /* Nad wszystkim, ale pod binary-overlay */
+            z-index: 9000;
             display: flex; justify-content: center; align-items: center;
             opacity: 0; pointer-events: none;
             transition: opacity 0.3s ease-in-out;
@@ -348,7 +329,6 @@
             padding: 30px; position: relative;
             box-shadow: 0 0 30px rgba(255, 0, 51, 0.3), inset 0 0 20px rgba(255, 0, 51, 0.2);
             display: flex; flex-direction: column;
-            /* Używamy Twojej istniejącej animacji wejścia boxa! */
             animation: box-appear 0.4s forwards;
         }
 
@@ -397,8 +377,35 @@
             box-shadow: 0 0 15px rgba(255, 0, 51, 0.5), inset 0 0 10px rgba(255, 0, 51, 0.3);
             transform: translateX(5px);
         }
-    
-    
+
+        /* ========================================================================== */
+        /* ======================== URZADZENIA MOBILNE (RESPONSYWNOSC) ============== */
+        /* ========================================================================== */
+        @media (max-width: 850px) {
+            body { margin-left: 50px; }
+            #linux-taskbar { width: 50px; padding: 10px 0; }
+            .taskbar-logo-btn { width: 35px; height: 35px; font-size: 1.5rem; }
+            .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
+            #sys-clock { font-size: 0.7rem; }
+
+            .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
+            #terminal-container img.logo.stable { width: 10rem; height: 10rem; }
+            #typing-text { text-align: center; height: auto; min-height: 250px; align-items: center; }
+            
+            #boxes-container { flex-direction: column; align-items: center; }
+            .hacker-box { width: 85%; }
+
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
+            .footer-nav-group { align-items: center; justify-content: center; text-align: center; }
+            
+            /* Modal / Lightbox mobile fixes */
+            #download-modal { align-items: flex-start; overflow-y: auto; padding: 20px 0; }
+            .modal-content { width: 95%; max-width: 100%; min-height: auto; padding: 50px 15px 30px; border: 1px dashed var(--blood-red); }
+            .modal-body { flex-direction: column; align-items: center; text-align: center; }
+            .modal-info { text-align: center; }
+            .modal-img { max-width: 70%; margin-bottom: 20px; }
+            #close-modal { position: absolute; top: 10px; right: 10px; z-index: 10001; background: rgba(20, 0, 0, 0.9); padding: 5px 10px; border: 1px dashed var(--blood-red); font-size: 1rem; }
+        }
     </style>
 </head>
 <body id="top">
@@ -407,11 +414,11 @@
         <div id="lock-wrapper">
             <img src="../lock.webp" id="lock-icon" alt="ZABLOKOWANE">
             <div id="lock-text">FATAL_BAD_UUID</div>
-            <div id="lock-hint">[ KLIKNIJ ABY PRZEPROWADZIĆ ATAK BRUTE FORCE ]</div>
+            <div id="lock-hint">[ KLIKNIJ ABY PRZEPROWADZIC ATAK BRUTE FORCE ]</div>
         </div>
     </div>
 
-<div id="binary-overlay">
+    <div id="binary-overlay">
         <div id="binary-stream"></div>
         <img src="../../icon512.png" id="overlay-logo" alt="B-C" onerror="this.onerror=null; this.src='https://via.placeholder.com/512/000/ff0033?text=B-C'">
     </div>
@@ -426,8 +433,8 @@
 
         <div class="taskbar-bottom">
             <div class="tray-icons">
-                <div class="tray-placeholder" title="Sieć odcięta">Ø</div>
-                <div class="tray-placeholder" title="Wyciek pamięci">⚠</div>
+                <div class="tray-placeholder" title="Siec odcieta">Ø</div>
+                <div class="tray-placeholder" title="Wyciek pamieci">⚠</div>
             </div>
 
             <div id="sys-clock">
@@ -448,20 +455,20 @@
         <div id="boxes-container">
             <div class="hacker-box" id="box-left">
                 <img src="https://via.placeholder.com/450x300/110000/ff0000?text=USUNIETE_AKTA" alt="Akta">
-                <div class="box-title">[USUNIĘTO]</div>
-                <div class="box-desc">Próba odzysku danych... 404. Prawda nie istnieje.</div>
+                <div class="box-title">[USUNIETO]</div>
+                <div class="box-desc">Proba odzysku danych... 404. Prawda nie istnieje.</div>
             </div>
 
             <div class="hacker-box" id="box-center">
                 <img src="https://via.placeholder.com/450x300/220000/ffffff?text=WSPOMNIENIA_ZABLOKOWANE" alt="System">
-                <div class="box-title">ANOMALIA PAMIĘCI</div>
-                <div class="box-desc">Ilustracje wymazane przez cenzurę. Twoje myśli są monitorowane.</div>
+                <div class="box-title">ANOMALIA PAMIECI</div>
+                <div class="box-desc">Ilustracje wymazane przez cenzure. Twoje mysli sa monitorowane.</div>
             </div>
 
             <div class="hacker-box" id="box-right">
                 <img src="../Oferta/okladka.webp" alt="Zrzut">
                 <div class="box-title">AKTA_SPRAWY</div>
-                <div class="box-desc">Pobranie grozi nieodwracalną zmianą świadomości.</div>
+                <div class="box-desc">Pobranie grozi nieodwracalna zmiana swiadomosci.</div>
             </div>
         </div>
     </main>
@@ -475,7 +482,7 @@
                     <h2 class="glow">> AKTA_SPRAWY</h2>
                     <p class="modal-desc">
                         [ OSTRZEZENIE_SYSTEMOWE ]<br>
-                        Skoro dotarłeś aż tutaj, udowodniłeś, że zasługujesz na zapoznanie się z aktami sprawy. Pobierasz na własne ryzyko. <br> Wybierz format nośnika:
+                        Skoro dotarles az tutaj, udowodniles, ze zaslugujesz na zapoznanie sie z aktami sprawy. Pobierasz na wlasne ryzyko. <br> Wybierz format nosnika:
                     </p>
                     <div class="modal-buttons">
                         <a href="../Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn">>> INICJUJ_POBIERANIE [.PDF]</a>
@@ -489,29 +496,23 @@
     <footer id="footer-links">
         <div class="footer-content">
             <p class="copyright">
-                LEPSZE PIĘKNE KŁAMSTWO<br>
-                NIŻ SZPETNA PRAWDA<br>
+                LEPSZE PIEKNE KLAMSTWO<br>
+                NIZ SZPETNA PRAWDA<br>
                 
-                JEŻELI POBRAŁEŚ ZAŁĄCZNIK TO JUŻ JEST ZA PÓŹNO<br>
+                JEZELI POBRALES ZALACZNIK TO JUZ JEST ZA POZNO<br>
                 - PRAWDA NAS NIE WYZWOLI<br>
-                - ZOSTAŁEŚ OSTRZEŻONY
+                - ZOSTALES OSTRZEZONY
                 
             </p>
-                        <div class="footer-nav-group">
+            <div class="footer-nav-group">
                 <span class="footer-nav-title">/SYSTEM/DOCS/</span>
                 <a href="../../index.html" class="footer-btn">powrot_do_systemu_glownego</a>
-                
             </div>
         </div>
     </footer>
 
-    
-
-
-
 <script>
-
-// --- DŹWIĘKI SYSTEMOWE ---
+// --- DZWIEKI SYSTEMOWE ---
 const soundStream = new Audio('../Audio/beep-stream.wav');
 soundStream.volume = 0.6; 
 
@@ -525,16 +526,14 @@ soundHum.loop = true;
 const soundLockClick = new Audio('../Audio/lock-click.wav');
 soundLockClick.volume = 1.0;
 
-
-const soundTyping = new Audio('../Audio/typing.wav'); // <-- PODMIEŃ NA SWOJĄ ŚCIEŻKĘ
+const soundTyping = new Audio('../Audio/typing.wav');
 soundTyping.volume = 0.8;
-soundTyping.loop = true; // Zapętlamy, aby dźwięk trwał aż do końca pisania
+soundTyping.loop = true; 
 
-const soundBoxAppear = new Audio('../Audio/box-appear.wav'); // <-- PODMIEŃ NA SWOJĄ ŚCIEŻKĘ
+const soundBoxAppear = new Audio('../Audio/box-appear.wav');
 soundBoxAppear.volume = 0.9;
 
-
-// --- PĘDZĄCY KOD (MATRIX OVERLAY) ---
+// --- PEDZACY KOD (MATRIX OVERLAY) ---
 const stream = document.getElementById('binary-stream');
 function fillOverlay() {
     let bin = '';
@@ -544,7 +543,6 @@ function fillOverlay() {
     stream.innerHTML = bin;
 }
 fillOverlay();
-
 
 // --- ZMIENNE DO ANIMACJI ---
 const finalMessage = "FATAL_ERROR: czasu_nie_da_sie_cofnac...\n> Przepustka_architekta_systemu_przyznana\n> Omijanie_zabezpieczen...\n\nOperacja_niestety_zakonczona_sukcesem.\n Bedziesz_tego_zalowac..";
@@ -556,18 +554,15 @@ const boxLeft = document.getElementById('box-left');
 const boxCenter = document.getElementById('box-center');
 const boxRight = document.getElementById('box-right');
 
-
 // --- FUNKCJA DEKODOWANIA TEKSTU ---
 function decryptText(text, targetElement) {
     let currentText = "";
     let charIndex = 0;
     
-    // 2. ODPALAMY DŹWIĘK PISANIA ZARAZ PO ROZPOCZĘCIU FUNKCJI
     soundTyping.play().catch(e => console.log("Audio zablokowane"));
     
     function decodeNextChar() {
         if (charIndex >= text.length) {
-            // 3. ZATRZYMUJEMY DŹWIĘK PISANIA, BO TEKST SIĘ SKOŃCZYŁ
             soundTyping.pause();
             soundTyping.currentTime = 0;
 
@@ -608,13 +603,11 @@ function decryptText(text, targetElement) {
 }
 
 function triggerBoxes() {
-
     soundBoxAppear.play().catch(e => console.log("Audio zablokowane"));
     boxCenter.style.animationDelay = "0ms"; boxCenter.classList.add('glitch-box-anim');
     boxRight.style.animationDelay = "200ms"; boxRight.classList.add('glitch-box-anim');
     boxLeft.style.animationDelay = "400ms"; boxLeft.classList.add('glitch-box-anim');
 }
-
 
 // --- JEDEN, SCALONY WINDOW.ONLOAD ---
 window.onload = () => {
@@ -627,8 +620,7 @@ window.onload = () => {
     }, 1500);
 
     lockScreen.addEventListener('click', () => {
-        
-        soundLockClick.play().catch(e => console.log("Audio zablokowane przez przeglądarkę"));
+        soundLockClick.play().catch(e => console.log("Audio zablokowane przez przegladarke"));
         lockIcon.classList.add('lock-shatter');
         
         setTimeout(() => {
@@ -639,7 +631,7 @@ window.onload = () => {
     });
 }
 
-// --- GŁÓWNA SEKWENCJA URUCHAMIANIA ---
+// --- GLOWNA SEKWENCJA URUCHAMIANIA ---
 function startMainSequence(overlay) {
     setTimeout(() => {
         soundStream.pause();
@@ -658,31 +650,25 @@ function startMainSequence(overlay) {
                 terminalImg.classList.remove('extreme-boot');
                 terminalImg.classList.add('stable');
                 
-                // Odpalenie funkcji pisania tekstu (z dźwiękiem) po gltichu
                 decryptText(finalMessage, textElement);
             }, { once: true });
         }, 300); 
     }, 1000); 
 }
 
-
 // --- LOGIKA LIGHTBOXA ---
 const downloadModal = document.getElementById('download-modal');
 const closeModalBtn = document.getElementById('close-modal');
 
-// Otwieranie po kliknięciu w box-right
 boxRight.addEventListener('click', () => {
-    // Odpalamy dźwięk kliknięcia dla lepszego efektu
     soundLockClick.play().catch(e => console.log("Audio zablokowane"));
     downloadModal.classList.add('active');
 });
 
-// Zamykanie krzyżykiem
 closeModalBtn.addEventListener('click', () => {
     downloadModal.classList.remove('active');
 });
 
-// Zamykanie po kliknięciu w tło (poza oknem)
 window.addEventListener('click', (e) => {
     if (e.target === downloadModal) {
         downloadModal.classList.remove('active');
@@ -690,12 +676,5 @@ window.addEventListener('click', (e) => {
 });
 
 </script>
-
-
-
-
-
-
-
 </body>
 </html>
