@@ -976,14 +976,39 @@ function triggerIndexBoxes(playSound = true) {
         lbImgLeft.addEventListener('click', function() { swapImage(this); });
         lbImgRight.addEventListener('click', function() { swapImage(this); });
 
-        lbLink.addEventListener('click', (e) => {
-            if (!legalCheckbox.checked) {
-                e.preventDefault(); 
-                consentBox.classList.remove('error-blink');
-                void consentBox.offsetWidth; 
-                consentBox.classList.add('error-blink');
-            }
+// --- LOGIKA PRZYCISKU ZAKUPU W LIGHTBOXIE Z PIKSELEM ---
+lbLink.addEventListener('click', (e) => {
+    // 1. Najpierw sprawdzamy, czy zaznaczono checkbox RODO w lightboxie
+    if (!legalCheckbox.checked) {
+        e.preventDefault(); 
+        consentBox.classList.remove('error-blink');
+        void consentBox.offsetWidth; 
+        consentBox.classList.add('error-blink');
+        return; // Przerywamy, jeśli nie ma zgody na regulamin
+    }
+
+    // 2. Jeśli zgoda na regulamin jest, sprawdzamy zgodę na Ciasteczka/Pixel
+    const consent = localStorage.getItem('bc_pixel_consent');
+    
+    if (consent === 'accepted' && typeof fbq === 'function') {
+        // Pobieramy nazwę produktu aktualnie wyświetlanego w Lightboxie
+        const productTitle = document.getElementById('lb-title').innerText;
+
+        // Wysyłamy zdarzenie InitiateCheckout do Mety
+        fbq('track', 'InitiateCheckout', {
+            content_name: productTitle,
+            currency: 'PLN',
+            // Możemy spróbować wyciągnąć cenę z tekstu, jeśli chcesz być bardzo dokładny
+            value: productTitle.includes('29.99') ? 29.99 : (productTitle.includes('49.99') ? 49.99 : 79.99)
         });
+
+        console.log(`[SYSTEM_LOG] Obywatel przechodzi do płatności za: ${productTitle}. Sygnał wysłany.`);
+    } else {
+        console.log("[SYSTEM_LOG] Zakup bez śledzenia (brak zgody na Pixel).");
+    }
+    
+    // Przycisk naturalnie przeniesie użytkownika do Stripe (href jest ustawiany dynamicznie)
+});
 
         legalCheckbox.addEventListener('change', () => { if (legalCheckbox.checked) consentBox.classList.remove('error-blink'); });
         document.getElementById('close-lightbox-btn').addEventListener('click', () => lightbox.style.display = 'none');
