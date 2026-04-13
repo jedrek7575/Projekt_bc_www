@@ -1,23 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-        <!-- Meta Pixel Code -->
-    <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1635279820956165');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1635279820956165&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>~projekt_bc:zakup — Ebook Standard</title>
@@ -226,6 +210,27 @@
     </div>
 
     <script>
+        // --- SYSTEM CIASTECZEK I WERYFIKACJA ZGODY ---
+        const pixelConsent = localStorage.getItem('bc_pixel_consent');
+
+        function injectMetaPixel() {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '1635279820956165');
+            fbq('track', 'PageView'); // Raportuje wyswietlenie strony
+            fbq('trackCustom', 'ViewProduct_Standard'); // Dodatkowy sygnal: Wyswietlenie produktu (Standard)
+        }
+
+        // Inicjuj radary tylko, jesli Obywatel wyrazil na to zgode na stronie glownej
+        if (pixelConsent === 'accepted') {
+            injectMetaPixel();
+        }
         // Menu Start Toggle
         const startBtn = document.getElementById('taskbar-start-btn');
         const startMenu = document.getElementById('start-menu');
@@ -240,17 +245,34 @@
         }
         setInterval(updateClock, 1000); updateClock();
 
-        // Walidacja Zgody (Regulaminowej) przed zakupem
+       // Walidacja Zgody (Regulaminowej) przed zakupem
         const buyBtn = document.getElementById('buy-action');
         const consentCheckbox = document.getElementById('legal-consent');
         const consentBox = document.getElementById('consent-box');
 
         buyBtn.addEventListener('click', (e) => {
             if (!consentCheckbox.checked) {
+                // BLOKADA: Brak zgody prawnej na dostarczenie cyfrowe
                 e.preventDefault(); 
                 consentBox.classList.remove('error-blink');
                 void consentBox.offsetWidth; // Wymuszenie restartu animacji CSS
                 consentBox.classList.add('error-blink');
+            } else {
+                // SUKCES: Obywatel idzie do płatności
+                // Weryfikacja, czy mamy zgodę na śledzenie go radarem Mety
+                if (pixelConsent === 'accepted' && typeof fbq === 'function') {
+                    // Standardowe zdarzenie e-commerce (Wersja Standardowa)
+                    fbq('track', 'InitiateCheckout', { 
+                        content_name: 'Bialo-Czerwoni [Standard]', 
+                        value: 29.99, 
+                        currency: 'PLN' 
+                    });
+                    // Twoje dedykowane zdarzenie
+                    fbq('trackCustom', 'PrzejscieDoPlatnosci_Standard');
+                    console.log("[SYSTEM_LOG] Transmisja zdarzenia zakupu (Wersja Standardowa) zakonczona sukcesem.");
+                } else {
+                    console.log("[SYSTEM_LOG] Tryb incognito. Transakcja niezarejestrowana przez radary.");
+                }
             }
         });
 

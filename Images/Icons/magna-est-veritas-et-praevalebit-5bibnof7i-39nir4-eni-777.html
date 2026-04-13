@@ -1,22 +1,7 @@
 <!DOCTYPE html>
 <html lang="pl">
 <head>
-     <script>
-    !function(f,b,e,v,n,t,s)
-    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-    n.queue=[];t=b.createElement(e);t.async=!0;
-    t.src=v;s=b.getElementsByTagName(e)[0];
-    s.parentNode.insertBefore(t,s)}(window, document,'script',
-    'https://connect.facebook.net/en_US/fbevents.js');
-    fbq('init', '1635279820956165');
-    fbq('track', 'PageView');
-    </script>
-    <noscript><img height="1" width="1" style="display:none"
-    src="https://www.facebook.com/tr?id=1635279820956165&ev=PageView&noscript=1"
-    /></noscript>
-    <!-- End Meta Pixel Code -->
+
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>!!! FATAL_ERROR: ROOT_ACCESS !!!</title>
@@ -528,6 +513,26 @@
     </footer>
 
 <script>
+    // --- SYSTEM CIASTECZEK I WERYFIKACJA ZGODY ---
+const pixelConsent = localStorage.getItem('bc_pixel_consent');
+
+function injectMetaPixel() {
+    !function(f,b,e,v,n,t,s)
+    {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+    n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+    if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+    n.queue=[];t=b.createElement(e);t.async=!0;
+    t.src=v;s=b.getElementsByTagName(e)[0];
+    s.parentNode.insertBefore(t,s)}(window, document,'script',
+    'https://connect.facebook.net/en_US/fbevents.js');
+    fbq('init', '1635279820956165');
+    fbq('track', 'PageView'); // Raportuje wyswietlenie tajnej strony
+}
+
+// Inicjuj radary tylko, jesli Obywatel wyrazil na to zgode na stronie glownej
+if (pixelConsent === 'accepted') {
+    injectMetaPixel();
+}
 // --- DZWIEKI SYSTEMOWE ---
 const soundStream = new Audio('../Audio/beep-stream.wav');
 soundStream.volume = 0.6; 
@@ -698,10 +703,12 @@ const downloadButtons = document.querySelectorAll('.dl-btn');
 
 downloadButtons.forEach(button => {
     button.addEventListener('click', () => {
-        // Kiedy Obywatel kliknie w PDF lub EPUB, wysyłamy raport do Centrali Mety
-        if (typeof fbq === 'function') {
+        // Sprawdzamy podwójnie: czy jest zgoda ORAZ czy Piksel zdążył się załadować
+        if (pixelConsent === 'accepted' && typeof fbq === 'function') {
             fbq('trackCustom', 'PobranoDemo');
             console.log("[SYSTEM_LOG] Przechwycono pobranie. Sygnal 'PobranoDemo' wyslany na radary Mety.");
+        } else {
+            console.log("[SYSTEM_LOG] Pobranie zanonimizowane. Brak zgody na nasluch.");
         }
     });
 });
