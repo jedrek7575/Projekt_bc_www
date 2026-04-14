@@ -378,7 +378,23 @@
             box-shadow: 0 0 15px rgba(255, 0, 51, 0.5), inset 0 0 10px rgba(255, 0, 51, 0.3);
             transform: translateX(5px);
         }
+/* --- STYLE FORMULARZA POBIERANIA --- */
+        .demo-form { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .demo-form label[for="demo-email"] { color: var(--blood-red); font-size: 1.2rem; text-shadow: 0 0 5px var(--dark-red); }
+        .demo-form input[type="email"] { 
+            background: rgba(20, 0, 0, 0.5); border: 1px solid var(--dark-red); 
+            color: white; padding: 10px; font-family: 'VT323', monospace; font-size: 1.3rem; outline: none; transition: 0.3s;
+        }
+        .demo-form input[type="email"]:focus { border-color: var(--blood-red); box-shadow: 0 0 15px rgba(255,0,51,0.5); }
+        
+        .consent-label { display: flex; gap: 10px; align-items: flex-start; color: #888; font-size: 0.95rem; cursor: pointer; line-height: 1.3; }
+        .consent-label input { margin-top: 4px; accent-color: var(--blood-red); transform: scale(1.2); }
+        .consent-label:hover { color: #aaa; }
 
+        .format-selection { display: flex; gap: 20px; color: var(--blood-red); font-size: 1.3rem; align-items: center; margin-bottom: 5px;}
+        .format-selection input { accent-color: var(--blood-red); transform: scale(1.2); margin-right: 5px;}
+        
+        .status-msg { font-size: 1.2rem; text-align: center; min-height: 1.5em; color: var(--blood-red); text-shadow: 0 0 5px red;}
         /* ========================================================================== */
         /* ======================== URZADZENIA MOBILNE (RESPONSYWNOSC) ============== */
         /* ========================================================================== */
@@ -474,7 +490,7 @@
         </div>
     </main>
 
-    <div id="download-modal">
+<div id="download-modal">
         <div class="modal-content">
             <span id="close-modal">[X] ZAMKNIJ_PROCES</span>
             <div class="modal-body">
@@ -483,12 +499,28 @@
                     <h2 class="glow">> AKTA_SPRAWY</h2>
                     <p class="modal-desc">
                         [ OSTRZEZENIE_SYSTEMOWE ]<br>
-                        Skoro dotarles az tutaj, udowodniles, ze zaslugujesz na zapoznanie sie z aktami sprawy. Pobierasz na wlasne ryzyko. <br> Wybierz format nosnika:
+                        Akta są szyfrowane. Aby pobrać plik, musisz zweryfikować swoją tożsamość i dołączyć do podziemnej sieci komunikacyjnej.
                     </p>
-                    <div class="modal-buttons">
-                        <a href="../Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn">>> INICJUJ_POBIERANIE [.PDF]</a>
-                        <a href="../Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn">>> INICJUJ_POBIERANIE [.EPUB]</a>
-                    </div>
+                    
+                    <form id="demo-download-form" class="demo-form">
+                        <label for="demo-email">> WPROWADZ_ADRES_POCZTOWY (E-MAIL):</label>
+                        <input type="email" id="demo-email" required placeholder="obywatel@system.pl" autocomplete="off">
+
+                        <label class="consent-label">
+                            <input type="checkbox" id="demo-consent" required>
+                            <span>Rozumiem, że w zamian za darmowy dostęp do akt wyrażam zgodę na zapis do bazy danych (newsletter) oraz otrzymywanie tajnych meldunków handlowych.</span>
+                        </label>
+
+<div class="format-selection">
+    <span>> WYBIERZ_FORMAT:</span>
+    <label><input type="checkbox" name="ebook-format" value="pdf" checked> .PDF</label>
+    <label><input type="checkbox" name="ebook-format" value="epub"> .EPUB</label>
+</div>
+
+                        <button type="submit" class="dl-btn" id="demo-submit-btn">>> ZAAKCEPTUJ_I_POBIERZ</button>
+                        <div id="demo-status" class="status-msg"></div>
+                    </form>
+
                 </div>
             </div>
         </div>
@@ -512,7 +544,11 @@
         </div>
     </footer>
 
-<script>
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
+const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
     // --- SYSTEM CIASTECZEK I WERYFIKACJA ZGODY ---
 const pixelConsent = localStorage.getItem('bc_pixel_consent');
 
@@ -697,22 +733,77 @@ window.addEventListener('click', (e) => {
 });
 
 // ==========================================================
-// --- PODSŁUCH META PIKSEL: POBRANIE DEMO (RETARGETING) ---
+// --- LOGIKA FORMULARZA I WYSYŁKA DO SUPABASE ---
 // ==========================================================
-const downloadButtons = document.querySelectorAll('.dl-btn');
+const demoForm = document.getElementById('demo-download-form');
+const demoSubmitBtn = document.getElementById('demo-submit-btn');
+const demoStatus = document.getElementById('demo-status');
 
-downloadButtons.forEach(button => {
-    button.addEventListener('click', () => {
-        // Sprawdzamy podwójnie: czy jest zgoda ORAZ czy Piksel zdążył się załadować
+demoForm.addEventListener('submit', async (e) => {
+    e.preventDefault(); // Blokuje przeładowanie strony
+    
+    const emailInput = document.getElementById('demo-email').value;
+    
+    // Zbieramy wszystkie ZAZNACZONE formaty do tablicy (np. ['pdf'], ['epub'] lub ['pdf', 'epub'])
+    const selectedFormats = Array.from(document.querySelectorAll('input[name="ebook-format"]:checked')).map(cb => cb.value);
+
+    // Zabezpieczenie: upewnijmy się, że wybrano chociaż jeden format
+    if (selectedFormats.length === 0) {
+        demoStatus.style.color = "var(--blood-red)";
+        demoStatus.innerText = "> BŁĄD: ZAZNACZ PRZYNAJMNIEJ JEDEN FORMAT.";
+        return; 
+    }
+
+    demoSubmitBtn.disabled = true;
+    demoSubmitBtn.innerText = ">> WERYFIKACJA W BAZIE...";
+    demoStatus.innerText = "";
+
+    try {
+        // 1. Próba zapisu do Supabase
+        const { error } = await supabase.from('pobrali_ebooka_demo').insert([
+            { email: emailInput, consent_marketing: true }
+        ]);
+
+        // Kod 23505 oznacza "Unique Violation" - ktoś wpisał maila, który już jest w bazie.
+        if (error && error.code !== '23505') throw error;
+
+        demoStatus.style.color = "white";
+        demoStatus.innerText = "> AUTORYZACJA POMYŚLNA. INICJACJA POBIERANIA...";
+
+        // 2. Raport do Meta Pixel (jeśli jest zgoda na ciastka)
         if (pixelConsent === 'accepted' && typeof fbq === 'function') {
             fbq('trackCustom', 'PobranoDemo');
-            console.log("[SYSTEM_LOG] Przechwycono pobranie. Sygnal 'PobranoDemo' wyslany na radary Mety.");
-        } else {
-            console.log("[SYSTEM_LOG] Pobranie zanonimizowane. Brak zgody na nasluch.");
+            console.log("[SYSTEM_LOG] Sygnał 'PobranoDemo' wyslany na radary Mety.");
         }
-    });
+
+        // 3. Automatyczne pobieranie wybranych plików
+        setTimeout(() => {
+            // Pętla pobierająca każdy zaznaczony format
+            selectedFormats.forEach((format, index) => {
+                // Opóźnienie 500ms między plikami, aby przeglądarka nie zablokowała drugiego pobierania jako pop-up
+                setTimeout(() => {
+                    const downloadLink = document.createElement('a');
+                    downloadLink.href = format === 'pdf' 
+                        ? '../Rescoures/Demo/AKTA_BC_DEMO.pdf' 
+                        : '../Rescoures/Demo/AKTA_BC_DEMO.epub';
+                    downloadLink.download = '';
+                    document.body.appendChild(downloadLink);
+                    downloadLink.click();
+                    document.body.removeChild(downloadLink);
+                }, index * 500); 
+            });
+
+            demoSubmitBtn.innerText = ">> PAKIET_POBRANY";
+        }, 1000); // Sekunda opóźnienia na początku dla dramatycznego efektu hakowania
+
+    } catch (err) {
+        console.error("Błąd bazy danych:", err);
+        demoStatus.style.color = "var(--blood-red)";
+        demoStatus.innerText = "> BŁĄD PROTOKOŁU: ODRZUCONO POŁĄCZENIE.";
+        demoSubmitBtn.disabled = false;
+        demoSubmitBtn.innerText = ">> PONÓW_PRÓBĘ";
+    }
 });
-// ==========================================================
 
 </script>
 </body>
