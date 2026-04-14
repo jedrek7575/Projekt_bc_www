@@ -1,0 +1,207 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>SYSTEM: EKSTRAKCJA AKT</title>
+    <meta name="robots" content="noindex, nofollow"> 
+    
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <style>
+        :root {
+            --blood-red: #ff0033;
+            --dark-red: #800000;
+            --bg-color: #020000;
+            --taskbar-width: 65px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--blood-red);
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            text-align: center;
+            position: relative;
+            margin-left: var(--taskbar-width);
+        }
+
+        /* Scanlines - CRT Effect */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(20, 0, 0, 0.4) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.08), rgba(50, 0, 0, 0.02), rgba(0, 0, 0, 0.06));
+            z-index: 2; background-size: 100% 3px, 3px 100%; pointer-events: none;
+            animation: subtle-flicker 0.15s infinite;
+        }
+
+        @keyframes subtle-flicker { 0% { opacity: 0.90; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
+
+        .glow { text-shadow: 0 0 5px var(--dark-red), 0 0 15px var(--blood-red); }
+
+        /* --- SKORUMPOWANY TASKBAR --- */
+        #linux-taskbar {
+            position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh;
+            background: rgba(10, 0, 0, 0.85); border-right: 1px solid var(--dark-red); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
+            box-shadow: 2px 0 20px rgba(255,0,51,0.2);
+        }
+
+        .taskbar-logo-btn {
+            width: 45px; height: 45px; border-radius: 8px; background: var(--blood-red); color: black; font-size: 2rem;
+            display: flex; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 0 10px var(--blood-red);
+        }
+
+        .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.8; color: var(--blood-red); }
+        .tray-placeholder { font-size: 1.2rem; font-weight: bold; }
+
+        #sys-clock { color: var(--blood-red); font-size: 0.9rem; text-align: center; padding-bottom: 10px; border-bottom: 1px dashed var(--dark-red); width: 80%; text-shadow: 0 0 5px red; }
+
+        /* --- GLOWNA ZAWARTOSC --- */
+        #terminal-container {
+            max-width: 900px; width: 100%; z-index: 10; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; flex-grow: 1; padding: 40px 20px;
+        }
+
+        .extraction-box {
+            background: rgba(15, 0, 0, 0.95); border: 2px dashed var(--blood-red); width: 100%;
+            padding: 40px; position: relative; box-shadow: 0 0 30px rgba(255, 0, 51, 0.3), inset 0 0 20px rgba(255, 0, 51, 0.2);
+            display: flex; flex-direction: column; text-align: left;
+            animation: box-appear 0.6s forwards;
+        }
+
+        @keyframes box-appear { 0% { opacity: 0; transform: translateY(20px); filter: blur(5px); } 100% { opacity: 1; transform: translateY(0); filter: none; } }
+
+        .extraction-header { font-size: 2.5rem; color: white; margin-bottom: 20px; border-bottom: 1px dashed var(--dark-red); padding-bottom: 10px; }
+        .extraction-desc { color: #ccc; font-size: 1.3rem; line-height: 1.5; margin-bottom: 40px; }
+        
+        .downloads-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px;}
+
+        .dl-btn {
+            background: rgba(20, 0, 0, 0.8); border: 1px dashed var(--blood-red);
+            color: var(--blood-red); padding: 20px 40px; flex: 1; min-width: 250px;
+            font-family: 'VT323', monospace; font-size: 1.8rem; text-decoration: none; text-align: center; text-transform: uppercase;
+            transition: all 0.2s; cursor: crosshair; display: flex; flex-direction: column; gap: 10px; align-items: center;
+        }
+
+        .dl-btn:hover {
+            background: rgba(255, 0, 51, 0.15); border: 1px solid white;
+            color: white; text-shadow: 0 0 10px var(--blood-red);
+            box-shadow: 0 0 20px rgba(255, 0, 51, 0.6), inset 0 0 15px rgba(255, 0, 51, 0.3);
+            transform: scale(1.02);
+        }
+
+        .dl-icon { font-size: 2.5rem; }
+
+        /* Footer */
+        #footer-links { width: 100%; background: #010000; border-top: 2px dashed var(--dark-red); padding: 3rem 2rem; z-index: 3; }
+        .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
+        .copyright { color: var(--dark-red); font-size: 1rem; text-align: start; text-transform: uppercase; letter-spacing: 2px; }
+        .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
+        .footer-btn { color: var(--dark-red); text-decoration: none; font-size: 1.2rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
+        .footer-btn:hover { color: var(--blood-red); }
+
+        @media (max-width: 850px) {
+            body { margin-left: 50px; }
+            #linux-taskbar { width: 50px; padding: 10px 0; }
+            .taskbar-logo-btn { width: 35px; height: 35px; font-size: 1.5rem; }
+            .extraction-box { padding: 25px 15px; }
+            .extraction-header { font-size: 1.8rem; }
+            .dl-btn { min-width: 100%; font-size: 1.5rem; padding: 15px; }
+            .footer-content { flex-direction: column; align-items: center; text-align: center; }
+            .footer-nav-group { align-items: center; text-align: center; }
+        }
+    </style>
+</head>
+<body>
+
+    <nav id="linux-taskbar">
+        <div class="taskbar-top">
+            <div class="taskbar-logo-btn" title="SYSTEM ACTIVE">✓</div>
+        </div>
+        <div class="taskbar-bottom">
+            <div class="tray-icons">
+                <div class="tray-placeholder" title="Siec aktywna">▲</div>
+            </div>
+            <div id="sys-clock">
+                <span id="sys-time">??:??</span><br>
+                <span id="sys-date">SEC</span>
+            </div>
+        </div>
+    </nav>
+
+    <main id="terminal-container">
+        <div class="extraction-box">
+            <h1 class="extraction-header glow">> ACCES_GRANTED</h1>
+            <p class="extraction-desc">
+                Twoja tożsamość została zweryfikowana pozytywnie. Pliki demonstracyjne są gotowe do ekstrakcji na Twój lokalny dysk. Pamiętaj, udostępnianie tych materiałów osobom niepowołanym grozi dekonspiracją.<br><br>
+                Wybierz odpowiedni nośnik:
+            </p>
+
+            <div class="downloads-container">
+                <a href="../Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn">
+                    
+                    <span>> POBIERZ [.PDF]</span>
+                </a>
+                
+                <a href="../Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn">
+                    
+                    <span>> POBIERZ [.EPUB]</span>
+                </a>
+            </div>
+
+            <p style="color: var(--dark-red); font-size: 1.1rem; text-align: center; margin-top: 20px;">
+                // PROTOKOŁ_POBIERANIA_BEZPOSREDNIEGO_ZAKONCZONY_SUKCESEM //
+            </p>
+        </div>
+    </main>
+
+    <footer id="footer-links">
+        <div class="footer-content">
+            <p class="copyright">
+                DOSTĘP AUTORYZOWANY<br>
+                - PRAWDA NAS NIE WYZWOLI<br>
+                - ALE POZWOLI ZROZUMIEĆ
+            </p>
+            <div class="footer-nav-group">
+                <span style="color: var(--dark-red); font-size: 0.9rem; text-transform: uppercase;">/SYSTEM/NAWIGACJA/</span>
+                <a href="../../index.html" class="footer-btn">zakończ_połączenie_i_wróć</a>
+            </div>
+        </div>
+    </footer>
+
+    <script>
+        // Prosty zegar systemowy
+        function updateClock() {
+            const now = new Date();
+            document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        }
+        setInterval(updateClock, 1000); updateClock();
+
+        // Opcjonalnie: Raportowanie do Mety samego faktu odwiedzenia strony pobierania (jeśli była wcześniej zgoda)
+        const pixelConsent = localStorage.getItem('bc_pixel_consent');
+        if (pixelConsent === 'accepted') {
+            !function(f,b,e,v,n,t,s)
+            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+            n.queue=[];t=b.createElement(e);t.async=!0;
+            t.src=v;s=b.getElementsByTagName(e)[0];
+            s.parentNode.insertBefore(t,s)}(window, document,'script',
+            'https://connect.facebook.net/en_US/fbevents.js');
+            fbq('init', '1635279820956165');
+            fbq('track', 'PageView');
+        }
+    </script>
+</body>
+</html>

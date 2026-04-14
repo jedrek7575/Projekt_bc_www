@@ -499,27 +499,21 @@
                     <h2 class="glow">> AKTA_SPRAWY</h2>
                     <p class="modal-desc">
                         [ OSTRZEZENIE_SYSTEMOWE ]<br>
-                        Akta są szyfrowane. Aby pobrać plik, musisz zweryfikować swoją tożsamość i dołączyć do podziemnej sieci komunikacyjnej.
+                        Akta są szyfrowane. Aby uzyskać dostęp do darmowej wersji ebooka, musisz podać adres email, na który przesłany zostanie link do pobierania.
                     </p>
                     
-                    <form id="demo-download-form" class="demo-form">
-                        <label for="demo-email">> WPROWADZ_ADRES_POCZTOWY (E-MAIL):</label>
-                        <input type="email" id="demo-email" required placeholder="obywatel@system.pl" autocomplete="off">
+<form id="demo-download-form" class="demo-form">
+    <label for="demo-email">> WPROWADZ_ADRES_POCZTOWY (E-MAIL):</label>
+    <input type="email" id="demo-email" required placeholder="obywatel@system.pl" autocomplete="off">
 
-                        <label class="consent-label">
-                            <input type="checkbox" id="demo-consent" required>
-                            <span>Rozumiem, że w zamian za darmowy dostęp do akt wyrażam zgodę na zapis do bazy danych (newsletter) oraz otrzymywanie tajnych meldunków handlowych.</span>
-                        </label>
+    <label class="consent-label">
+        <input type="checkbox" id="demo-consent" required>
+        <span>Rozumiem, że w zamian za darmowy dostęp do akt wyrażam zgodę na zapis do bazy danych (newsletter) oraz otrzymywanie tajnych meldunków handlowych.</span>
+    </label>
 
-<div class="format-selection">
-    <span>> WYBIERZ_FORMAT:</span>
-    <label><input type="checkbox" name="ebook-format" value="pdf" checked> .PDF</label>
-    <label><input type="checkbox" name="ebook-format" value="epub"> .EPUB</label>
-</div>
-
-                        <button type="submit" class="dl-btn" id="demo-submit-btn">>> ZAAKCEPTUJ_I_POBIERZ</button>
-                        <div id="demo-status" class="status-msg"></div>
-                    </form>
+    <button type="submit" class="dl-btn" id="demo-submit-btn">>> ZAAKCEPTUJ_I_WYŚLIJ_KODY</button>
+    <div id="demo-status" class="status-msg"></div>
+</form>
 
                 </div>
             </div>
@@ -732,6 +726,7 @@ window.addEventListener('click', (e) => {
     }
 });
 
+
 // ==========================================================
 // --- LOGIKA FORMULARZA I WYSYŁKA DO SUPABASE ---
 // ==========================================================
@@ -740,61 +735,33 @@ const demoSubmitBtn = document.getElementById('demo-submit-btn');
 const demoStatus = document.getElementById('demo-status');
 
 demoForm.addEventListener('submit', async (e) => {
-    e.preventDefault(); // Blokuje przeładowanie strony
+    e.preventDefault();
     
     const emailInput = document.getElementById('demo-email').value;
-    
-    // Zbieramy wszystkie ZAZNACZONE formaty do tablicy (np. ['pdf'], ['epub'] lub ['pdf', 'epub'])
-    const selectedFormats = Array.from(document.querySelectorAll('input[name="ebook-format"]:checked')).map(cb => cb.value);
-
-    // Zabezpieczenie: upewnijmy się, że wybrano chociaż jeden format
-    if (selectedFormats.length === 0) {
-        demoStatus.style.color = "var(--blood-red)";
-        demoStatus.innerText = "> BŁĄD: ZAZNACZ PRZYNAJMNIEJ JEDEN FORMAT.";
-        return; 
-    }
 
     demoSubmitBtn.disabled = true;
     demoSubmitBtn.innerText = ">> WERYFIKACJA W BAZIE...";
     demoStatus.innerText = "";
 
     try {
-        // 1. Próba zapisu do Supabase
-        const { error } = await supabase.from('pobrali_ebooka_demo').insert([
+        // 1. Zapis e-maila do bazy (To jedyne, co musi zrobić strona!)
+       
+        const { error: dbError } = await supabase.from('pobrali_ebooka_demo').insert([
             { email: emailInput, consent_marketing: true }
         ]);
 
-        // Kod 23505 oznacza "Unique Violation" - ktoś wpisał maila, który już jest w bazie.
-        if (error && error.code !== '23505') throw error;
+        if (dbError) throw dbError;
 
-        demoStatus.style.color = "white";
-        demoStatus.innerText = "> AUTORYZACJA POMYŚLNA. INICJACJA POBIERANIA...";
-
-        // 2. Raport do Meta Pixel (jeśli jest zgoda na ciastka)
+        // 2. Raport do Meta Pixel
         if (pixelConsent === 'accepted' && typeof fbq === 'function') {
             fbq('trackCustom', 'PobranoDemo');
-            console.log("[SYSTEM_LOG] Sygnał 'PobranoDemo' wyslany na radary Mety.");
+            console.log("[SYSTEM_LOG] Sygnał 'PobranoDemo' wysłany.");
         }
 
-        // 3. Automatyczne pobieranie wybranych plików
-        setTimeout(() => {
-            // Pętla pobierająca każdy zaznaczony format
-            selectedFormats.forEach((format, index) => {
-                // Opóźnienie 500ms między plikami, aby przeglądarka nie zablokowała drugiego pobierania jako pop-up
-                setTimeout(() => {
-                    const downloadLink = document.createElement('a');
-                    downloadLink.href = format === 'pdf' 
-                        ? '../Rescoures/Demo/AKTA_BC_DEMO.pdf' 
-                        : '../Rescoures/Demo/AKTA_BC_DEMO.epub';
-                    downloadLink.download = '';
-                    document.body.appendChild(downloadLink);
-                    downloadLink.click();
-                    document.body.removeChild(downloadLink);
-                }, index * 500); 
-            });
-
-            demoSubmitBtn.innerText = ">> PAKIET_POBRANY";
-        }, 1000); // Sekunda opóźnienia na początku dla dramatycznego efektu hakowania
+        // 3. Sukces wizualny na stronie
+        demoSubmitBtn.innerText = ">> ZAKOŃCZONO";
+        demoStatus.style.color = "white";
+        demoStatus.innerText = "> PAKIET WYSŁANY. SPRAWDŹ SKRZYNKĘ ODBIORCZĄ (I FOLDER SPAM).";
 
     } catch (err) {
         console.error("Błąd bazy danych:", err);
