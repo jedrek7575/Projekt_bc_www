@@ -419,7 +419,16 @@
 
             .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
             #terminal-container img.logo.stable { width: 10rem; height: 10rem; }
-            #typing-text { text-align: center; height: auto; min-height: 250px; align-items: center; }
+            #typing-text { 
+    text-align: left; /* Przywracamy terminalowy wygląd do lewej */
+    align-items: flex-start; 
+    height: auto; 
+    min-height: 200px; 
+    font-size: 1.2rem; /* Zmniejszamy czcionkę, żeby długie słowa z podkreślnikami się mieściły */
+    padding: 0 15px; /* Oddech od krawędzi ekranu */
+    margin-top: 20px; /* Odstęp od zglitchowanego logo */
+    word-wrap: break-word; /* Zabezpieczenie przed wylewaniem się długich słów */
+}
             
             #boxes-container { flex-direction: column; align-items: center; }
             .hacker-box { width: 85%; }
