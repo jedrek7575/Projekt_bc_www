@@ -328,23 +328,23 @@
                 left: 60px !important; /* Dostosowane do węższego paska */
             }
             /* --- LATA DLA BANERA COOKIES NA MOBILE --- */
-    #cookie-lightbox {
+    #sys-protocol-modal {
         padding: 15px; /* Dodaje lekki oddech od krawędzi ekranu */
     }
 
-    .cookie-box {
+    .sys-protocol-box {
         width: 100%;
         padding: 25px 15px; /* Zmniejszenie wewnętrznych marginesów */
         max-height: 90dvh; /* Utrzymanie boxu w obrębie widzialnego ekranu */
     }
 
     /* Wymuszone nadpisanie (override) zbyt dużych fontów z HTML */
-    .cookie-box > div:nth-child(1) {
+    .sys-protocol-box > div:nth-child(1) {
         font-size: 1.5rem !important; 
         margin-bottom: 10px !important;
     }
 
-    .cookie-box > div:nth-child(2) {
+    .sys-protocol-box > div:nth-child(2) {
         font-size: 1.1rem !important;
         margin-bottom: 20px !important;
     }
@@ -455,7 +455,7 @@
 
         /*cookies*/
         /* --- PROTOKÓŁ CIASTECZEK (LIGHTBOX) --- */
-#cookie-lightbox {
+#sys-protocol-modal {
     background: rgba(0, 5, 0, 0.80); 
     position: fixed; 
     top: 0; 
@@ -470,7 +470,7 @@
     padding: 20px;
 }
 
-.cookie-box {
+.sys-protocol-box {
     width: 90%; max-width: 550px; background: #000; border: 1px solid var(--terminal-green);
     padding: 40px 30px; text-align: center; box-shadow: 0 0 50px rgba(51, 255, 0, 0.15);
     /* TE 3 LINIE NAPRAWIAJĄ PROBLEM NA MOBILE: */
@@ -787,18 +787,18 @@
     </div>
 
 
-    <div id="cookie-lightbox">
-    <div class="cookie-box glow">
-        <div style="font-size: 2rem; color: var(--terminal-green); margin-bottom: 20px; letter-spacing: 2px;">KOMUNIKAT SYSTEMOWY</div>
-        <div style="font-size: 1.3rem; color: #ccc; margin-bottom: 30px; line-height: 1.4;">
-            Węzeł B-C wykorzystuje pliki cookies w celach analitycznych. <br>
-            Akceptacja protokołu jest rekomendowana do pełnej synchronizacji z Centralą. 
-            Szczegóły w <a href="#polityka" style="color: var(--terminal-dim);">Polityce Prywatności</a>.
+<div id="sys-protocol-modal">
+        <div class="sys-protocol-box glow">
+            <div style="font-size: 2rem; color: var(--terminal-green); margin-bottom: 20px; letter-spacing: 2px;">KOMUNIKAT SYSTEMOWY</div>
+            <div style="font-size: 1.3rem; color: #ccc; margin-bottom: 30px; line-height: 1.4;">
+                Węzeł B-C wykorzystuje pakiety śledzące w celach analitycznych. <br>
+                Akceptacja protokołu jest rekomendowana do pełnej synchronizacji z Centralą. 
+                Szczegóły w <a href="#polityka" style="color: var(--terminal-dim);">Polityce Prywatności</a>.
+            </div>
+            <button id="btn-accept-sys" class="btn-accept-main">ZAAKCEPTUJ WSZYSTKIE</button>
+            <button id="btn-decline-sys" class="btn-decline-minor">Kontynuuj bez pełnej synchronizacji</button>
         </div>
-        <button id="btn-accept-cookies" class="btn-accept-main">ZAAKCEPTUJ WSZYSTKIE</button>
-        <button id="btn-decline-cookies" class="btn-decline-minor">Kontynuuj bez pełnej synchronizacji</button>
     </div>
-</div>
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
