@@ -1145,18 +1145,105 @@ lbLink.addEventListener('click', (e) => {
         });
 
 
-        /* --- 7. LOGIKA NEWSLETTERA (SUPABASE) --- */
+/* --- 7. LOGIKA NEWSLETTERA (SUPABASE) --- */
         const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-window.triggerCookieProtocol = function() {
-    const pixelConsent = localStorage.getItem('bc_pixel_consent');
-    if (!pixelConsent) {
-        // Zmiana ID na to z HTML
-        document.getElementById('sys-protocol-modal').style.display = 'flex';
-    }
-};
+        // ZMIENNE I FUNKCJA ANIMACJI NEWSLETTERA
+        let newsletterBooted = false;
+        let newsletterTypingTimeout;
+
+        function fastBootNewsletter() {
+            newsletterBooted = true; // Flaga zapobiegająca ponownemu odpalaniu
+            const bootLog = document.getElementById('boot-log');
+            const subForm = document.getElementById('subscribe-form');
+            const backBtn = document.getElementById('back-btn');
+            
+            const bootText = "Inicjalizacja protokołu wpisu...\nNawiązywanie bezpiecznego połączenia z Centralą...\nSprawdzanie certyfikatów bezpieczeństwa... [OK]\nSystem gotowy do zapisu danych Obywatela.";
+            
+            let charIdx = 0;
+            bootLog.innerHTML = "";
+            subForm.style.opacity = "0";
+            backBtn.style.opacity = "0";
+
+            soundTyping.currentTime = 0;
+            soundTyping.play().catch(e => console.log("Audio zablokowane"));
+
+            function typeLine() {
+                if (charIdx < bootText.length) {
+                    let char = bootText.charAt(charIdx);
+                    bootLog.innerHTML += (char === '\n') ? '<br>' : char;
+                    charIdx++;
+                    newsletterTypingTimeout = setTimeout(typeLine, 25); // Szybkość pisania w terminalu
+                } else {
+                    soundTyping.pause();
+                    soundTyping.currentTime = 0;
+                    
+                    // Pokazanie formularza po zakończeniu pisania
+                    setTimeout(() => {
+                        subForm.style.opacity = "1";
+                        backBtn.style.opacity = "1";
+                    }, 400);
+                }
+            }
+            typeLine();
+        }
+
+        // LOGIKA FORMULARZA NEWSLETTERA (ODBLOKOWANIE PRZYCISKU I WYSYŁKA)
+        const consentCheckbox = document.getElementById('consent');
+        const newsletterSubmitBtn = document.getElementById('newsletter-submit-btn');
+        const subscribeForm = document.getElementById('subscribe-form');
+        const newsletterStatusMsg = document.getElementById('status-msg');
+
+        // Odblokowanie przycisku po zaznaczeniu checkboxa
+        consentCheckbox.addEventListener('change', () => {
+            newsletterSubmitBtn.disabled = !consentCheckbox.checked;
+        });
+
+        // Wysyłka formularza do bazy danych
+        subscribeForm.addEventListener('submit', async (e) => {
+            e.preventDefault();
+            const emailInput = document.getElementById('email').value;
+
+            newsletterSubmitBtn.disabled = true;
+            newsletterSubmitBtn.innerText = "[ PRZESYŁANIE PAKIETU... ]";
+            newsletterStatusMsg.innerText = "";
+
+            try {
+                // Pamiętaj, aby upewnić się, że nazwa tabeli 'newsletter' zgadza się z tą w Twoim Supabase
+                const { error: dbError } = await supabase.from('newsletter').insert([
+                    { email: emailInput }
+                ]);
+
+                if (dbError) throw dbError;
+
+                newsletterSubmitBtn.innerText = "[ PAKIET ZAPISANY ]";
+                newsletterStatusMsg.style.color = "var(--terminal-green)";
+                newsletterStatusMsg.innerText = "> IDENTYFIKATOR DODANY DO REJESTRU.";
+                
+                // Raportowanie konwersji (Lead) do Pixela, jeśli Obywatel wyraził zgodę
+                const pixelConsent = localStorage.getItem('bc_pixel_consent');
+                if (pixelConsent === 'accepted' && typeof fbq === 'function') {
+                    fbq('track', 'Lead');
+                }
+
+            } catch (err) {
+                console.error("Błąd bazy danych:", err);
+                newsletterStatusMsg.style.color = "var(--error-red)";
+                newsletterStatusMsg.innerText = "> BŁĄD PROTOKOŁU: ODRZUCONO POŁĄCZENIE.";
+                newsletterSubmitBtn.disabled = false;
+                newsletterSubmitBtn.innerText = "[ PONÓW_PRÓBĘ ]";
+            }
+        });
+
+        // WYWOŁANIE PROTOKOŁU CIASTECZEK (Reszta bez zmian)
+        window.triggerCookieProtocol = function() {
+            const pixelConsent = localStorage.getItem('bc_pixel_consent');
+            if (!pixelConsent) {
+                document.getElementById('sys-protocol-modal').style.display = 'flex';
+            }
+        };
 
 /* --- 8. ZAAWANSOWANY SYSTEM CIASTECZEK I BAZA DANYCH --- */
 document.addEventListener("DOMContentLoaded", () => {
