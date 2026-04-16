@@ -86,7 +86,7 @@
         /* ======================== EKRAN BLOKADY (LOCK SCREEN) ===================== */
         /* ========================================================================== */
         #lock-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
             background: #000; z-index: 10001; 
             display: flex; justify-content: center; align-items: center; cursor: pointer;
         }
@@ -116,13 +116,24 @@
         /* ========================================================================== */
         /* ======================== TASKBAR & MENU START ============================ */
         /* ========================================================================== */
-        #linux-taskbar {
-            position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh;
-            background: rgba(20, 22, 20, 0.7); backdrop-filter: blur(8px);
-            border-right: 1px solid var(--terminal-dim); z-index: 1000;
-            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
-            box-shadow: 2px 0 15px rgba(0,0,0,0.8);
-        }
+#linux-taskbar {
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    bottom: 0; /* DODANE: trzyma pasek sztywno na dole */
+    width: var(--taskbar-width); 
+    height: 100dvh; /* ZMIENIONE z 100vh na 100dvh */
+    background: rgba(20, 22, 20, 0.7); 
+    backdrop-filter: blur(8px);
+    border-right: 1px solid var(--terminal-dim); 
+    z-index: 1000;
+    display: flex; 
+    flex-direction: column; 
+    justify-content: space-between; 
+    align-items: center; 
+    padding: 15px 0;
+    box-shadow: 2px 0 15px rgba(0,0,0,0.8);
+}
         .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; position: relative;}
         .taskbar-logo-btn { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; }
         .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); box-shadow: 0 0 10px var(--terminal-dim); }
@@ -182,7 +193,7 @@
         #box-right:hover img { filter: grayscale(100%) brightness(0.2) !important; }
 
         /* --- LIGHTBOX (GLOBALNY) --- */
-        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; overflow-y: auto; height: 100vh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); max-height: 99vh; }
+        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; overflow-y: auto; height: 100dvh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); max-height: 99vh; }
         .lightbox-content { width: 90%; max-width: 800px; position: relative; padding: 30px; border: 1px solid var(--terminal-green); background: #000; box-shadow: 0 0 40px rgba(51, 255, 0, 0.15); text-align: center; }
         .close-btn { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--terminal-green); transition: 0.2s; font-weight: bold; }
         .close-btn:hover { text-shadow: 0 0 15px var(--terminal-green); transform: scale(1.2); }
@@ -307,8 +318,16 @@
             .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
             #sys-clock { font-size: 0.7rem; }
             .show-desktop-btn { width: 30px; }
-            #start-menu { top: 0; left: 50px; width: calc(100vw - 50px); height: 100vh; border: none; border-left: 1px solid var(--terminal-green); justify-content: center; padding: 40px; }
-
+            #start-menu { 
+    top: 0; 
+    left: 50px; 
+    width: calc(100vw - 50px); 
+    height: 100dvh; /* ZMIENIONE z 100vh */
+    border: none; 
+    border-left: 1px solid var(--terminal-green); 
+    justify-content: center; 
+    padding: 40px; 
+}
             /* Index mobile */
             .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
             #typing-text { text-align: center; height: auto; min-height: 250px; }
@@ -457,7 +476,7 @@
         }
 
         #secret-terminal-lightbox {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100vh;
+            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
             overflow-y: auto;
             background: rgba(0, 5, 0, 0.95); z-index: 10005; display: none;
             justify-content: center; align-items: center; backdrop-filter: blur(5px);
