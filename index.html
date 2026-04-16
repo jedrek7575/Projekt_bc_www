@@ -3,7 +3,7 @@
 <html lang="pl" data-connection-node="http://alternatywny-prl.pl/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html">
 <head>
     <meta charset="UTF-8">
-    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
     <title>~projekt_bc:bash — Terminal</title>
     <meta name="description" content="Oficjalna strona projektu B-C. Nie ma wolności bez sprawiedliwości.">
     <meta name="keywords" content="historia alternatywna, prl, cyberpunk, powieść, książka, audiobook, fikcja literacka, dystopia">
@@ -43,6 +43,11 @@
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
+        html, body {
+    overflow-wrap: anywhere; 
+    word-break: break-word; 
+    hyphens: auto;
+}
 
         body {
             background-color: var(--bg-color);
@@ -292,7 +297,11 @@
         /* ======================== URZĄDZENIA MOBILNE ============================== */
         /* ========================================================================== */
         @media (max-width: 850px) {
-            body { margin-left: 50px; }
+            body { 
+    margin-left: 50px; 
+    width: calc(100vw - 50px);
+    max-width: calc(100vw - 50px);
+}
             #linux-taskbar { width: 50px; }
             .taskbar-logo-btn { width: 35px; height: 35px; }
             .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
@@ -359,6 +368,24 @@
     .btn-decline-minor {
         font-size: 1rem;
     }
+    /* Pancerne ustawienia dla wszystkich wyskakujących terminali */
+.lightbox-content, 
+.secret-terminal-box, 
+.sys-protocol-box {
+    width: 95%; /* Żeby nie dotykało idealnie krawędzi ekranu */
+    max-height: 85dvh; /* Terminal zajmie max 85% wysokości ekranu... */
+    overflow-y: auto; /* ...a jeśli tekst jest dłuższy, włączy się suwak */
+    padding: 25px 15px; /* Mniejsze marginesy wewnętrzne, żeby zaoszczędzić miejsce */
+    display: flex;
+    flex-direction: column;
+}
+
+/* W tajnym terminalu musimy się upewnić, że treść swobodnie się przewija */
+#secret-terminal-body {
+    overflow-y: auto;
+    flex-grow: 1; 
+    margin-bottom: 10px;
+}
         }
 
         /* --- TAJNY TERMINAL & TRÓJKĄT --- */
@@ -1108,67 +1135,70 @@ lbLink.addEventListener('click', (e) => {
         const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
         const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
 
-        window.triggerCookieProtocol = function() {
-            const pixelConsent = localStorage.getItem('bc_pixel_consent');
-            if (!pixelConsent) {
-                document.getElementById('cookie-lightbox').style.display = 'flex';
-            }
-        };
+window.triggerCookieProtocol = function() {
+    const pixelConsent = localStorage.getItem('bc_pixel_consent');
+    if (!pixelConsent) {
+        // Zmiana ID na to z HTML
+        document.getElementById('sys-protocol-modal').style.display = 'flex';
+    }
+};
 
-        
+/* --- 8. ZAAWANSOWANY SYSTEM CIASTECZEK I BAZA DANYCH --- */
+document.addEventListener("DOMContentLoaded", () => {
+    // Zmiana ID na to z HTML
+    const cookieLightbox = document.getElementById('sys-protocol-modal'); 
+    const pixelConsent = localStorage.getItem('bc_pixel_consent');
+    let clientId = localStorage.getItem('bc_client_id');
 
-let newsletterBooted = false;
-        const nlBootText = "INITIALIZING SECURE CONNECTION...\nREADY.";
-        const nlLogElement = document.getElementById('boot-log');
-        let nlCharIndex = 0;
-        
-        function fastBootNewsletter() {
-            newsletterBooted = true; // Zabezpieczenie by nie pisało przy każdym wejściu
-            
-            // ODPALENIE DŹWIĘKU PISANIA
-            if (nlCharIndex === 0) {
-                soundTyping.currentTime = 0; // Upewniamy się, że gra od początku
-                soundTyping.play().catch(e => console.log("Audio zablokowane"));
-            }
+    if (!clientId) {
+        clientId = 'bc_anon_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+        localStorage.setItem('bc_client_id', clientId);
+    }
 
-            function typeNL() {
-                if (nlCharIndex < nlBootText.length) {
-                    nlLogElement.innerHTML += nlBootText[nlCharIndex] === '\n' ? '<br>' : nlBootText[nlCharIndex];
-                    nlCharIndex++; 
-                    setTimeout(typeNL, 20);
-                } else {
-                    // ZATRZYMANIE DŹWIĘKU PISANIA
-                    soundTyping.pause();
-                    soundTyping.currentTime = 0;
-                    
-                    document.getElementById('subscribe-form').style.opacity = 1;
-                    document.getElementById('back-btn').style.opacity = 1;
-                }
-            }
-            typeNL();
+    function injectMetaPixel() {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1635279820956165');
+        fbq('track', 'PageView');
+    }
+
+    async function logConsentToSupabase(status) {
+        try {
+            const { error } = await supabase.from('cookie_consents').upsert([
+                { client_id: clientId, consent_status: status, updated_at: new Date() }
+            ], { onConflict: 'client_id' });
+            if (error) throw error;
+        } catch (err) {
+            console.error("[SYSTEM] Błąd połączenia z bazą archiwalną.", err);
         }
+    }
 
-        const nlCheckbox = document.getElementById('consent');
-        const nlSubmitBtn = document.getElementById('newsletter-submit-btn');
-        nlCheckbox.addEventListener('change', () => nlSubmitBtn.disabled = !nlCheckbox.checked);
+    if (pixelConsent === 'accepted') {
+        injectMetaPixel();
+    }
 
-        document.getElementById('subscribe-form').addEventListener('submit', async (e) => {
-            e.preventDefault();
-            nlSubmitBtn.disabled = true; nlSubmitBtn.innerHTML = "WYSYŁANIE...";
-            try {
-                const ipRes = await fetch('https://ipapi.co/json/');
-                const ipData = await ipRes.json();
-                const { error } = await supabase.from('newsletter_subscribers').insert([{ 
-                    email: document.getElementById('email').value,
-                    city: ipData.city, country: ipData.country_name 
-                }]);
-                if (error) throw error;
-                document.getElementById('status-msg').innerHTML = "ZAPISANO W BAZIE.";
-                nlSubmitBtn.innerHTML = "[ OK ]";
-            } catch (err) {
-                nlSubmitBtn.innerHTML = "[ BŁĄD ]"; nlSubmitBtn.disabled = false;
-            }
-        });
+    // Zmiana ID przycisku na to z HTML
+    document.getElementById('btn-accept-sys').addEventListener('click', () => {
+        localStorage.setItem('bc_pixel_consent', 'accepted');
+        cookieLightbox.style.display = 'none';
+        injectMetaPixel();
+        logConsentToSupabase('accepted');
+        if(typeof soundLockClick !== 'undefined') soundLockClick.play().catch(e=>{});
+    });
+
+    // Zmiana ID przycisku na to z HTML
+    document.getElementById('btn-decline-sys').addEventListener('click', () => {
+        localStorage.setItem('bc_pixel_consent', 'declined');
+        cookieLightbox.style.display = 'none';
+        logConsentToSupabase('declined');
+    });
+});
 
 
 // Detekcja urządzenia (prosta i skuteczna)
@@ -1347,63 +1377,7 @@ let secretTypingTimeout;
         });
 
 
-        /* --- 8. ZAAWANSOWANY SYSTEM CIASTECZEK I BAZA DANYCH --- */
-document.addEventListener("DOMContentLoaded", () => {
-    const cookieLightbox = document.getElementById('cookie-lightbox');
-    const pixelConsent = localStorage.getItem('bc_pixel_consent');
-    let clientId = localStorage.getItem('bc_client_id');
-
-    // Generujemy anonimowe ID obywatela, jeśli to jego pierwsza wizyta
-    if (!clientId) {
-        clientId = 'bc_anon_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-        localStorage.setItem('bc_client_id', clientId);
-    }
-
-    function injectMetaPixel() {
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1635279820956165');
-        fbq('track', 'PageView');
-    }
-
-    async function logConsentToSupabase(status) {
-        try {
-            const { error } = await supabase.from('cookie_consents').upsert([
-                { client_id: clientId, consent_status: status, updated_at: new Date() }
-            ], { onConflict: 'client_id' });
-            if (error) throw error;
-        } catch (err) {
-            console.error("[SYSTEM] Błąd połączenia z bazą archiwalną.", err);
-        }
-    }
-
-    // Weryfikacja przy boocie
-if (pixelConsent === 'accepted') {
-        injectMetaPixel();
-    }
-
-    // Akcja: ZAAKCEPTUJ (Ustawia cookie, chowa baner, odpala piksel, wysyła do Supabase)
-    document.getElementById('btn-accept-cookies').addEventListener('click', () => {
-        localStorage.setItem('bc_pixel_consent', 'accepted');
-        cookieLightbox.style.display = 'none';
-        injectMetaPixel();
-        logConsentToSupabase('accepted');
-        if(typeof soundLockClick !== 'undefined') soundLockClick.play().catch(e=>{});
-    });
-
-    // Akcja: ODRZUĆ (Tylko chowa baner i loguje odmowę do Supabase)
-    document.getElementById('btn-decline-cookies').addEventListener('click', () => {
-        localStorage.setItem('bc_pixel_consent', 'declined');
-        cookieLightbox.style.display = 'none';
-        logConsentToSupabase('declined');
-    });
-});
+    
         
     </script>
 
