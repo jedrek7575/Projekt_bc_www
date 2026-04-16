@@ -327,6 +327,38 @@
             #secret-notification {
                 left: 60px !important; /* Dostosowane do węższego paska */
             }
+            /* --- LATA DLA BANERA COOKIES NA MOBILE --- */
+    #cookie-lightbox {
+        padding: 15px; /* Dodaje lekki oddech od krawędzi ekranu */
+    }
+
+    .cookie-box {
+        width: 100%;
+        padding: 25px 15px; /* Zmniejszenie wewnętrznych marginesów */
+        max-height: 90dvh; /* Utrzymanie boxu w obrębie widzialnego ekranu */
+    }
+
+    /* Wymuszone nadpisanie (override) zbyt dużych fontów z HTML */
+    .cookie-box > div:nth-child(1) {
+        font-size: 1.5rem !important; 
+        margin-bottom: 10px !important;
+    }
+
+    .cookie-box > div:nth-child(2) {
+        font-size: 1.1rem !important;
+        margin-bottom: 20px !important;
+    }
+
+    /* Zmniejszenie przycisków, by mieściły się w jednej linii / nie przytłaczały */
+    .btn-accept-main {
+        font-size: 1.2rem;
+        padding: 12px 15px;
+        letter-spacing: 1px;
+    }
+
+    .btn-decline-minor {
+        font-size: 1rem;
+    }
         }
 
         /* --- TAJNY TERMINAL & TRÓJKĄT --- */
@@ -425,10 +457,17 @@
         /* --- PROTOKÓŁ CIASTECZEK (LIGHTBOX) --- */
 #cookie-lightbox {
     background: rgba(0, 5, 0, 0.80); 
-    position: fixed; top: 0; left: 0; width: 100vw; height: 100vh; height: 100dvh;
-    z-index: 10005; display: none;
-    justify-content: center; align-items: center; backdrop-filter: blur(8px);
-    padding: 20px 0;
+    position: fixed; 
+    top: 0; 
+    left: 0; 
+    right: 0; 
+    bottom: 0; /* Rozciąga na całość zamiast 100vw/vh */
+    z-index: 10005; 
+    display: none;
+    justify-content: center; 
+    align-items: center; 
+    backdrop-filter: blur(8px);
+    padding: 20px;
 }
 
 .cookie-box {
