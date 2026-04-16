@@ -1130,19 +1130,15 @@ let newsletterBooted = false;
 
         if (isMobile) {
             secretText = "Zaszyfrowany kanal otwarty...\n\n" +
-                         "Widze, ze laczysz sie z mobilnego terminala. Ekran za maly na pelne srodowisko deweloperskie, co? Bedziemy musieli to obejsc.\n" +
-                         "Twoje urzadzenie ma zablokowany dostep do konsoli. Ale zostawilem dla ciebie tylna furtke.\n\n" +
-                         "Zeby obejsc ich zabezpieczenia, musisz wlamac sie przez pasek adresu przegladarki na samej gorze ekranu. Kliknij w niego, przejdz na sam koniec aktualnego adresu URL (nie kasuj go, po prostu przejdz na koniec) i dopisz dokladnie te komende:\n\n" +
-                         "?override=true\n\n" +
-                         "(Jezeli nie dziala, upewnij sie ze po adresie strony nie miales zadnych zbednych dopiskow w stylu #index itp., komende wklejasz bezposrednio po .pl)\n\n" +
-                         "Nastepnie zatwierdz klawiszem enter na klawiaturze telefonu. System zglupieje i wpusci cie prosto do archiwum.\n\n" +
-                         "Nie spieprz tego.\n" +
-                         "[POLACZENIE ZAKONCZONE]";
+                         "Widze, ze laczysz sie z mobilnego terminala. Maja tu silne zapory, ale zostawilem dla ciebie luke w systemie.\n\n" +
+                         "Zaraz otworze ci bezposredni dostep do wiersza polecen roota. Gdy pojawi sie znak zachety ($), wpisz po prostu komende:\n\n" +
+                         "override\n\n" +
+                         "...i zatwierdz enterem na klawiaturze telefonu. To wyrwie zamek z zawiasow i wpusci cie do archiwum.\n\n" +
+                         "Nie spieprz tego.\n";
         } else {
             secretText = "Zaszyfrowany kanal otwarty...\n\n" +
                          "Salve, jak to mawial jeden taki kretyn.\n" +
                          "Chcesz nauczyc sie sztuczki? Pomoge ci wyciagnac fragment akt z ich bazy danych. Czytaj uwaznie i postepuj zgodnie z instrukcjami.\n" +
-                         
                          "- Kliknij F12 na swojej klawiaturze - powinienes zobaczyc przerazajace okno narzedzi deweloperskich, nie boj sie, nie ugryza cie.\n" +
                          "- Przejdz do zakladki Elements (lub Inspector).\n" +
                          "- Na samej gorze kodu szukaj znacznika html lang=pl data-connection-node\n" +
@@ -1183,21 +1179,64 @@ let secretTypingTimeout;
             secretLightbox.style.display = 'flex';
             secretBody.innerHTML = '';
 
+            // --- NOWA FUNKCJA: Wiersz poleceń dla smartfonów ---
+            function createOverridePrompt() {
+                const wrapper = document.createElement('div');
+                wrapper.innerHTML = `
+                    <div class="terminal-input-line" style="flex-wrap: wrap; margin-top: 15px;">
+                        <span style="color: #ff3333;">projektBC@fedora:~$</span>
+                        <input type="text" class="override-cmd" autocomplete="off" autocorrect="off" autocapitalize="off" spellcheck="false" style="background:transparent; border:none; color:var(--terminal-green); font-family:'VT323', monospace; font-size:1.4rem; outline:none; flex-grow:1; text-transform:lowercase; width: 150px;">
+                    </div>
+                    <div class="cmd-response" style="margin-bottom: 10px;"></div>
+                `;
+                secretBody.appendChild(wrapper);
+                const inputEl = wrapper.querySelector('.override-cmd');
+                const responseEl = wrapper.querySelector('.cmd-response');
+
+                setTimeout(() => {
+                    inputEl.focus();
+                    secretBody.scrollTop = secretBody.scrollHeight; // Automatyczne scrollowanie na dół
+                }, 100);
+
+                inputEl.addEventListener('keydown', function(e) {
+                    if (e.key === 'Enter') {
+                        const val = this.value.toLowerCase().trim();
+                        this.disabled = true; // Zablokuj pole po wciśnięciu Enter
+                        
+                        if (val === 'override') {
+                            responseEl.innerHTML = '<span style="color: var(--terminal-green);">[ AUTORYZACJA ZAAKCEPTOWANA. OTWIERAM ARCHIWUM... ]</span>';
+                            setTimeout(() => {
+                                // Przekierowanie na ukrytą stronę z e-bookiem
+                                window.location.href = 'https://alternatywny-prl.pl/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html';
+                            }, 1000);
+                        } else {
+                            responseEl.innerHTML = `<span style="color: var(--error-red);">bash: ${val}: command not found</span>`;
+                            setTimeout(createOverridePrompt, 200); // Wygeneruj nowy wiersz poniżej, jeśli wpisał źle
+                        }
+                    }
+                });
+            }
+            // --------------------------------------------------
+
             if (isSecretRead) {
                 // Jeśli już odblokował wcześniej, pokazujemy wiadomość od razu
                 secretBody.innerHTML = secretText;
+                
+                // Jeśli to mobile, po ponownym otwarciu też musimy dać mu wiersz poleceń!
+                if (isMobile) {
+                    createOverridePrompt();
+                }
             } else {
                 // Generujemy interfejs do wpisania 'y'
                 secretBody.innerHTML = `
                     <div style="color: var(--terminal-dim);">user_MD_antykomunista_7 chce nawiazac z toba kontakt, zezwolic? (type y to allow)</div>
                     <div class="terminal-input-line">
                         <span>></span>
-                        <input type="text" id="secret-prompt-input" maxlength="1" autocomplete="off">
+                        <input type="text" id="secret-prompt-input" maxlength="1" autocomplete="off" autocorrect="off" autocapitalize="off">
                     </div>
                 `;
                 
                 const promptInput = document.getElementById('secret-prompt-input');
-                // Małe opóźnienie dla pewności, że element zrenderował się przed nałożeniem focusa
                 setTimeout(() => promptInput.focus(), 100);
 
                 promptInput.addEventListener('input', function() {
@@ -1218,10 +1257,16 @@ let secretTypingTimeout;
                                 let char = secretText.charAt(charIdx);
                                 secretBody.innerHTML += (char === '\n') ? '<br>' : char;
                                 charIdx++;
-                                secretTypingTimeout = setTimeout(typeSecret, 40); // Prędkość pisania
+                                secretBody.scrollTop = secretBody.scrollHeight; // Scrollowanie w dół wraz z tekstem
+                                secretTypingTimeout = setTimeout(typeSecret, 30); // Prędkość pisania
                             } else {
                                 soundTyping.pause();
                                 soundTyping.currentTime = 0;
+                                
+                                // Tuż po zakończeniu pisania, jeśli to mobilka, dodajemy wiersz poleceń
+                                if (isMobile) {
+                                    setTimeout(createOverridePrompt, 400);
+                                }
                             }
                         }
                         
