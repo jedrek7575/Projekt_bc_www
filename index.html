@@ -844,15 +844,22 @@
 
     <script type="module">
         import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
-        /* --- 0. NASŁUCHIWANIE NA MOBILNY EXPLOIT (OVERRIDE) --- */
+        
+        /* --- 0. BAZA DANYCH (SUPABASE) I EXPLOIT --- */
+        const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
+        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
         if (window.location.search.includes('override=true')) {
-            // TUTAJ WPISZ LINK DO SWOJEJ UKRYTEJ STRONY Z NAGRODĄ
             window.location.href = 'https://alternatywny-prl.pl/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html'; 
         }
-        
+
+        /* --- ZMIENNE GLOBALNE --- */
+        let indexBooted = false;
+        let newsletterBooted = false;
 
         /* --- 1. ROUTER SPA (ZARZĄDZANIE WIDOKAMI) --- */
-function handleRoute() {
+        function handleRoute() {
             let hash = window.location.hash || '#index';
             
             document.querySelectorAll('.view-section').forEach(el => {
@@ -872,22 +879,20 @@ function handleRoute() {
             document.getElementById('start-menu').classList.remove('active');
             window.scrollTo(0,0);
 
+            // Inicjalizacja newslettera przy pierwszym wejściu w zakładkę
             if(hash === '#newsletter' && !newsletterBooted) {
                 fastBootNewsletter();
             }
 
-            // --- NOWY KOD --- 
             // Ponowne odpalenie animacji i dźwięku pudełek przy powrocie do Głównej
             if ((hash === '#index' || hash === '') && indexBooted) {
                 triggerIndexBoxes(true); 
             }
             if (typeof fbq === 'function') {
-        fbq('track', 'PageView'); 
-    }
+                fbq('track', 'PageView'); 
+            }
         }
-        // Nasłuchuj zmian w pasku adresu
         window.addEventListener('hashchange', handleRoute);
-        // Odpal routing przy pierwszym załadowaniu
         window.addEventListener('load', handleRoute);
 
 
@@ -898,7 +903,6 @@ function handleRoute() {
         const soundTyping = new Audio('Images/Audio/typing.wav'); soundTyping.volume = 0.8; soundTyping.loop = true; 
         const soundBoxAppear = new Audio('Images/Audio/box-appear.wav'); soundBoxAppear.volume = 0.9;
 
-        // Ping-Pong System
         const soundHum1 = new Audio('Images/Audio/server.wav');
         const soundHum2 = new Audio('Images/Audio/server.wav');
         soundHum1.volume = 0.3; soundHum2.volume = 0.3;
@@ -924,7 +928,6 @@ function handleRoute() {
         }
 
         /* --- 3. EKRAN BLOKADY (BOOT INDEX) --- */
-        let indexBooted = false;
         const contentConfig = {
             text: "SYSTEM_ROOT: Dostęp przyznany.\nŁadowanie symulacji alternatywnej rzeczywistości...\n\nProjekt: B-C.\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
             typingSpeed: 10
@@ -975,13 +978,11 @@ function handleRoute() {
             document.getElementById('footer-links').style.opacity = 1;
             triggerIndexBoxes(false);
             indexBooted = true;
-            
-            // NOWE: Wywołanie baneru ciasteczek 0.5s po załadowaniu widoku
             setTimeout(window.triggerCookieProtocol, 500); 
         }
 
         let typeWriterIndexCount = 0;
-function typeWriterIndex() {
+        function typeWriterIndex() {
             if (typeWriterIndexCount === 0) soundTyping.play().catch(e => {});
             const textElement = document.getElementById('text-content');
             if (typeWriterIndexCount < contentConfig.text.length) {
@@ -994,24 +995,21 @@ function typeWriterIndex() {
                 setTimeout(() => { 
                     document.getElementById('footer-links').style.opacity = 1; 
                     triggerIndexBoxes(true);
-                    indexBooted = true; // <--- DODAJ TĘ LINIJKĘ
+                    indexBooted = true; 
                     setTimeout(window.triggerCookieProtocol, 1000);
                 }, 500);
             }
         }
 
-function triggerIndexBoxes(playSound = true) {
+        function triggerIndexBoxes(playSound = true) {
             if (playSound) {
-                soundBoxAppear.currentTime = 0; // Reset dźwięku, by odtwarzał się czysto
+                soundBoxAppear.currentTime = 0; 
                 soundBoxAppear.play().catch(e => {});
             }
             ['box-center', 'box-right', 'box-left'].forEach((id, idx) => {
                 let box = document.getElementById(id);
-                
-                // Usuwamy klasę, wymuszamy reflow i dodajemy ponownie
                 box.classList.remove('glitch-box-anim');
-                void box.offsetWidth; // Magiczna linijka restartująca animację CSS
-                
+                void box.offsetWidth; 
                 box.style.animationDelay = (idx * 200) + "ms";
                 box.classList.add('glitch-box-anim');
                 box.style.opacity = 1;
@@ -1047,7 +1045,6 @@ function triggerIndexBoxes(playSound = true) {
                 document.getElementById('lb-title').innerText = box.getAttribute('data-title');
                 document.getElementById('lb-desc').innerText = box.getAttribute('data-desc');
                 lbLink.href = box.getAttribute('data-link');
-
                 lbImgMain.src = box.getAttribute('data-img1');
                 lbImgLeft.src = box.getAttribute('data-img2');
                 lbImgRight.src = box.getAttribute('data-img3');
@@ -1066,39 +1063,26 @@ function triggerIndexBoxes(playSound = true) {
         lbImgLeft.addEventListener('click', function() { swapImage(this); });
         lbImgRight.addEventListener('click', function() { swapImage(this); });
 
-// --- LOGIKA PRZYCISKU ZAKUPU W LIGHTBOXIE Z PIKSELEM ---
-lbLink.addEventListener('click', (e) => {
-    // 1. Najpierw sprawdzamy, czy zaznaczono checkbox RODO w lightboxie
-    if (!legalCheckbox.checked) {
-        e.preventDefault(); 
-        consentBox.classList.remove('error-blink');
-        void consentBox.offsetWidth; 
-        consentBox.classList.add('error-blink');
-        return; // Przerywamy, jeśli nie ma zgody na regulamin
-    }
+        lbLink.addEventListener('click', (e) => {
+            if (!legalCheckbox.checked) {
+                e.preventDefault(); 
+                consentBox.classList.remove('error-blink');
+                void consentBox.offsetWidth; 
+                consentBox.classList.add('error-blink');
+                return;
+            }
 
-    // 2. Jeśli zgoda na regulamin jest, sprawdzamy zgodę na Ciasteczka/Pixel
-    const consent = localStorage.getItem('bc_pixel_consent');
-    
-    if (consent === 'accepted' && typeof fbq === 'function') {
-        // Pobieramy nazwę produktu aktualnie wyświetlanego w Lightboxie
-        const productTitle = document.getElementById('lb-title').innerText;
-
-        // Wysyłamy zdarzenie InitiateCheckout do Mety
-        fbq('track', 'InitiateCheckout', {
-            content_name: productTitle,
-            currency: 'PLN',
-            // Możemy spróbować wyciągnąć cenę z tekstu, jeśli chcesz być bardzo dokładny
-            value: productTitle.includes('29.99') ? 29.99 : (productTitle.includes('49.99') ? 49.99 : 79.99)
+            const consent = localStorage.getItem('bc_pixel_consent');
+            if (consent === 'accepted' && typeof fbq === 'function') {
+                const productTitle = document.getElementById('lb-title').innerText;
+                fbq('track', 'InitiateCheckout', {
+                    content_name: productTitle,
+                    currency: 'PLN',
+                    value: productTitle.includes('29.99') ? 29.99 : (productTitle.includes('49.99') ? 49.99 : 79.99)
+                });
+                console.log(`[SYSTEM_LOG] Obywatel przechodzi do płatności za: ${productTitle}. Sygnał wysłany.`);
+            }
         });
-
-        console.log(`[SYSTEM_LOG] Obywatel przechodzi do płatności za: ${productTitle}. Sygnał wysłany.`);
-    } else {
-        console.log("[SYSTEM_LOG] Zakup bez śledzenia (brak zgody na Pixel).");
-    }
-    
-    // Przycisk naturalnie przeniesie użytkownika do Stripe (href jest ustawiany dynamicznie)
-});
 
         legalCheckbox.addEventListener('change', () => { if (legalCheckbox.checked) consentBox.classList.remove('error-blink'); });
         document.getElementById('close-lightbox-btn').addEventListener('click', () => lightbox.style.display = 'none');
@@ -1126,8 +1110,8 @@ lbLink.addEventListener('click', (e) => {
                     method: 'POST',
                     headers: { 
                         'Content-Type': 'application/json',
-                        'Authorization': 'Bearer eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM',
-                        'apikey': 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'
+                        'Authorization': `Bearer ${SUPABASE_KEY}`,
+                        'apikey': SUPABASE_KEY
                     },
                     body: JSON.stringify(payload)
                 });
@@ -1140,22 +1124,15 @@ lbLink.addEventListener('click', (e) => {
             } catch (error) {
                 btn.innerText = '[ PONÓW TRANSMISJĘ ]'; btn.disabled = false;
                 status.style.color = "var(--error-red)"; status.innerText = "> BŁĄD PROTOKOŁU: POŁĄCZENIE PRZERWANE.";
-                console.error('Błąd:', error);
             }
         });
 
 
-/* --- 7. LOGIKA NEWSLETTERA (SUPABASE) --- */
-        const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
-        const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
-        const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
-
-        // ZMIENNE I FUNKCJA ANIMACJI NEWSLETTERA
-        let newsletterBooted = false;
+        /* --- 7. LOGIKA NEWSLETTERA --- */
         let newsletterTypingTimeout;
 
         function fastBootNewsletter() {
-            newsletterBooted = true; // Flaga zapobiegająca ponownemu odpalaniu
+            newsletterBooted = true; 
             const bootLog = document.getElementById('boot-log');
             const subForm = document.getElementById('subscribe-form');
             const backBtn = document.getElementById('back-btn');
@@ -1175,12 +1152,10 @@ lbLink.addEventListener('click', (e) => {
                     let char = bootText.charAt(charIdx);
                     bootLog.innerHTML += (char === '\n') ? '<br>' : char;
                     charIdx++;
-                    newsletterTypingTimeout = setTimeout(typeLine, 25); // Szybkość pisania w terminalu
+                    newsletterTypingTimeout = setTimeout(typeLine, 25); 
                 } else {
                     soundTyping.pause();
                     soundTyping.currentTime = 0;
-                    
-                    // Pokazanie formularza po zakończeniu pisania
                     setTimeout(() => {
                         subForm.style.opacity = "1";
                         backBtn.style.opacity = "1";
@@ -1190,18 +1165,15 @@ lbLink.addEventListener('click', (e) => {
             typeLine();
         }
 
-        // LOGIKA FORMULARZA NEWSLETTERA (ODBLOKOWANIE PRZYCISKU I WYSYŁKA)
-        const consentCheckbox = document.getElementById('consent');
+        const consentCheckboxNewsletter = document.getElementById('consent');
         const newsletterSubmitBtn = document.getElementById('newsletter-submit-btn');
         const subscribeForm = document.getElementById('subscribe-form');
         const newsletterStatusMsg = document.getElementById('status-msg');
 
-        // Odblokowanie przycisku po zaznaczeniu checkboxa
-        consentCheckbox.addEventListener('change', () => {
-            newsletterSubmitBtn.disabled = !consentCheckbox.checked;
+        consentCheckboxNewsletter.addEventListener('change', () => {
+            newsletterSubmitBtn.disabled = !consentCheckboxNewsletter.checked;
         });
 
-        // Wysyłka formularza do bazy danych
         subscribeForm.addEventListener('submit', async (e) => {
             e.preventDefault();
             const emailInput = document.getElementById('email').value;
@@ -1211,7 +1183,6 @@ lbLink.addEventListener('click', (e) => {
             newsletterStatusMsg.innerText = "";
 
             try {
-                // Pamiętaj, aby upewnić się, że nazwa tabeli 'newsletter' zgadza się z tą w Twoim Supabase
                 const { error: dbError } = await supabase.from('newsletter').insert([
                     { email: emailInput }
                 ]);
@@ -1222,14 +1193,11 @@ lbLink.addEventListener('click', (e) => {
                 newsletterStatusMsg.style.color = "var(--terminal-green)";
                 newsletterStatusMsg.innerText = "> IDENTYFIKATOR DODANY DO REJESTRU.";
                 
-                // Raportowanie konwersji (Lead) do Pixela, jeśli Obywatel wyraził zgodę
                 const pixelConsent = localStorage.getItem('bc_pixel_consent');
                 if (pixelConsent === 'accepted' && typeof fbq === 'function') {
                     fbq('track', 'Lead');
                 }
-
             } catch (err) {
-                console.error("Błąd bazy danych:", err);
                 newsletterStatusMsg.style.color = "var(--error-red)";
                 newsletterStatusMsg.innerText = "> BŁĄD PROTOKOŁU: ODRZUCONO POŁĄCZENIE.";
                 newsletterSubmitBtn.disabled = false;
@@ -1237,7 +1205,8 @@ lbLink.addEventListener('click', (e) => {
             }
         });
 
-        // WYWOŁANIE PROTOKOŁU CIASTECZEK (Reszta bez zmian)
+
+        /* --- 8. ZAAWANSOWANY SYSTEM CIASTECZEK I BAZA DANYCH --- */
         window.triggerCookieProtocol = function() {
             const pixelConsent = localStorage.getItem('bc_pixel_consent');
             if (!pixelConsent) {
@@ -1245,67 +1214,62 @@ lbLink.addEventListener('click', (e) => {
             }
         };
 
-/* --- 8. ZAAWANSOWANY SYSTEM CIASTECZEK I BAZA DANYCH --- */
-document.addEventListener("DOMContentLoaded", () => {
-    // Zmiana ID na to z HTML
-    const cookieLightbox = document.getElementById('sys-protocol-modal'); 
-    const pixelConsent = localStorage.getItem('bc_pixel_consent');
-    let clientId = localStorage.getItem('bc_client_id');
+        document.addEventListener("DOMContentLoaded", () => {
+            const cookieLightbox = document.getElementById('sys-protocol-modal'); 
+            const pixelConsent = localStorage.getItem('bc_pixel_consent');
+            let clientId = localStorage.getItem('bc_client_id');
 
-    if (!clientId) {
-        clientId = 'bc_anon_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
-        localStorage.setItem('bc_client_id', clientId);
-    }
+            if (!clientId) {
+                clientId = 'bc_anon_' + Math.random().toString(36).substr(2, 9) + '_' + Date.now();
+                localStorage.setItem('bc_client_id', clientId);
+            }
 
-    function injectMetaPixel() {
-        !function(f,b,e,v,n,t,s)
-        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-        n.queue=[];t=b.createElement(e);t.async=!0;
-        t.src=v;s=b.getElementsByTagName(e)[0];
-        s.parentNode.insertBefore(t,s)}(window, document,'script',
-        'https://connect.facebook.net/en_US/fbevents.js');
-        fbq('init', '1635279820956165');
-        fbq('track', 'PageView');
-    }
+            function injectMetaPixel() {
+                !function(f,b,e,v,n,t,s)
+                {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+                n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+                if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+                n.queue=[];t=b.createElement(e);t.async=!0;
+                t.src=v;s=b.getElementsByTagName(e)[0];
+                s.parentNode.insertBefore(t,s)}(window, document,'script',
+                'https://connect.facebook.net/en_US/fbevents.js');
+                fbq('init', '1635279820956165');
+                fbq('track', 'PageView');
+            }
 
-    async function logConsentToSupabase(status) {
-        try {
-            const { error } = await supabase.from('cookie_consents').upsert([
-                { client_id: clientId, consent_status: status, updated_at: new Date() }
-            ], { onConflict: 'client_id' });
-            if (error) throw error;
-        } catch (err) {
-            console.error("[SYSTEM] Błąd połączenia z bazą archiwalną.", err);
-        }
-    }
+            async function logConsentToSupabase(status) {
+                try {
+                    const { error } = await supabase.from('cookie_consents').upsert([
+                        { client_id: clientId, consent_status: status, updated_at: new Date() }
+                    ], { onConflict: 'client_id' });
+                    if (error) throw error;
+                } catch (err) {
+                    console.error("[SYSTEM] Błąd połączenia z bazą archiwalną.", err);
+                }
+            }
 
-    if (pixelConsent === 'accepted') {
-        injectMetaPixel();
-    }
+            if (pixelConsent === 'accepted') {
+                injectMetaPixel();
+            }
 
-    // Zmiana ID przycisku na to z HTML
-    document.getElementById('btn-accept-sys').addEventListener('click', () => {
-        localStorage.setItem('bc_pixel_consent', 'accepted');
-        cookieLightbox.style.display = 'none';
-        injectMetaPixel();
-        logConsentToSupabase('accepted');
-        if(typeof soundLockClick !== 'undefined') soundLockClick.play().catch(e=>{});
-    });
+            document.getElementById('btn-accept-sys').addEventListener('click', () => {
+                localStorage.setItem('bc_pixel_consent', 'accepted');
+                cookieLightbox.style.display = 'none';
+                injectMetaPixel();
+                logConsentToSupabase('accepted');
+                if(typeof soundLockClick !== 'undefined') soundLockClick.play().catch(e=>{});
+            });
 
-    // Zmiana ID przycisku na to z HTML
-    document.getElementById('btn-decline-sys').addEventListener('click', () => {
-        localStorage.setItem('bc_pixel_consent', 'declined');
-        cookieLightbox.style.display = 'none';
-        logConsentToSupabase('declined');
-    });
-});
+            document.getElementById('btn-decline-sys').addEventListener('click', () => {
+                localStorage.setItem('bc_pixel_consent', 'declined');
+                cookieLightbox.style.display = 'none';
+                logConsentToSupabase('declined');
+            });
+        });
 
 
-// Detekcja urządzenia (prosta i skuteczna)
+        /* --- 9. TAJNY TERMINAL (MOBILKI I PC) --- */
         const isMobile = window.innerWidth <= 850 || /Mobi|Android/i.test(navigator.userAgent);
-
         let secretText = "";
 
         if (isMobile) {
@@ -1326,25 +1290,19 @@ document.addEventListener("DOMContentLoaded", () => {
                          "[POLACZENIE ZAKONCZONE]";
         }
 
-let secretTypingTimeout;
+        let secretTypingTimeout;
         let isSecretRead = localStorage.getItem('secretMessageRead') === 'true';
 
-        // POBIERANIE WSZYSTKICH ELEMENTÓW DOM DLA TAJNEGO TERMINALA
         const secretNotification = document.getElementById('secret-notification');
         const warningTriangle = document.getElementById('warning-triangle');
         const secretLightbox = document.getElementById('secret-terminal-lightbox');
         const secretBody = document.getElementById('secret-terminal-body');
         const closeSecretBtn = document.getElementById('close-secret-btn');
 
-        // Jeśli użytkownik jeszcze tego nie czytał, po 3 sekundach trójkąt zaczyna migać
-        // Jeśli użytkownik jeszcze tego nie czytał, po 3 sekundach trójkąt zaczyna migać
         if (!isSecretRead) {
             setTimeout(() => {
                 warningTriangle.classList.add('alert-blink');
-                
-                // Równo 1 sekundę po rozpoczęciu migania (czyli w 4. sekundzie) wysuń powiadomienie
                 setTimeout(() => {
-                    // Sprawdzamy, czy w ciągu tej sekundy ktoś nie zdążył już w to kliknąć
                     if (!isSecretRead) {
                         secretNotification.classList.add('show-notify');
                     }
@@ -1353,13 +1311,10 @@ let secretTypingTimeout;
         }
 
         warningTriangle.addEventListener('click', () => {
-            // Natychmiast schowaj chmurkę przy kliknięciu (o ile jest widoczna)
             secretNotification.classList.remove('show-notify');
-            
             secretLightbox.style.display = 'flex';
             secretBody.innerHTML = '';
 
-            // --- NOWA FUNKCJA: Wiersz poleceń dla smartfonów ---
             function createOverridePrompt() {
                 const wrapper = document.createElement('div');
                 wrapper.innerHTML = `
@@ -1375,39 +1330,33 @@ let secretTypingTimeout;
 
                 setTimeout(() => {
                     inputEl.focus();
-                    secretBody.scrollTop = secretBody.scrollHeight; // Automatyczne scrollowanie na dół
+                    secretBody.scrollTop = secretBody.scrollHeight; 
                 }, 100);
 
                 inputEl.addEventListener('keydown', function(e) {
                     if (e.key === 'Enter') {
                         const val = this.value.toLowerCase().trim();
-                        this.disabled = true; // Zablokuj pole po wciśnięciu Enter
+                        this.disabled = true; 
                         
                         if (val === 'override') {
                             responseEl.innerHTML = '<span style="color: var(--terminal-green);">[ AUTORYZACJA ZAAKCEPTOWANA. OTWIERAM ARCHIWUM... ]</span>';
                             setTimeout(() => {
-                                // Przekierowanie na ukrytą stronę z e-bookiem
                                 window.location.href = 'https://alternatywny-prl.pl/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html';
                             }, 1000);
                         } else {
                             responseEl.innerHTML = `<span style="color: var(--error-red);">bash: ${val}: command not found</span>`;
-                            setTimeout(createOverridePrompt, 200); // Wygeneruj nowy wiersz poniżej, jeśli wpisał źle
+                            setTimeout(createOverridePrompt, 200); 
                         }
                     }
                 });
             }
-            // --------------------------------------------------
 
             if (isSecretRead) {
-                // Jeśli już odblokował wcześniej, pokazujemy wiadomość od razu
                 secretBody.innerHTML = secretText;
-                
-                // Jeśli to mobile, po ponownym otwarciu też musimy dać mu wiersz poleceń!
                 if (isMobile) {
                     createOverridePrompt();
                 }
             } else {
-                // Generujemy interfejs do wpisania 'y'
                 secretBody.innerHTML = `
                     <div style="color: var(--terminal-dim);">user_MD_antykomunista_7 chce nawiazac z toba kontakt, zezwolic? (type y to allow)</div>
                     <div class="terminal-input-line">
@@ -1421,7 +1370,6 @@ let secretTypingTimeout;
 
                 promptInput.addEventListener('input', function() {
                     if (this.value.toLowerCase() === 'y') {
-                        // OBYWATEL ZAAKCEPTOWAŁ
                         warningTriangle.classList.remove('alert-blink');
                         localStorage.setItem('secretMessageRead', 'true');
                         isSecretRead = true;
@@ -1437,38 +1385,31 @@ let secretTypingTimeout;
                                 let char = secretText.charAt(charIdx);
                                 secretBody.innerHTML += (char === '\n') ? '<br>' : char;
                                 charIdx++;
-                                secretBody.scrollTop = secretBody.scrollHeight; // Scrollowanie w dół wraz z tekstem
-                                secretTypingTimeout = setTimeout(typeSecret, 30); // Prędkość pisania
+                                secretBody.scrollTop = secretBody.scrollHeight; 
+                                secretTypingTimeout = setTimeout(typeSecret, 30); 
                             } else {
                                 soundTyping.pause();
                                 soundTyping.currentTime = 0;
-                                
-                                // Tuż po zakończeniu pisania, jeśli to mobilka, dodajemy wiersz poleceń
                                 if (isMobile) {
                                     setTimeout(createOverridePrompt, 400);
                                 }
                             }
                         }
-                        
-                        // Lekkie opóźnienie przed startem pisania dla realizmu
                         setTimeout(typeSecret, 800); 
                     } else {
-                        // Jeśli wpisze inną literę, czyścimy
                         this.value = ''; 
                     }
                 });
             }
         });
 
-        // Zamykanie tajnego terminala
         closeSecretBtn.addEventListener('click', () => {
             secretLightbox.style.display = 'none';
-            clearTimeout(secretTypingTimeout); // Przerywa pisanie jeśli użytkownik ucieknie
+            clearTimeout(secretTypingTimeout); 
             soundTyping.pause();
             soundTyping.currentTime = 0;
         });
 
-        // Zamykanie po kliknięciu w tło
         secretLightbox.addEventListener('click', (event) => {
             if (event.target === secretLightbox) {
                 secretLightbox.style.display = 'none';
@@ -1478,9 +1419,6 @@ let secretTypingTimeout;
             }
         });
 
-
-    
-        
     </script>
 
 
