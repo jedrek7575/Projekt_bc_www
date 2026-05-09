@@ -758,6 +758,15 @@ const demoStatus = document.getElementById('demo-status');
 
 demoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
+
+    const { data, error: dbError } = await supabase.from('pobrali_ebooka_demo').insert([
+    { email: emailInput, consent_marketing: true }
+]).select();
+
+if (dbError) throw dbError;
+
+// Wyciągamy ID nowo utworzonego użytkownika
+const userId = data[0].id;
     
     const emailInput = document.getElementById('demo-email').value;
 

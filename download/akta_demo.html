@@ -149,12 +149,12 @@
             </p>
 
             <div class="downloads-container">
-                <a href="../Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn">
+                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn">
                     
                     <span>> POBIERZ [.PDF]</span>
                 </a>
                 
-                <a href="../Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn">
+                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn">
                     
                     <span>> POBIERZ [.EPUB]</span>
                 </a>
@@ -180,28 +180,94 @@
         </div>
     </footer>
 
-    <script>
-        // Prosty zegar systemowy
-        function updateClock() {
-            const now = new Date();
-            document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
-        }
-        setInterval(updateClock, 1000); updateClock();
+<!-- PAMIĘTAJ ABY DO ZNACZNIKÓW <a> Z POBIERANIEM DODAĆ ODPOWIEDNIO: id="dl-pdf" ORAZ id="dl-epub" -->
 
-        // Opcjonalnie: Raportowanie do Mety samego faktu odwiedzenia strony pobierania (jeśli była wcześniej zgoda)
-        const pixelConsent = localStorage.getItem('bc_pixel_consent');
-        if (pixelConsent === 'accepted') {
-            !function(f,b,e,v,n,t,s)
-            {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
-            n.callMethod.apply(n,arguments):n.queue.push(arguments)};
-            if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
-            n.queue=[];t=b.createElement(e);t.async=!0;
-            t.src=v;s=b.getElementsByTagName(e)[0];
-            s.parentNode.insertBefore(t,s)}(window, document,'script',
-            'https://connect.facebook.net/en_US/fbevents.js');
-            fbq('init', '1635279820956165');
-            fbq('track', 'PageView');
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+    
+    // TWOJE KREDENCJAŁE SUPABASE
+    const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9...'; // Wklej swój pełny klucz
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // 1. WYCIĄGAMY UUID Z PASKA ADRESU URL
+    const urlParams = new URLSearchParams(window.location.search);
+    const userId = urlParams.get('uid');
+
+    // 2. FUNKCJA DO AKTUALIZACJI JSONB W BAZIE
+    async function logDownloadToDatabase(format) {
+        // Jeśli ktoś wszedł na stronę bez linku z maila (brak ID), ignorujemy
+        if (!userId) {
+            console.log("Brak UUID. Zapis pobrania zignorowany.");
+            return;
         }
-    </script>
+
+        try {
+            // A) Pobieramy obecny stan kolumny JSONB
+            const { data: userData, error: fetchError } = await supabase
+                .from('pobrali_ebooka_demo')
+                .select('faktycznie_pobral')
+                .eq('id', userId)
+                .single();
+
+            if (fetchError) throw fetchError;
+
+            // B) Wyciągamy obecny JSON lub tworzymy pusty obiekt, jeśli to pierwsze kliknięcie
+            let currentJson = userData.faktycznie_pobral || {};
+
+            // C) Modyfikujemy JSON dodając format (np. format 'pdf' ustawiamy na true)
+            currentJson[format] = true;
+
+            // D) Aktualizujemy rekord w bazie nadpisując JSONB nową wersją
+            const { error: updateError } = await supabase
+                .from('pobrali_ebooka_demo')
+                .update({ faktycznie_pobral: currentJson })
+                .eq('id', userId);
+
+            if (updateError) throw updateError;
+            console.log(`Pomyślnie zaktualizowano JSONB. Pobrał: ${format}`);
+
+        } catch (err) {
+            console.error("Błąd podczas aktualizacji bazy:", err.message);
+        }
+    }
+
+    // 3. PODPINAMY EVENT LISTENERY POD PRZYCISKI POBIERANIA
+    const btnPdf = document.getElementById('dl-pdf');
+    const btnEpub = document.getElementById('dl-epub');
+
+    if (btnPdf) {
+        btnPdf.addEventListener('click', () => {
+            logDownloadToDatabase('pdf');
+        });
+    }
+
+    if (btnEpub) {
+        btnEpub.addEventListener('click', () => {
+            logDownloadToDatabase('epub');
+        });
+    }
+
+    // Reszta Twojego kodu (zegar, pixel FB) pozostaje bez zmian
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+    }
+    setInterval(updateClock, 1000); updateClock();
+
+    const pixelConsent = localStorage.getItem('bc_pixel_consent');
+    if (pixelConsent === 'accepted') {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1635279820956165');
+        fbq('track', 'PageView');
+    }
+</script>
 </body>
 </html>
