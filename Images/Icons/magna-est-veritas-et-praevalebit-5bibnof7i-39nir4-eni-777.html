@@ -758,16 +758,8 @@ const demoStatus = document.getElementById('demo-status');
 
 demoForm.addEventListener('submit', async (e) => {
     e.preventDefault();
-
-    const { data, error: dbError } = await supabase.from('pobrali_ebooka_demo').insert([
-    { email: emailInput, consent_marketing: true }
-]).select();
-
-if (dbError) throw dbError;
-
-// Wyciągamy ID nowo utworzonego użytkownika
-const userId = data[0].id;
     
+    // 1. NAJPIERW wyciągamy e-mail z formularza
     const emailInput = document.getElementById('demo-email').value;
 
     demoSubmitBtn.disabled = true;
@@ -775,21 +767,25 @@ const userId = data[0].id;
     demoStatus.innerText = "";
 
     try {
-        // 1. Zapis e-maila do bazy (To jedyne, co musi zrobić strona!)
-       
-        const { error: dbError } = await supabase.from('pobrali_ebooka_demo').insert([
-            { email: emailInput, consent_marketing: true }
-        ]);
+        // 2. ZAPIS DO BAZY (wykonujemy tylko raz, od razu z .select() żeby pobrać ID)
+        const { data, error: dbError } = await supabase
+            .from('pobrali_ebooka_demo')
+            .insert([{ email: emailInput, consent_marketing: true }])
+            .select();
 
         if (dbError) throw dbError;
 
-        // 2. Raport do Meta Pixel
+        // Opcjonalnie: Mamy userId, chociaż główną robotę i tak robi webhook Supabase
+        const userId = data[0].id;
+        console.log("[SYSTEM] Obywatel wpisany do rejestru. UUID: ", userId);
+
+        // 3. Raport do Meta Pixel
         if (pixelConsent === 'accepted' && typeof fbq === 'function') {
             fbq('trackCustom', 'PobranoDemo');
             console.log("[SYSTEM_LOG] Sygnał 'PobranoDemo' wysłany.");
         }
 
-        // 3. Sukces wizualny na stronie
+        // 4. Sukces wizualny na stronie
         demoSubmitBtn.innerText = ">> ZAKOŃCZONO";
         demoStatus.style.color = "white";
         demoStatus.innerText = "> PAKIET WYSŁANY. SPRAWDŹ SKRZYNKĘ ODBIORCZĄ (I FOLDER SPAM).";
