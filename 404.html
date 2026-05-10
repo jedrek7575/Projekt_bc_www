@@ -4,33 +4,55 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Przekierowanie...</title>
+    <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
     <script>
-        // 1. Pobieramy adres, na który ktoś próbował wejść (np. /go/fb-post)
-        const path = window.location.pathname;
+        // --- KONFIGURACJA SUPABASE ---
+        const SUPABASE_URL = 'https://TWOJA_DOMENA.supabase.co';
+        const SUPABASE_ANON_KEY = 'TWÓJ_KLUCZ_ANON';
 
-        // 2. Sprawdzamy, czy adres zaczyna się od "/go/"
-        if (path.startsWith('/go/')) {
-            
-            // Opcjonalnie: tutaj w przyszłości dodasz kod wysyłający dane do Supabase
-            // const slug = path.replace('/go/', ''); 
-            // supabase.insert({ link: slug ... })
+        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-            // 3. Przekierowujemy na stronę główną
-            // Używamy replace(), żeby nie tworzyć śmieci w historii przeglądarki (przycisk "Wstecz" zadziała poprawnie)
-            window.location.replace('/');
-        } else {
-            // Jeśli to zwykły błąd 404 (ktoś wpisał zły adres, np. /kontakt-bledny)
-            document.write(`
-                <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
-                    <h1>Błąd 404</h1>
-                    <p>Niestety, taka strona nie istnieje.</p>
-                    <a href="/">Wróć na stronę główną</a>
-                </div>
-            `);
+        async function handleRedirect() {
+            const path = window.location.pathname;
+
+            // Sprawdzamy, czy to link śledzący
+            if (path.startsWith('/go/')) {
+                // Wyciągamy to co po /go/ (np. darmowy_ebook)
+                const slug = path.split('/go/')[1];
+
+                if (slug) {
+                    try {
+                        // Wywołujemy naszą funkcję SQL 'increment_link_click'
+                        await supabase.rpc('increment_link_click', { link_name: slug });
+                    } catch (error) {
+                        console.error('Błąd zliczania:', error);
+                    }
+                }
+                
+                // Przekierowanie na stronę główną (zawsze, nawet jak zliczanie zawiedzie)
+                window.location.replace('/');
+            } else {
+                // Wyświetl zwykły komunikat 404 jeśli to nie /go/
+                document.getElementById('not-found').style.display = 'block';
+            }
         }
+
+        // Uruchomienie funkcji
+        handleRedirect();
     </script>
 </head>
-<body>
-    <!-- Użytkownik zobaczy pustą białą stronę przez ułamek sekundy przed przekierowaniem -->
+<body style="background-color: #f4f4f4; font-family: sans-serif; text-align: center; padding-top: 50px;">
+    
+    <div id="redirecting">
+        <h2>Przenoszenie do strony głównej...</h2>
+        <p>Sekunda, przygotowujemy wszystko dla Ciebie.</p>
+    </div>
+
+    <div id="not-found" style="display: none;">
+        <h1>Błąd 404</h1>
+        <p>Przepraszamy, ale podana strona nie istnieje.</p>
+        <a href="/">Wróć na stronę główną</a>
+    </div>
+
 </body>
 </html>
