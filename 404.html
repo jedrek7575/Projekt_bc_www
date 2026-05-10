@@ -3,55 +3,149 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Przekierowanie...</title>
+    <title>~system: przekierowanie</title>
+    
+    <!-- Czcionki systemowe -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    
+    <!-- Biblioteka Supabase -->
     <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2"></script>
+
+    <style>
+        :root {
+            --terminal-green: #33ff00;
+            --terminal-dim: #1a8000;
+            --bg-color: #050505;
+            --error-red: #ff3333;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--terminal-green);
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            overflow: hidden;
+            text-align: left;
+            position: relative;
+        }
+
+        /* Efekt CRT (Scanlines) przeniesiony z Twojego kodu */
+        body::before {
+            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
+            pointer-events: none; z-index: 2;
+            background: linear-gradient(rgba(18, 16, 16, 0) 50%, rgba(0, 0, 0, 0.25) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.06), rgba(0, 255, 0, 0.02), rgba(0, 0, 255, 0.06));
+            background-size: 100% 2px, 3px 100%;
+        }
+
+        /* Pudełko terminala */
+        .terminal-box {
+            width: 90%;
+            max-width: 600px;
+            border: 1px dashed var(--terminal-dim);
+            padding: 30px;
+            background: rgba(0, 15, 0, 0.6);
+            box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 15px rgba(51, 255, 0, 0.1);
+            z-index: 10;
+            font-size: 1.5rem;
+            line-height: 1.5;
+            text-transform: uppercase;
+            text-shadow: 0 0 5px var(--terminal-dim);
+        }
+
+        /* Animowany kursor */
+        .cursor {
+            display: inline-block; width: 10px; height: 1.2rem; background-color: var(--terminal-green);
+            animation: blink 1s step-end infinite; vertical-align: bottom; margin-left: 5px;
+        }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+
+        /* Przycisk powrotu stylizowany jak w Twoich dokumentach */
+        a.return-btn {
+            color: var(--terminal-green);
+            text-decoration: none;
+            border: 1px solid var(--terminal-dim);
+            padding: 8px 25px;
+            background: rgba(0, 20, 0, 0.4);
+            transition: all 0.2s ease-in-out;
+            cursor: pointer;
+            display: inline-block;
+            margin-top: 25px;
+            font-family: 'VT323', monospace;
+            font-size: 1.4rem;
+        }
+        a.return-btn:hover {
+            background: var(--terminal-green); color: var(--bg-color);
+            border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green);
+        }
+
+        .error-text { color: var(--error-red); text-shadow: 0 0 10px var(--error-red); }
+    </style>
+
     <script>
         // --- KONFIGURACJA SUPABASE ---
-        const SUPABASE_URL = 'https://TWOJA_DOMENA.supabase.co';
-        const SUPABASE_ANON_KEY = 'TWÓJ_KLUCZ_ANON';
+        const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; // <-- Przeklej klucz z pliku index.html
 
         const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
         async function handleRedirect() {
             const path = window.location.pathname;
+            const redirectingDiv = document.getElementById('redirecting');
+            const notFoundDiv = document.getElementById('not-found');
 
-            // Sprawdzamy, czy to link śledzący
+            // 1. Logika dla skracacza linków
             if (path.startsWith('/go/')) {
-                // Wyciągamy to co po /go/ (np. darmowy_ebook)
                 const slug = path.split('/go/')[1];
 
                 if (slug) {
                     try {
-                        // Wywołujemy naszą funkcję SQL 'increment_link_click'
+                        // Zapis do bazy
                         await supabase.rpc('increment_link_click', { link_name: slug });
                     } catch (error) {
-                        console.error('Błąd zliczania:', error);
+                        console.error('[SYSTEM_LOG] Błąd transmisji do bazy danych:', error);
                     }
                 }
                 
-                // Przekierowanie na stronę główną (zawsze, nawet jak zliczanie zawiedzie)
-                window.location.replace('/');
+                // Opóźnienie rzędu 0.8s, aby użytkownik zdążył zobaczyć hakerski klimat, 
+                // a następnie rzucamy go na główną stronę.
+                setTimeout(() => {
+                    window.location.replace('/#index');
+                }, 800);
+
             } else {
-                // Wyświetl zwykły komunikat 404 jeśli to nie /go/
-                document.getElementById('not-found').style.display = 'block';
+                // 2. Logika dla prawdziwego błędu 404 (ktoś wpisał zły adres)
+                redirectingDiv.style.display = 'none';
+                notFoundDiv.style.display = 'block';
             }
         }
 
-        // Uruchomienie funkcji
-        handleRedirect();
+        window.onload = handleRedirect;
     </script>
 </head>
-<body style="background-color: #f4f4f4; font-family: sans-serif; text-align: center; padding-top: 50px;">
-    
-    <div id="redirecting">
-        <h2>Przenoszenie do strony głównej...</h2>
-        <p>Sekunda, przygotowujemy wszystko dla Ciebie.</p>
+<body>
+
+    <!-- WIDOK 1: Użytkownik wszedł przez link typu /go/... -->
+    <div class="terminal-box" id="redirecting">
+        <div>> INICJALIZACJA PRZEKIEROWANIA...</div>
+        <div style="color: var(--terminal-dim);">> WERYFIKACJA PAKIETU: [ OK ]</div>
+        <div>> ŁĄCZENIE Z CENTRALĄ<span class="cursor"></span></div>
     </div>
 
-    <div id="not-found" style="display: none;">
-        <h1>Błąd 404</h1>
-        <p>Przepraszamy, ale podana strona nie istnieje.</p>
-        <a href="/">Wróć na stronę główną</a>
+    <!-- WIDOK 2: Prawdziwy błąd 404 (ukryty domyślnie) -->
+    <div class="terminal-box" id="not-found" style="display: none; border-color: var(--error-red); box-shadow: inset 0 0 20px rgba(0,0,0,0.8), 0 0 15px rgba(255, 51, 51, 0.1);">
+        <div class="error-text">> BŁĄD SYSTEMU 404</div>
+        <div style="color: #ccc; margin-top: 10px; font-size: 1.2rem;">> ŻĄDANY ZASÓB NIE ZNAJDUJE SIĘ W ARCHIWUM.</div>
+        <a href="/#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
     </div>
 
 </body>
