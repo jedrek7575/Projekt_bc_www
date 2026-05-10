@@ -92,44 +92,45 @@
     </style>
 
     <script>
-        // --- KONFIGURACJA SUPABASE ---
-        const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
-        const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; // <-- Przeklej klucz z pliku index.html
+// --- KONFIGURACJA SUPABASE ---
+const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+const SUPABASE_ANON_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM';
 
-        const supabase = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
+// ZMIANA 1: Zmieniona nazwa zmiennej na 'supabaseClient'
+const supabaseClient = supabase.createClient(SUPABASE_URL, SUPABASE_ANON_KEY);
 
-        async function handleRedirect() {
-            const path = window.location.pathname;
-            const redirectingDiv = document.getElementById('redirecting');
-            const notFoundDiv = document.getElementById('not-found');
+async function handleRedirect() {
+    const path = window.location.pathname;
+    const redirectingDiv = document.getElementById('redirecting');
+    const notFoundDiv = document.getElementById('not-found');
 
-            // 1. Logika dla skracacza linków
-            if (path.startsWith('/go/')) {
-                const slug = path.split('/go/')[1];
+    // 1. Logika dla skracacza linków
+    if (path.startsWith('/go/')) {
+        const slug = path.split('/go/')[1];
 
-                if (slug) {
-                    try {
-                        // Zapis do bazy
-                        await supabase.rpc('increment_link_click', { link_name: slug });
-                    } catch (error) {
-                        console.error('[SYSTEM_LOG] Błąd transmisji do bazy danych:', error);
-                    }
-                }
-                
-                // Opóźnienie rzędu 0.8s, aby użytkownik zdążył zobaczyć hakerski klimat, 
-                // a następnie rzucamy go na główną stronę.
-                setTimeout(() => {
-                    window.location.replace('/#index');
-                }, 800);
-
-            } else {
-                // 2. Logika dla prawdziwego błędu 404 (ktoś wpisał zły adres)
-                redirectingDiv.style.display = 'none';
-                notFoundDiv.style.display = 'block';
+        if (slug) {
+            try {
+                // ZMIANA 2: Używamy 'supabaseClient' do wysłania zapytania
+                await supabaseClient.rpc('increment_link_click', { link_name: slug });
+            } catch (error) {
+                console.error('[SYSTEM_LOG] Błąd transmisji do bazy danych:', error);
             }
         }
+        
+        // Opóźnienie rzędu 0.8s, aby użytkownik zdążył zobaczyć hakerski klimat, 
+        // a następnie rzucamy go na główną stronę.
+        setTimeout(() => {
+            window.location.replace('/#index');
+        }, 800);
 
-        window.onload = handleRedirect;
+    } else {
+        // 2. Logika dla prawdziwego błędu 404 (ktoś wpisał zły adres)
+        redirectingDiv.style.display = 'none';
+        notFoundDiv.style.display = 'block';
+    }
+}
+
+window.onload = handleRedirect;
     </script>
 </head>
 <body>
