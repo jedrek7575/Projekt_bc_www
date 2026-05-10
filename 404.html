@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Przekierowanie...</title>
+    <script>
+        // 1. Pobieramy adres, na który ktoś próbował wejść (np. /go/fb-post)
+        const path = window.location.pathname;
+
+        // 2. Sprawdzamy, czy adres zaczyna się od "/go/"
+        if (path.startsWith('/go/')) {
+            
+            // Opcjonalnie: tutaj w przyszłości dodasz kod wysyłający dane do Supabase
+            // const slug = path.replace('/go/', ''); 
+            // supabase.insert({ link: slug ... })
+
+            // 3. Przekierowujemy na stronę główną
+            // Używamy replace(), żeby nie tworzyć śmieci w historii przeglądarki (przycisk "Wstecz" zadziała poprawnie)
+            window.location.replace('/');
+        } else {
+            // Jeśli to zwykły błąd 404 (ktoś wpisał zły adres, np. /kontakt-bledny)
+            document.write(`
+                <div style="text-align: center; margin-top: 50px; font-family: sans-serif;">
+                    <h1>Błąd 404</h1>
+                    <p>Niestety, taka strona nie istnieje.</p>
+                    <a href="/">Wróć na stronę główną</a>
+                </div>
+            `);
+        }
+    </script>
+</head>
+<body>
+    <!-- Użytkownik zobaczy pustą białą stronę przez ułamek sekundy przed przekierowaniem -->
+</body>
+</html>
