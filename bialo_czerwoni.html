@@ -1,0 +1,549 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projekt B-C</title>
+    <meta name="robots" content="noindex, nofollow"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+
+    <link rel="icon" type="image/png" sizes="128x128" href="icon512_red.png">
+
+    <meta property="og:title" content="~projekt_bc:bash — Terminal">
+    <meta property="og:description" content="Oficjalna strona projektu B-C. Nie ma wolności bez sprawiedliwości.">
+    <meta property="og:image" content="https://alternatywny-prl.pl/icon512.png"> 
+    <meta property="og:url" content="https://alternatywny-prl.pl/">
+    <meta property="og:type" content="website">
+
+    <meta name="twitter:card" content="summary_large_image">
+    <meta name="twitter:title" content="~projekt_bc:bash — Terminal">
+    <meta name="twitter:description" content="Oficjalna strona projektu B-C. Nie ma wolności bez sprawiedliwości.">
+    <meta name="twitter:image" content="https://alternatywny-prl.pl/icon512.png">
+
+   
+    
+    <style>
+        :root {
+            --blood-red: #ff0033;
+            --dark-red: #800000;
+            --bg-color: #020000;
+            --taskbar-width: 65px;
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--blood-red);
+            font-family: 'VT323', monospace;
+            min-height: 100dvh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            overflow-x: hidden;
+            text-align: center;
+            position: relative;
+            width: calc(100% - var(--taskbar-width));
+            margin-left: var(--taskbar-width);
+        }
+
+        /* Scanlines - CRT Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(20, 0, 0, 0.4) 50%),
+                        linear-gradient(90deg, rgba(255, 0, 0, 0.08), rgba(50, 0, 0, 0.02), rgba(0, 0, 0, 0.06));
+            z-index: 2;
+            background-size: 100% 3px, 3px 100%;
+            pointer-events: none;
+            animation: subtle-flicker 0.15s infinite;
+            will-change: opacity; 
+        }
+
+        .glow { text-shadow: 0 0 5px var(--dark-red), 0 0 15px var(--blood-red); }
+        .sr-only { position: absolute; width: 1px; height: 1px; padding: 0; margin: -1px; overflow: hidden; clip: rect(0, 0, 0, 0); border: 0; }
+
+        /* --- SKORUMPOWANY TASKBAR (Z NOWYM UKŁADEM I CZERWONYM FILTREM) --- */
+        #linux-taskbar {
+            position: fixed; top: 0; left: 0; bottom: 0; width: var(--taskbar-width);
+            background: rgba(10, 0, 0, 0.85); backdrop-filter: blur(8px);
+            border-right: 1px solid var(--dark-red); z-index: 1000;
+            display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
+            box-shadow: 2px 0 20px rgba(255,0,51,0.2);
+        }
+
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; position: relative;}
+
+        .taskbar-logo-btn {
+            width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; background: transparent;
+            font-size: 2rem; color: var(--blood-red); font-weight: bold; display: flex; justify-content: center; align-items: center;
+        }
+
+        .taskbar-logo-btn img {
+            height: 100%;
+            width: auto;
+             filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5);
+        }
+
+        .taskbar-logo-btn:hover { border-color: var(--blood-red); transform: scale(1.1); box-shadow: 0 0 10px var(--blood-red); }
+
+        .social-placeholder {
+            width: 35px; height: 35px; border-radius: 8px; border: 1px solid rgba(255, 0, 51, 0.3);
+            background: rgba(20, 0, 0, 0.5); display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.3s; text-decoration: none; overflow: hidden;
+        }
+
+        .social-placeholder:hover { background: rgba(255, 0, 51, 0.2); border-color: var(--blood-red); box-shadow: 0 0 10px var(--blood-red); }
+        
+        .social-placeholder img { 
+            width: 100%; height: 100%; object-fit: contain; border-radius: 4px; 
+            /* Czerwony filtr dla ikon socjalnych */
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5);
+            transition: all 0.3s;
+        }
+        
+        .social-placeholder:hover img { 
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(1000%) contrast(2) drop-shadow(0 0 5px var(--blood-red)); 
+        }
+
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.8; color: var(--blood-red); }
+        .tray-placeholder { width: 20px; height: 20px; border: 1px solid var(--dark-red); border-radius: 50%; display: flex; justify-content: center; align-items: center; font-size: 0.6rem; color: var(--blood-red); font-weight: bold; }
+
+        #sys-clock {
+            color: var(--blood-red); font-size: 0.9rem; text-align: center; line-height: 1.1;
+            padding-bottom: 10px; border-bottom: 1px dashed var(--dark-red); width: 80%;
+            text-shadow: 0 0 5px red;
+        }
+
+        /* --- GŁÓWNY TERMINAL --- */
+#terminal-container {
+    min-height: 100vh; /* Zmień z height: auto */
+    max-width: 1500px;
+    width: 100%;
+    z-index: 1;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: flex-start; /* Zmień z center, żeby treść układała się od góry */
+    flex-grow: 1;
+    gap: 2rem;
+    padding: 60px 20px; /* Większy padding góra/dół */
+}
+
+#boxes-container {
+    display: flex;
+    gap: 2rem;
+    justify-content: center;
+    width: 100%;
+    flex-wrap: wrap; /* WAŻNE: pozwala kafelkom przejść do nowej linii przy zoomie */
+    position: relative;
+    margin-top: auto; /* Pcha kafelki w dół, jeśli jest miejsce */
+    margin-bottom: 3rem;
+}
+
+        .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 15rem; height: auto; }
+
+        #terminal-container img.logo.stable {
+            opacity: 0.7; 
+            height: 15rem; 
+            width: 15rem;
+            filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5);
+            animation: permanent-glitch 3s;
+            will-change: transform, filter, clip-path;
+        }
+
+        @keyframes permanent-glitch {
+            0% { transform: translate(0) skew(0deg); clip-path: inset(0 0 0 0); filter: hue-rotate(320deg) saturate(500%); }
+            2% { transform: translate(-5px, 2px) skew(55deg); clip-path: inset(10% 0 80% 0); filter: hue-rotate(45deg) saturate(800%) brightness(2); }
+            4% { transform: translate(5px, -2px) skew(-5deg); clip-path: inset(80% 0 5% 0); filter: hue-rotate(90deg) brightness(1.5); }
+            6% { transform: translate(-5px, 2px) skew(55deg); clip-path: inset(10% 0 80% 0); filter: hue-rotate(45deg) saturate(800%) brightness(2); }
+            50% { transform: scale(1); }
+            51% { transform: scale(1.1) skewX(20deg); clip-path: inset(50% 0 45% 0); filter: invert(1); }
+            52% { transform: scale(1) skewX(0deg); clip-path: inset(0 0 0 0); filter: invert(0); }
+            90% { transform: translate(0); }
+            91% { transform: translate(-10px) scaleY(1.2); clip-path: inset(30% 0 60% 0); filter: hue-rotate(180deg); }
+            92% { transform: translate(10px) scaleY(0.8); clip-path: inset(60% 0 20% 0); }
+            93% { transform: translate(0) scaleY(1); clip-path: inset(0 0 0 0); }
+        }
+
+#typing-text {
+    font-size: 1.5rem;
+    line-height: 1.4;
+    text-align: left;
+    width: 100%;
+    max-width: 1000px;
+    /* Zmiany poniżej: */
+    min-height: 200px; /* Minimalna wysokość, żeby nie skakało */
+    height: auto;      /* Pozwala rosnąć, gdy tekstu przybywa */
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    text-shadow: 0 0 5px var(--blood-red);
+    padding-bottom: 20px; /* Bezpieczny margines od dołu */
+}
+
+        .cursor { display: inline-block; width: 12px; height: 1.2rem; background-color: var(--blood-red); animation: blink 0.5s step-end infinite; vertical-align: bottom; }
+
+        #boxes-container { display: flex; gap: 2rem; justify-content: center; width: 100%; position: relative; margin-top: 2rem; margin-bottom: 2rem; }
+
+        .hacker-box {
+            width: 250px; height: 280px; border: 1px dashed var(--blood-red);
+            background: rgba(20, 0, 0, 0.6); padding: 10px; cursor: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="20" height="20" style="fill:red"><circle cx="10" cy="10" r="5"/></svg>') 10 10, crosshair;
+            transition: all 0.1s ease-in-out; display: flex; flex-direction: column; align-items: center; opacity: 1; /* Było 0 */
+            box-shadow: inset 0 0 10px rgba(255,0,0,0.2);
+        }
+
+        .hacker-box:hover {
+            transform: scale(1.02) skewX(-2deg); border: 1px solid white;
+            box-shadow: 0 0 20px var(--blood-red), inset 0 0 20px rgba(255, 0, 0, 0.5);
+            background: rgba(40, 0, 0, 0.9);
+        }
+
+        .hacker-box img {
+            width: 100%; height: 140px; object-fit: cover; border: 1px solid var(--dark-red); margin-bottom: 15px;
+            
+        }
+
+        .hacker-box:hover img { filter: sepia(100%) hue-rotate(320deg) saturate(500%) contrast(1.5); }
+        .hacker-box .box-title { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 5px; color: white; text-shadow: 0 0 10px red; }
+        .hacker-box .box-desc { font-size: 1rem; color: #888; text-align: center; }
+
+        #box-center { transform: scale(1.05); border-color: var(--dark-red); }
+
+        /* --- STOPKA (STYlIZOWANA NA ZASADACH Z DRUGIEGO PLIKU) --- */
+        #footer-links { width: 100%; background: #010000; border-top: 2px dashed var(--dark-red); padding: 3rem 2rem; opacity: 1; z-index: 3; box-shadow: 0 -5px 15px rgba(255, 0, 51, 0.05); }
+        .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
+        
+        .footer-logo-copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 250px; }
+        .copyright { color: var(--dark-red); font-size: 1rem; line-height: 1.3; text-align: start; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
+        .footer-nav-title { color: rgba(255, 0, 51, 0.6); font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(255, 0, 51, 0.2); padding-bottom: 3px; margin-bottom: 5px; }
+        
+        .footer-btn { color: var(--dark-red); text-decoration: none; font-size: 1.1rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
+        .footer-btn:hover { color: var(--blood-red); }
+        .footer-btn:hover::before { opacity: 1; color: var(--blood-red); }
+
+        @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
+        @keyframes subtle-flicker { 0% { opacity: 0.90; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
+       
+        /* --- HACKER LIGHTBOX --- */
+        #download-modal {
+            position: fixed;
+            top: 0; left: 0; right: 0;
+            width: 100%;
+            height: 100dvh;
+            background: rgba(0, 0, 0, 0.85);
+            backdrop-filter: blur(5px);
+            z-index: 9000;
+            display: none; justify-content: center; align-items: center; /* Zmienione opactiy na display none -> flex w JS */
+        }
+
+        #download-modal.active {
+            display: flex;
+        }
+
+        .modal-content {
+            background: rgba(15, 0, 0, 0.95);
+            border: 2px dashed var(--blood-red);
+            width: 90%; max-width: 800px;
+            padding: 30px; position: relative;
+            box-shadow: 0 0 30px rgba(255, 0, 51, 0.3), inset 0 0 20px rgba(255, 0, 51, 0.2);
+            display: flex; flex-direction: column;
+            animation: box-appear 0.4s forwards;
+        }
+
+        #close-modal {
+            position: absolute; top: 15px; right: 20px;
+            color: var(--dark-red); font-size: 1.2rem; cursor: pointer;
+            transition: 0.2s; letter-spacing: 2px;
+        }
+
+        #close-modal:hover {
+            color: white; text-shadow: 0 0 10px var(--blood-red);
+            transform: scale(1.05);
+        }
+
+        .modal-body { display: flex; gap: 30px; margin-top: 20px; flex-wrap: wrap; }
+        .modal-img { flex: 1; min-width: 200px; max-width: 250px; object-fit: cover; border: 1px solid var(--blood-red); filter: grayscale(100%) sepia(100%) hue-rotate(320deg) saturate(300%) contrast(1.5); box-shadow: 0 0 15px rgba(255,0,0,0.2); }
+        .modal-info { flex: 2; display: flex; flex-direction: column; justify-content: space-between; text-align: left; }
+        .modal-info h2 { color: white; font-size: 2rem; margin-bottom: 15px; }
+        .modal-desc { color: #aaa; font-size: 1.1rem; line-height: 1.5; margin-bottom: 25px; }
+
+        .dl-btn {
+            background: transparent; border: 1px dashed var(--dark-red);
+            color: var(--blood-red); padding: 12px 20px;
+            font-family: 'VT323', monospace; font-size: 1.3rem;
+            text-decoration: none; text-align: center; text-transform: uppercase;
+            transition: all 0.2s; cursor: crosshair;
+        }
+
+        .dl-btn:hover {
+            background: rgba(255, 0, 51, 0.1); border: 1px solid var(--blood-red);
+            color: white; text-shadow: 0 0 5px var(--blood-red);
+            box-shadow: 0 0 15px rgba(255, 0, 51, 0.5), inset 0 0 10px rgba(255, 0, 51, 0.3);
+            transform: translateX(5px);
+        }
+
+        /* --- STYLE FORMULARZA POBIERANIA --- */
+        .demo-form { display: flex; flex-direction: column; gap: 15px; margin-top: 10px; }
+        .demo-form label[for="demo-email"] { color: var(--blood-red); font-size: 1.2rem; text-shadow: 0 0 5px var(--dark-red); }
+        .demo-form input[type="email"] { 
+            background: rgba(20, 0, 0, 0.5); border: 1px solid var(--dark-red); 
+            color: white; padding: 10px; font-family: 'VT323', monospace; font-size: 1.3rem; outline: none; transition: 0.3s;
+        }
+        .demo-form input[type="email"]:focus { border-color: var(--blood-red); box-shadow: 0 0 15px rgba(255,0,51,0.5); }
+        .consent-label { display: flex; gap: 10px; align-items: flex-start; color: #888; font-size: 0.95rem; cursor: pointer; line-height: 1.3; }
+        .consent-label input { margin-top: 4px; accent-color: var(--blood-red); transform: scale(1.2); }
+        .consent-label:hover { color: #aaa; }
+        .status-msg { font-size: 1.2rem; text-align: center; min-height: 1.5em; color: var(--blood-red); text-shadow: 0 0 5px red;}
+        
+        /* --- RESPONSYWNOSC --- */
+        @media (max-width: 850px) {
+            body { margin-left: 50px; width: calc(100% - 50px); }
+            #linux-taskbar { width: 50px; padding: 10px 0; }
+            .taskbar-logo-btn { width: 35px; height: 35px; font-size: 1.5rem; }
+            .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
+            #sys-clock { font-size: 0.7rem; }
+
+            .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
+            #terminal-container img.logo.stable { width: 10rem; height: 10rem; }
+            #typing-text { text-align: left; align-items: flex-start; height: auto; min-height: 200px; font-size: 1.2rem; padding: 0 15px; margin-top: 20px; word-wrap: break-word; }
+            
+            #boxes-container { flex-direction: column; align-items: center; }
+            .hacker-box { width: 85%; }
+
+            .footer-content { flex-direction: column; align-items: flex-start; text-align: left; }
+            .footer-nav-group { align-items: flex-start; justify-content: flex-start; text-align: left; }
+            
+            #download-modal { align-items: flex-start; overflow-y: auto; padding: 20px 0; }
+            .modal-content { width: 95%; max-width: 100%; min-height: auto; padding: 50px 15px 30px; border: 1px dashed var(--blood-red); }
+            .modal-body { flex-direction: column; align-items: center; text-align: center; }
+            .modal-info { text-align: center; }
+            .modal-img { max-width: 100%; margin-bottom: 20px; height: auto; max-height: 30vh; }
+            #close-modal { position: absolute; top: 10px; right: 10px; z-index: 10001; background: rgba(20, 0, 0, 0.9); padding: 5px 10px; border: 1px dashed var(--blood-red); font-size: 1rem; }
+        }
+    </style>
+</head>
+<body id="top">
+
+    <nav id="linux-taskbar">
+        <div class="taskbar-top">
+            <a href="#" class="taskbar-logo-btn" title="SYSTEM FAILURE"> <img src="icon128.png"> </a>
+            <a href="https://www.facebook.com/profile.php?id=61587612428002" class="social-placeholder" title="Facebook"><img src="Images/Icons/fb.webp" alt="Facebook" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/ff0033?text=FB'"></a>
+            <a href="https://www.instagram.com/marekdworski26/" class="social-placeholder" title="Instagram"><img src="Images/Icons/ig.webp" alt="Instagram" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/ff0033?text=IG'"></a>
+            <a href="https://www.tiktok.com/@dworski_marek_" class="social-placeholder" title="TikTok"><img src="Images/Icons/tt.webp" alt="TikTok" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/ff0033?text=TT'"></a>
+            <a href="https://www.youtube.com/@marekdworski-x3s" class="social-placeholder" title="YouTube"><img src="Images/Icons/yt.webp" alt="YouTube" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/ff0033?text=YT'"></a>
+        </div>
+
+        <div class="taskbar-bottom">
+            <div class="tray-icons">
+                <div class="tray-placeholder" title="Siec odcieta">Ø</div>
+                <div class="tray-placeholder" title="Wyciek pamieci">⚠</div>
+            </div>
+
+            <div id="sys-clock">
+                <span id="sys-time">00:00</span><br>
+                <span id="sys-date">00.00</span>
+            </div>
+        </div>
+    </nav>
+
+    <main id="terminal-container">
+        <div class="top-section">
+            <img src="icon512.png" class="logo stable" alt="Corrupted Logo" onerror="this.onerror=null; this.src='https://via.placeholder.com/512/000/ff0033?text=B-C_CORRUPTED'">
+            <div id="typing-text">
+                <div>
+                    NIE MA WOLNOŚCI BEZ SPRAWIEDLIWOŚCI<br>
+                    &gt; Dotarłeś aż tutaj?<br>
+                    &gt; Nagrodą jest demonstracyjna wersja powieści - po zrozumieniu której już nie będziesz taki sam (tak, czytać to sobie można napisy na paczkach po fajkach, książkę należy zrozumieć).<br><br>
+                    Ebook zawiera historię, której nie było - ale być mogła, co jest najbardziej przerażające. Historię młodego dorosłego takiego jak Ty.</br><br>
+                    No, może nie całkiem takiego. Ty nie miałeś okazji obserwować jak PRL powoli upada, zmieniając się w...&nbsp;dyktaturę. Z całą pewnością też, nie miałeś okazji wyciągnąć dłoni po władzę absolutną (no chyba, że jesteś iluminatą lub reptilianinem, ale w takim wypadku nie pobieraj tej książki, nie spodoba Ci się - za dużo w niej prawdy). Klasyczna historia ,,Z&nbsp;chłopa - król" w całkiem innym wydaniu. Nie, główny bohater z&nbsp;zawodu nie jest elektrykiem.<span class="cursor"></span>
+                </div>
+            </div>
+        </div>
+
+        <div id="boxes-container">
+            <div class="hacker-box" id="box-left">
+                <img src="Images/lock_middle.webp" alt="Akta">
+                <div class="box-title">[USUNIETO]</div>
+                <div class="box-desc">Proba odzysku danych... 404. Prawda nie istnieje.</div>
+            </div>
+
+            <div class="hacker-box" id="box-center">
+                <img src="Images/lock_middle.webp" alt="System">
+                <div class="box-title">ANOMALIA PAMIECI</div>
+                <div class="box-desc">Ilustracje wymazane przez cenzure. Twoje mysli sa monitorowane.</div>
+            </div>
+
+            <div class="hacker-box" id="box-right">
+                <img src="Images/Oferta/okladka_ilustracje.webp" alt="Zrzut" onerror="this.onerror=null; this.src='https://via.placeholder.com/450x300/220000/ffffff?text=AKTA'">
+                <div class="box-title">WERSJA_DEMO</div>
+                <div class="box-desc">Pobranie grozi nieodwracalna zmiana swiadomosci.</div>
+            </div>
+        </div>
+    </main>
+
+    <div id="download-modal">
+        <div class="modal-content">
+            <span id="close-modal">[X] ZAMKNIJ_PROCES</span>
+            <div class="modal-body">
+                <img src="Images/Oferta/okladka_ilustracje.webp" alt="AKTA SPRAWY" class="modal-img" onerror="this.onerror=null; this.src='https://via.placeholder.com/450x300/220000/ffffff?text=AKTA'">
+                <div class="modal-info">
+                    <h2 class="glow">&gt; DARMOWY_EBOOK</h2>
+                    <p class="modal-desc">
+                        [ OSTRZEZENIE_SYSTEMOWE ]<br>
+                        Akta są szyfrowane. Aby uzyskać dostęp do darmowej wersji ebooka, musisz podać adres email, na który przesłany zostanie link do pobierania.
+                    </p>
+                    
+                    <form id="demo-download-form" class="demo-form">
+                        <label for="demo-email">&gt; WPROWADZ_ADRES_POCZTOWY (E-MAIL):</label>
+                        <input type="email" id="demo-email" required placeholder="obywatel@system.pl" autocomplete="off">
+
+                        <label class="consent-label">
+                            <input type="checkbox" id="demo-consent" required>
+                            <span>Rozumiem, że w zamian za darmowy dostęp do akt wyrażam zgodę na zapis do bazy danych (newsletter) oraz otrzymywanie tajnych meldunków handlowych.</span>
+                        </label>
+
+                        <button type="submit" class="dl-btn" id="demo-submit-btn">&gt;&gt; PRZESLIJ_LINK_DO_AKT</button>
+                        <div id="demo-status" class="status-msg"></div>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <footer id="footer-links">
+        <div class="footer-content">
+            <div class="footer-logo-copy">
+                <p class="copyright">
+                    OMNIS Anna Kiersznowska-Jąderko<br>
+                    NIP: 569-157-06-12<br>
+                    [&copy; 2026 WSZELKIE PRAWA ZASTRZEŻONE]<br>
+                    NIEAUTORYZOWANY DOSTĘP BĘDZIE ŚCIGANY.
+                </p>
+            </div>
+            
+            <div class="footer-nav-group">
+                <span class="footer-nav-title">/SYSTEM/DOCS/</span>
+                <a href="#regulamin" class="footer-btn">regulamin_sprzedazy</a>
+                <a href="#polityka" class="footer-btn">polityka_prywatnosci</a>
+            </div>
+
+            <div class="footer-nav-group">
+                <span class="footer-nav-title">/SYSTEM/EXT/</span>
+                <a href="../../index.html" class="footer-btn">powrot_do_systemu_glownego</a>
+            </div>
+        </div>
+    </footer>
+
+<script type="module">
+    import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
+    const SUPABASE_URL = 'https://zwmqfoyqcvesyckityng.supabase.co';
+    const SUPABASE_KEY = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inp3bXFmb3lxY3Zlc3lja2l0eW5nIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NzA3NDAzMTgsImV4cCI6MjA4NjMxNjMxOH0.U334yGtvol77tL1LPTkLZNGy_ddvN9kMzHyMbwZYfwM'; 
+    const supabase = createClient(SUPABASE_URL, SUPABASE_KEY);
+
+    // --- SYSTEM CIASTECZEK I WERYFIKACJA ZGODY ---
+    const pixelConsent = localStorage.getItem('bc_pixel_consent');
+
+    function injectMetaPixel() {
+        !function(f,b,e,v,n,t,s)
+        {if(f.fbq)return;n=f.fbq=function(){n.callMethod?
+        n.callMethod.apply(n,arguments):n.queue.push(arguments)};
+        if(!f._fbq)f._fbq=n;n.push=n;n.loaded=!0;n.version='2.0';
+        n.queue=[];t=b.createElement(e);t.async=!0;
+        t.src=v;s=b.getElementsByTagName(e)[0];
+        s.parentNode.insertBefore(t,s)}(window, document,'script',
+        'https://connect.facebook.net/en_US/fbevents.js');
+        fbq('init', '1635279820956165');
+        fbq('track', 'PageView'); 
+    }
+
+    if (pixelConsent === 'accepted') {
+        injectMetaPixel();
+    }
+
+    // --- LOGIKA ZEGARA SYSTEMOWEGO ---
+    function updateClock() {
+        const now = new Date();
+        document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        document.getElementById('sys-date').innerText = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
+    }
+    setInterval(updateClock, 1000); 
+    updateClock();
+
+    // --- LOGIKA LIGHTBOXA ---
+    const downloadModal = document.getElementById('download-modal');
+    const closeModalBtn = document.getElementById('close-modal');
+    const boxRight = document.getElementById('box-right');
+
+    boxRight.addEventListener('click', () => {
+        downloadModal.classList.add('active');
+    });
+
+    closeModalBtn.addEventListener('click', () => {
+        downloadModal.classList.remove('active');
+    });
+
+    window.addEventListener('click', (e) => {
+        if (e.target === downloadModal) {
+            downloadModal.classList.remove('active');
+        }
+    });
+
+    // --- LOGIKA FORMULARZA I WYSYŁKA DO SUPABASE ---
+    const demoForm = document.getElementById('demo-download-form');
+    const demoSubmitBtn = document.getElementById('demo-submit-btn');
+    const demoStatus = document.getElementById('demo-status');
+
+    demoForm.addEventListener('submit', async (e) => {
+        e.preventDefault();
+        
+        const emailInput = document.getElementById('demo-email').value;
+
+        demoSubmitBtn.disabled = true;
+        demoSubmitBtn.innerText = ">> WERYFIKACJA W BAZIE...";
+        demoStatus.innerText = "";
+
+        try {
+            const { data, error: dbError } = await supabase
+                .from('pobrali_ebooka_demo')
+                .insert([{ email: emailInput, consent_marketing: true }])
+                .select();
+
+            if (dbError) throw dbError;
+
+            const userId = data[0].id;
+            console.log("[SYSTEM] Obywatel wpisany do rejestru. UUID: ", userId);
+
+            if (pixelConsent === 'accepted' && typeof fbq === 'function') {
+                fbq('trackCustom', 'PobranoDemo');
+                console.log("[SYSTEM_LOG] Sygnał 'PobranoDemo' wysłany.");
+            }
+
+            demoSubmitBtn.innerText = ">> ZAKOŃCZONO";
+            demoStatus.style.color = "white";
+            demoStatus.innerText = "> PAKIET WYSŁANY. SPRAWDŹ SKRZYNKĘ ODBIORCZĄ (I FOLDER SPAM).";
+
+        } catch (err) {
+            console.error("Błąd bazy danych:", err);
+            demoStatus.style.color = "var(--blood-red)";
+            demoStatus.innerText = "> BŁĄD PROTOKOŁU: ODRZUCONO POŁĄCZENIE.";
+            demoSubmitBtn.disabled = false;
+            demoSubmitBtn.innerText = ">> PONÓW_PRÓBĘ";
+        }
+    });
+
+</script>
+</body>
+</html>
