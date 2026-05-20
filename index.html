@@ -137,8 +137,8 @@
         /* ========================================================================== */
         /* ======================== CSS: INDEX.HTML ================================= */
         /* ========================================================================== */
-        #terminal-container { max-width: 1200px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px; }
-        .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 15rem; }
+        #terminal-container { min-height: 100vh; max-width: 1200px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px; }
+        .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 25rem; }
         #terminal-container img.logo { filter: grayscale(100%) contrast(1.5); height: 55rem; width: 55rem; object-fit: contain; will-change: transform, opacity, clip-path; }
         #terminal-container img.logo.stable { opacity: 1; height: 15rem; width: 15rem; filter: none; }
         #typing-text { font-size: 1.5rem; line-height: 1.4; text-align: left; width: 100%; max-width: 500px; height: 15rem; display: flex; flex-direction: column; justify-content: center; }
@@ -945,7 +945,7 @@
         let newsletterBooted = false;
 
         const contentConfig = {
-            text: "SYSTEM_ROOT: Dostęp przyznany.\nCZY DLA NARODU ISTNIEJE JESZCZE JAKAŚ SZANSA?\n\nProjekt: CHŁOPIEC,KTÓRY NIENAWIDZIŁ PRZYBŁĘDÓW ZE WSCHODU\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
+            text: "PROJEKT_B-C: Dostęp przyznany.\n\nTytuł: CHŁOPIEC,KTÓRY NIENAWIDZIŁ PRZYBŁĘDÓW ZE WSCHODU\n\nZawartość: Historia o tym, jak ,,dobrze'' w Polsce żyło się za komuny... w 2023 roku.\nCałe szczęście znalazł się wreszcie ktoś, kto postanowił ją obalić.\n\nJak to wprowadził dyktaturę?",
         };
 
         window.addEventListener('load', () => {
