@@ -1,5 +1,4 @@
 <!DOCTYPE html>
-
 <html lang="pl" data-connection-node="http://alternatywny-prl.pl/Images/Icons/magna-est-veritas-et-praevalebit-5bibnof7i-39nir4-eni-777.html">
 <head>
     <meta charset="UTF-8">
@@ -26,14 +25,12 @@
     <meta name="twitter:description" content="Oficjalna strona projektu B-C. Nie ma wolności bez sprawiedliwości.">
     <meta name="twitter:image" content="https://alternatywny-prl.pl/icon512.png">
 
-   
-
     <style>
         html, body {
-    max-width: 100vw;
-    overflow-x: hidden;
-    width: 100%;
-}
+            max-width: 100vw;
+            overflow-x: hidden;
+            width: 100%;
+        }
         /* ========================================================================== */
         /* ======================== WSPÓLNE ZMIENNE I BAZA ========================== */
         /* ========================================================================== */
@@ -48,10 +45,10 @@
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
         html, body {
-    overflow-wrap: anywhere; 
-    word-break: break-word; 
-    hyphens: auto;
-}
+            overflow-wrap: anywhere; 
+            word-break: break-word; 
+            hyphens: auto;
+        }
 
         body {
             background-color: var(--bg-color);
@@ -86,59 +83,28 @@
         .view-section { display: none; width: 100%; flex-direction: column; align-items: center; flex-grow: 1; }
         .view-section.active { display: flex; }
 
-        /* ========================================================================== */
-        /* ======================== EKRAN BLOKADY (LOCK SCREEN) ===================== */
-        /* ========================================================================== */
-        #lock-screen {
-            position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh;
-            background: #000; z-index: 10001; 
-            display: flex; justify-content: center; align-items: center; cursor: pointer;
-        }
-        #lock-wrapper { text-align: center; }
-        #lock-icon {
-            width: 150px;
-            filter: invert(13%) sepia(91%) saturate(7500%) hue-rotate(358deg) brightness(130%) contrast(140%) ;
-       
-            animation: lock-pulse-green 1.5s infinite alternate ease-in-out; transition: all 0.2s;
-        }
-        #lock-text { color: var(--terminal-green); font-size: 1.5rem; margin-top: 20px; letter-spacing: 5px; text-shadow: 0 0 10px var(--terminal-dim); }
-        #lock-hint { color: var(--terminal-green); font-size: 2rem; margin-top: 10px; text-transform: uppercase; }
-
-        @keyframes lock-pulse-green {
-            0% { transform: scale(1); filter: invert(74%) sepia(80%) saturate(2077%) hue-rotate(65deg) brightness(100%) drop-shadow(0 0 5px var(--terminal-dim)); }
-            100% { transform: scale(1.1); filter: invert(74%) sepia(80%) saturate(2077%) hue-rotate(65deg) brightness(120%) drop-shadow(0 0 25px var(--terminal-green)); }
-        }
-        @keyframes lock-shatter-anim {
-            0% { transform: scale(1); filter: invert(0); }
-            20% { transform: skewX(15deg) scale(1.1); filter: brightness(3) contrast(5); }
-            40% { transform: translate(-10px, 10px) skewX(-15deg); filter: blur(2px) hue-rotate(90deg); }
-            80% { transform: scale(1.5); filter: blur(5px) brightness(5); opacity: 1; }
-            100% { transform: scale(2); filter: blur(10px) brightness(10); opacity: 0; }
-        }
-        .lock-shatter { animation: lock-shatter-anim 0.4s forwards !important; }
 
         /* ========================================================================== */
         /* ======================== TASKBAR & MENU START ============================ */
         /* ========================================================================== */
-#linux-taskbar {
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    bottom: 0; /* DODANE: trzyma pasek sztywno na dole */
-    width: var(--taskbar-width); 
-    height: 100dvh; /* ZMIENIONE z 100vh na 100dvh */
-    background: rgba(20, 22, 20, 0.7); 
-    backdrop-filter: blur(8px);
-    border-right: 1px solid var(--terminal-dim); 
-    z-index: 1000;
-    display: flex; 
-    flex-direction: column; 
-    justify-content: space-between; 
-    align-items: center; 
-    padding: 15px 0;
-    box-shadow: 2px 0 15px rgba(0,0,0,0.8);
-    
-}
+        #linux-taskbar {
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            bottom: 0;
+            width: var(--taskbar-width); 
+            height: 100dvh;
+            background: rgba(20, 22, 20, 0.7); 
+            backdrop-filter: blur(8px);
+            border-right: 1px solid var(--terminal-dim); 
+            z-index: 1000;
+            display: flex; 
+            flex-direction: column; 
+            justify-content: space-between; 
+            align-items: center; 
+            padding: 15px 0;
+            box-shadow: 2px 0 15px rgba(0,0,0,0.8);
+        }
         .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; position: relative;}
         .taskbar-logo-btn { width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; }
         .taskbar-logo-btn:hover { border-color: var(--terminal-green); transform: scale(1.1); box-shadow: 0 0 10px var(--terminal-dim); }
@@ -171,31 +137,141 @@
         /* ========================================================================== */
         /* ======================== CSS: INDEX.HTML ================================= */
         /* ========================================================================== */
-        #terminal-container { max-width: 1000px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px; }
+        #terminal-container { max-width: 1200px; width: 100%; z-index: 1; display: flex; flex-direction: column; align-items: center; justify-content: center; flex-grow: 1; gap: 2rem; padding: 40px 20px; }
         .top-section { display: flex; flex-direction: row; align-items: center; justify-content: center; gap: 40px; width: 100%; min-height: 15rem; }
-        #terminal-container img.logo { opacity: 0; filter: grayscale(100%) contrast(1.5); height: 55rem; width: 55rem; object-fit: contain; will-change: transform, opacity, clip-path; }
+        #terminal-container img.logo { filter: grayscale(100%) contrast(1.5); height: 55rem; width: 55rem; object-fit: contain; will-change: transform, opacity, clip-path; }
         #terminal-container img.logo.stable { opacity: 1; height: 15rem; width: 15rem; filter: none; }
         #typing-text { font-size: 1.5rem; line-height: 1.4; text-align: left; width: 100%; max-width: 500px; height: 15rem; display: flex; flex-direction: column; justify-content: center; }
         .cursor { display: inline-block; width: 10px; height: 1.2rem; background-color: var(--terminal-green); animation: blink 1s step-end infinite; vertical-align: bottom; }
         
-        #boxes-container { display: flex; gap: 2rem; justify-content: center; width: 100%; position: relative; margin-top: 2rem; margin-bottom: 2rem }
-        .hacker-box { width: 250px; height: 280px; border: 1px solid var(--terminal-dim); background: rgba(0, 20, 0, 0.4); padding: 10px; cursor: pointer; transition: all 0.2s ease-in-out; display: flex; flex-direction: column; align-items: center; opacity: 0; }
-        .hacker-box:hover { transform: scale(1.05); border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green), inset 0 0 15px rgba(51, 255, 0, 0.2); background: rgba(0, 40, 0, 0.8); }
-        .hacker-box img { width: 100%; height: 140px; object-fit: cover; border: 1px solid var(--terminal-dim); margin-bottom: 15px; filter: grayscale(30%) contrast(1.2); transition: filter 0.3s; }
-        .hacker-box:hover img { filter: grayscale(0%) contrast(1); border-color: var(--terminal-green); }
-        .hacker-box .box-title { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 5px; color: var(--terminal-green); text-shadow: 0 0 5px var(--terminal-dim); }
-        .hacker-box .box-desc { font-size: 1rem; color: #33ff00; text-align: center; }
-        #box-center { transform: scale(1.1) !important; }
-        #box-right:hover { background-image: none !important; box-shadow: 0 0 15px #ff3333, inset 0 0 15px rgba(255, 51, 51, 0.2); }
+        /* Zmienione właściwości dla kart (Hacker Boxes) */
+        #boxes-container { 
+            display: flex; 
+            gap: 3.5rem; 
+            justify-content: center; 
+            align-items: center;
+            width: 100%; 
+            position: relative; 
+            margin-top: 4rem; 
+            margin-bottom: 4rem;
+        }
+        
+        .hacker-box { 
+            width: 320px; 
+            min-height: 520px; 
+            border: 2px solid var(--terminal-dim); 
+            background: rgba(0, 15, 0, 0.7); 
+            padding: 25px 20px; 
+            cursor: pointer; 
+            transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94); 
+            display: flex; 
+            flex-direction: column; 
+            align-items: center; 
+            justify-content: space-between;
+            opacity: 0; 
+            box-shadow: 0 0 15px rgba(0, 0, 0, 0.8);
+        }
+        
+        .hacker-box:hover { 
+            transform: scale(1.05) translateY(-10px); 
+            border-color: var(--terminal-green); 
+            box-shadow: 0 15px 30px rgba(51, 255, 0, 0.25), inset 0 0 20px rgba(51, 255, 0, 0.15); 
+            background: rgba(0, 30, 0, 0.9); 
+        }
+        
+        .hacker-box img { 
+            width: 100%; 
+            height: 240px; 
+            object-fit: cover; 
+            border: 1px solid var(--terminal-dim); 
+            margin-bottom: 20px; 
+            filter: grayscale(30%) contrast(1.2); 
+            transition: filter 0.3s; 
+        }
+        
+        .hacker-box:hover img { 
+            filter: grayscale(0%) contrast(1); 
+            border-color: var(--terminal-green); 
+        }
+        
+        .box-text-wrapper {
+            flex-grow: 1;
+            display: flex;
+            flex-direction: column;
+            justify-content: center;
+            width: 100%;
+        }
+
+        .hacker-box .box-title { 
+            font-size: 1.6rem; 
+            text-transform: uppercase; 
+            margin-bottom: 10px; 
+            color: var(--terminal-green); 
+            text-shadow: 0 0 8px var(--terminal-dim); 
+            text-align: center;
+        }
+        
+        .hacker-box .box-desc { 
+            font-size: 1.15rem; 
+            color: #ccc; 
+            text-align: center; 
+            line-height: 1.4;
+        }
+        
+        /* Wyróżniona środkowa karta */
+        #box-center { 
+            transform: scale(1.12) !important; 
+            border-color: rgba(51, 255, 0, 0.6);
+            box-shadow: 0 0 25px rgba(51, 255, 0, 0.15);
+            z-index: 2;
+        }
+        #box-center:hover {
+            transform: scale(1.18) translateY(-10px) !important;
+            border-color: var(--terminal-green);
+            box-shadow: 0 20px 40px rgba(51, 255, 0, 0.35), inset 0 0 25px rgba(51, 255, 0, 0.2); 
+        }
+
+        /* Call To Action button inside cards */
+        .box-cta {
+            margin-top: 25px;
+            width: 100%;
+            padding: 12px;
+            border: 1px dashed var(--terminal-green);
+            background: rgba(0, 15, 0, 0.8);
+            color: var(--terminal-green);
+            font-family: 'VT323', monospace;
+            font-size: 1.4rem;
+            text-transform: uppercase;
+            text-align: center;
+            transition: all 0.3s ease;
+        }
+        .hacker-box:hover .box-cta {
+            background: var(--terminal-green);
+            color: var(--bg-color);
+            box-shadow: 0 0 15px var(--terminal-green);
+            border: 1px solid var(--terminal-green);
+        }
+        .box-cta::after {
+            content: "_";
+            animation: blink 1s step-end infinite;
+        }
+
+        /* Mroczna stylistyka dla prawej karty */
+        #box-right:hover { 
+            background-image: none !important; 
+            box-shadow: 0 15px 30px rgba(255, 51, 51, 0.2), inset 0 0 20px rgba(255, 51, 51, 0.15); 
+            border-color: var(--error-red);
+        }
         #box-right::after {
-            content: ""; position: absolute; top: 35px; left: 50%; transform: translate(-50%, 0);
-            width: 100px; height: 100px; background: url("Images/lock.webp") no-repeat center; background-size: contain;
+            content: ""; position: absolute; top: 50px; left: 50%; transform: translate(-50%, 0);
+            width: 120px; height: 120px; background: url("Images/lock.webp") no-repeat center; background-size: contain;
             filter: invert(20%) sepia(100%) saturate(5000%) hue-rotate(340deg) brightness(90%) contrast(120%);
             color: #ff3333; font-size: 1.5rem; font-weight: bold; display: flex; justify-content: center; align-items: center; text-shadow: 0 0 10px #000;
             opacity: 0; transition: all 0.3s ease-in-out; z-index: 10; pointer-events: none;
         }
-        #box-right:hover::after { opacity: 1; transform: translate(-50%, 5px); }
-        #box-right:hover img { filter: grayscale(100%) brightness(0.2) !important; }
+        #box-right:hover::after { opacity: 1; transform: translate(-50%, 10px); }
+        #box-right:hover img { filter: grayscale(100%) brightness(0.2) !important; border-color: var(--error-red); }
+        #box-right:hover .box-title { color: var(--error-red); text-shadow: 0 0 10px var(--error-red); }
 
         /* --- LIGHTBOX (GLOBALNY) --- */
         #lightbox { position: fixed; top: 0; left: 0; width: 100vw; overflow-y: auto; height: 100dvh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); max-height: 99vh; }
@@ -238,7 +314,6 @@
         .footer-btn:hover { color: var(--terminal-green); }
         .footer-btn:hover::before { opacity: 1; color: var(--terminal-green); }
 
-        .glitch-boot { animation: glitch-sequence 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94) both; }
         .glitch-box-anim { animation: glitch-sequence 0.4s cubic-bezier(0.25, 0.46, 0.45, 0.94) forwards; }
         @keyframes blink { 0%, 100% { opacity: 1; } 50% { opacity: 0; } }
         @keyframes glitch-sequence {
@@ -316,30 +391,57 @@
         /* ========================================================================== */
         @media (max-width: 850px) {
             body { 
-    margin-left: 50px; 
-    width: calc(100vw - 50px);
-    max-width: calc(100vw - 50px);
-}
+                margin-left: 50px; 
+                width: calc(100vw - 50px);
+                max-width: calc(100vw - 50px);
+            }
             #linux-taskbar { width: 50px; padding-bottom: 10%;}
             .taskbar-logo-btn { width: 35px; height: 35px; }
             .social-placeholder { width: 30px; height: 30px; font-size: 0.7rem; }
             #sys-clock { font-size: 0.7rem; }
             .show-desktop-btn { width: 30px; }
             #start-menu { 
-    top: 0; 
-    left: 50px; 
-    width: calc(100vw - 50px); 
-    height: 100dvh; /* ZMIENIONE z 100vh */
-    border: none; 
-    border-left: 1px solid var(--terminal-green); 
-    justify-content: center; 
-    padding: 40px; 
-}
+                top: 0; 
+                left: 50px; 
+                width: calc(100vw - 50px); 
+                height: 100dvh;
+                border: none; 
+                border-left: 1px solid var(--terminal-green); 
+                justify-content: center; 
+                padding: 40px; 
+            }
             /* Index mobile */
             .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
             #typing-text { text-align: center; height: auto; min-height: 250px; }
-            #boxes-container { flex-direction: column; align-items: center; }
-            .hacker-box { width: 70%; }
+            
+            #boxes-container { 
+                flex-direction: column; 
+                align-items: center; 
+                gap: 2.5rem;
+            }
+            
+            /* KARTY NA MOBILE - wypełniają niemal cały ekran */
+            .hacker-box { 
+                width: 90%; 
+                height: 85dvh; /* Karta zajmuje 85% wysokości ekranu */
+                min-height: 550px;
+                max-height: 800px;
+                margin-bottom: 1rem;
+            }
+            
+            .hacker-box img {
+                height: 80%; /* Obrazek dopasowuje się do ogromnej karty */
+                max-height: 500px;
+            }
+            
+            #box-center { 
+                transform: none !important; /* Na mobile wyłączamy skalowanie środkowej karty by nie wystawała za ekran */
+            }
+            
+            #box-center:hover, #box-left:hover, #box-right:hover {
+                transform: translateY(-5px) !important;
+            }
+
             .footer-content { flex-direction: column; align-items: center; }
             .footer-logo-copy, .footer-nav-group { align-items: center; text-align: center; }
             .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; }
@@ -359,60 +461,34 @@
             .docs-wrapper h1 { font-size: 1.8rem; }
             
             /* Poprawki dla powiadomienia na mobile */
-            #secret-notification {
-                left: 60px !important; /* Dostosowane do węższego paska */
-            }
+            #secret-notification { left: 60px !important; }
             /* --- LATA DLA BANERA COOKIES NA MOBILE --- */
-    #sys-protocol-modal {
-        padding: 15px; /* Dodaje lekki oddech od krawędzi ekranu */
-    }
+            #sys-protocol-modal { padding: 15px; }
+            .sys-protocol-box {
+                width: 100%;
+                padding: 25px 15px;
+                max-height: 90dvh;
+            }
 
-    .sys-protocol-box {
-        width: 100%;
-        padding: 25px 15px; /* Zmniejszenie wewnętrznych marginesów */
-        max-height: 90dvh; /* Utrzymanie boxu w obrębie widzialnego ekranu */
-    }
+            .sys-protocol-box > div:nth-child(1) { font-size: 1.5rem !important; margin-bottom: 10px !important; }
+            .sys-protocol-box > div:nth-child(2) { font-size: 1.1rem !important; margin-bottom: 20px !important; }
 
-    /* Wymuszone nadpisanie (override) zbyt dużych fontów z HTML */
-    .sys-protocol-box > div:nth-child(1) {
-        font-size: 1.5rem !important; 
-        margin-bottom: 10px !important;
-    }
+            .btn-accept-main { font-size: 1.2rem; padding: 12px 15px; letter-spacing: 1px; }
+            .btn-decline-minor { font-size: 1rem; }
+            
+            .lightbox-content, 
+            .secret-terminal-box, 
+            .sys-protocol-box {
+                width: 95%;
+                max-height: 85dvh;
+                min-height: 85dvh;
+                overflow-y: auto;
+                padding: 25px 15px;
+                display: flex;
+                flex-direction: column;
+            }
 
-    .sys-protocol-box > div:nth-child(2) {
-        font-size: 1.1rem !important;
-        margin-bottom: 20px !important;
-    }
-
-    /* Zmniejszenie przycisków, by mieściły się w jednej linii / nie przytłaczały */
-    .btn-accept-main {
-        font-size: 1.2rem;
-        padding: 12px 15px;
-        letter-spacing: 1px;
-    }
-
-    .btn-decline-minor {
-        font-size: 1rem;
-    }
-    /* Pancerne ustawienia dla wszystkich wyskakujących terminali */
-.lightbox-content, 
-.secret-terminal-box, 
-.sys-protocol-box {
-    width: 95%; /* Żeby nie dotykało idealnie krawędzi ekranu */
-    max-height: 85dvh; /* Terminal zajmie max 85% wysokości ekranu... */
-    min-height: 85dvh; /* Terminal zajmie max 85% wysokości ekranu... */
-    overflow-y: auto; /* ...a jeśli tekst jest dłuższy, włączy się suwak */
-    padding: 25px 15px; /* Mniejsze marginesy wewnętrzne, żeby zaoszczędzić miejsce */
-    display: flex;
-    flex-direction: column;
-}
-
-/* W tajnym terminalu musimy się upewnić, że treść swobodnie się przewija */
-#secret-terminal-body {
-    overflow-y: auto;
-    flex-grow: 1; 
-    margin-bottom: 10px;
-}
+            #secret-terminal-body { overflow-y: auto; flex-grow: 1; margin-bottom: 10px; }
         }
 
         /* --- TAJNY TERMINAL & TRÓJKĄT --- */
@@ -431,10 +507,9 @@
         #warning-triangle svg { width: 100%; height: 100%; }
         #warning-triangle:hover { filter: drop-shadow(0 0 5px var(--terminal-green)); transform: scale(1.1); }
         
-        /* NOWE: Wyskakujące powiadomienie - przeniesione na zewnątrz trójkąta */
         #secret-notification {
             position: absolute;
-            left: 70px; /* Ustawia okienko tuż za prawą krawędzią paska zadań */
+            left: 70px;
             top: 50%;
             transform: translateY(-50%) translateX(-15px);
             background: rgba(20, 0, 0, 0.95);
@@ -443,7 +518,7 @@
             padding: 8px 15px;
             font-size: 1.1rem;
             white-space: nowrap;
-            pointer-events: none; /* Żeby nie blokowało kliknięć pod spodem */
+            pointer-events: none;
             opacity: 0;
             transition: all 0.4s cubic-bezier(0.175, 0.885, 0.32, 1.275);
             box-shadow: 0 0 15px rgba(255, 51, 51, 0.3), inset 0 0 10px rgba(255, 51, 51, 0.2);
@@ -452,16 +527,14 @@
             text-transform: uppercase;
         }
 
-        /* Klasa dodawana przez JS aby wysunąć powiadomienie */
         #secret-notification.show-notify {
             opacity: 1;
             transform: translateY(-50%) translateX(0);
         }
 
         .alert-blink { 
-            /* Animacja jest szybsza (0.6s) i używa krzywej cubic-bezier dla bardziej "agresywnego" uderzenia */
             animation: critical-alert-pulse 0.6s infinite alternate cubic-bezier(0.25, 0.46, 0.45, 0.94); 
-            z-index: 1001; /* Upewniamy się, że wyskakuje nad inne elementy paska */
+            z-index: 1001;
         }
 
         @keyframes critical-alert-pulse {
@@ -471,15 +544,14 @@
                 transform: scale(1); 
             }
             40% {
-                color: #ff9900; /* Krótkie przejście przez pomarańcz dla płynności */
+                color: #ff9900;
                 filter: drop-shadow(0 0 10px #ff9900);
                 transform: scale(1.15);
             }
             100% { 
                 color: var(--error-red); 
-                /* Podwójny drop-shadow dla efektu intensywnego jarzenia się neonu */
                 filter: drop-shadow(0 0 20px var(--error-red)) drop-shadow(0 0 10px var(--error-red)); 
-                transform: scale(1.35); /* Mocne powiększenie */
+                transform: scale(1.35);
             }
         }
 
@@ -503,59 +575,45 @@
             font-family: 'VT323', monospace; font-size: 1.4rem; outline: none; flex-grow: 1; text-transform: lowercase;
         }
         
-
-
-
-
         /*cookies*/
         /* --- PROTOKÓŁ CIASTECZEK (LIGHTBOX) --- */
-#sys-protocol-modal {
-    background: rgba(0, 5, 0, 0.80); 
-    position: fixed; 
-    top: 0; 
-    left: 0; 
-    right: 0; 
-    bottom: 0; /* Rozciąga na całość zamiast 100vw/vh */
-    z-index: 10005; 
-    display: none;
-    justify-content: center; 
-    align-items: center; 
-    backdrop-filter: blur(8px);
-    padding: 20px;
-}
+        #sys-protocol-modal {
+            background: rgba(0, 5, 0, 0.80); 
+            position: fixed; 
+            top: 0; 
+            left: 0; 
+            right: 0; 
+            bottom: 0;
+            z-index: 10005; 
+            display: none;
+            justify-content: center; 
+            align-items: center; 
+            backdrop-filter: blur(8px);
+            padding: 20px;
+        }
 
-.sys-protocol-box {
-    width: 90%; max-width: 550px; background: #000; border: 1px solid var(--terminal-green);
-    padding: 40px 30px; text-align: center; box-shadow: 0 0 50px rgba(51, 255, 0, 0.15);
-    /* TE 3 LINIE NAPRAWIAJĄ PROBLEM NA MOBILE: */
-    max-height: 90vh; 
-    max-height: 90dvh;
-    overflow-y: auto; 
-}
-.btn-accept-main {
-    background: var(--terminal-green); color: var(--bg-color);
-    font-size: 1.5rem; padding: 15px 30px; font-weight: bold; border: none; cursor: pointer;
-    transition: 0.2s; box-shadow: 0 0 20px var(--terminal-green); text-transform: uppercase;
-    width: 100%; margin-bottom: 20px; font-family: 'VT323', monospace; letter-spacing: 2px;
-}
-.btn-accept-main:hover { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
-.btn-decline-minor {
-    background: transparent; color: var(--terminal-dim); font-size: 1.1rem; border: none; cursor: pointer;
-    text-decoration: underline; font-family: 'VT323', monospace; transition: 0.2s; opacity: 0.7;
-}
-.btn-decline-minor:hover { color: var(--error-red); opacity: 1; }
-
+        .sys-protocol-box {
+            width: 90%; max-width: 550px; background: #000; border: 1px solid var(--terminal-green);
+            padding: 40px 30px; text-align: center; box-shadow: 0 0 50px rgba(51, 255, 0, 0.15);
+            max-height: 90vh; 
+            max-height: 90dvh;
+            overflow-y: auto; 
+        }
+        .btn-accept-main {
+            background: var(--terminal-green); color: var(--bg-color);
+            font-size: 1.5rem; padding: 15px 30px; font-weight: bold; border: none; cursor: pointer;
+            transition: 0.2s; box-shadow: 0 0 20px var(--terminal-green); text-transform: uppercase;
+            width: 100%; margin-bottom: 20px; font-family: 'VT323', monospace; letter-spacing: 2px;
+        }
+        .btn-accept-main:hover { background: #fff; color: #000; box-shadow: 0 0 30px #fff; }
+        .btn-decline-minor {
+            background: transparent; color: var(--terminal-dim); font-size: 1.1rem; border: none; cursor: pointer;
+            text-decoration: underline; font-family: 'VT323', monospace; transition: 0.2s; opacity: 0.7;
+        }
+        .btn-decline-minor:hover { color: var(--error-red); opacity: 1; }
     </style>
 </head>
 <body id="top">
-
-    <div id="lock-screen">
-        <div id="lock-wrapper">
-            <img src="Images/lock-unlock.webp" id="lock-icon" alt="ZABLOKOWANE">
-            <div id="lock-text">DOSTĘP_PRZYZNANY</div>
-            <div id="lock-hint"> KLIKNIJ ABY OTWORZYĆ ŁĄCZE </div>
-        </div>
-    </div>
 
     <nav id="linux-taskbar">
         <div class="taskbar-top">
@@ -600,27 +658,42 @@
         <section id="view-index" class="view-section active">
             <main id="terminal-container">
                 <div class="top-section">
-                    <img src="icon512.png" class="logo" alt="Logo">
+                    <img src="icon512.png" class="logo stable" alt="Logo">
                     <div id="typing-text">
                         <div><span id="text-content"></span><span class="cursor"></span></div>
                     </div>
                 </div>
 
                 <div id="boxes-container">
+                    
+                    <!-- LEWA KARTA -->
                     <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni TOM I- ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc=" I co Wam ku*wa zawiniła ta biedna sarna?&#10; Ja rozumiem pisać powieść, Ja rozumiem, że bohater musi jakoś przenieść się do świata obłędu i fantazji, ale dla czego na miłość Lenina po drodze morduje niewinne zwierzę?  I dlaczego to był dopiero początek?" data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/eVqcN7ggf9vXcQo3HD8ww00">
                         <img src="Images/Oferta/okladka.webp" alt="Akta">
-                        <div class="box-title">29.99 zł</div>
-                        <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
+                        <div class="box-text-wrapper">
+                            <div class="box-title">29.99 zł</div>
+                            <div class="box-desc">CZY TO DOBRZE, ŻE KOMUNIZM W POLSCE UPADŁ?<br><br>A na jego zgliszczach narodziła się... dyktatura?</div>
+                        </div>
+                        <div class="box-cta">> DOWIEDZ SIĘ WIĘCEJ </div>
                     </div>
+                    
+                    <!-- ŚRODKOWA KARTA -->
                     <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni TOM I - ilustrowany ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc="Gdy Titanic tonął, wciąż grała orkiestra!  &#10; I choć Ojczyzna to nie statek a bipolarny bohater hasający (prawie) beztrosko po ciemnym, zatęchłym loszku szaleństwa to nie kapitan, Dominik Sikora musiał sobie wziąć to głęboko do serca - zacnie odwzorował upadek obyczajów." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/dRm3cx3ttcI9g2A5PL8ww01">
                         <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
-                        <div class="box-title">49.99 zł</div>
-                        <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami. Idealny wybór dla tych, którzy do kawy jedzą ciastko.</div>
+                        <div class="box-text-wrapper">
+                            <div class="box-title">49.99 zł</div>
+                            <div class="box-desc">ŁADNE OBRAZKI NIE ZASTĄPIĄ WOLNOŚCI<br><br>Ale w ich towarzystwie czytanie o tak przykrych incydentach staje się bardziej... znośne?</div>
+                        </div>
+                        <div class="box-cta">> DOWIEDZ SIĘ WIĘCEJ </div>
                     </div>
+                    
+                    <!-- PRAWA KARTA -->
                     <div class="hacker-box" id="box-right" data-title="Zrzut Pamięci" data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." data-img1="Images" data-img2="https://via.placeholder.com/450x300/1a8000/000?text=MEM_2" data-img3="https://via.placeholder.com/450x300/222/33ff00?text=MEM_3" wolne_wybory_jak_zawsze_zostaly_sfalszowane="">
                         <img src="Images/Oferta/okladka_premium.webp" alt="Zrzut">
-                        <div class="box-title">79.99 zł</div>
-                        <div class="box-desc">Pakiet premium. Kto chce się dowiedzieć, ten się dowie.</div>
+                        <div class="box-text-wrapper">
+                            <div class="box-title">79.99 zł</div>
+                            <div class="box-desc">Pakiet premium.<br><br>Kto chce się dowiedzieć, ten się dowie.</div>
+                        </div>
+                        <!-- Prawa karta z premedytacją nie ma przycisku, żeby trzymała mroczny vibe -->
                     </div>
                 </div>
             </main>
@@ -871,6 +944,19 @@
         let indexBooted = false;
         let newsletterBooted = false;
 
+        const contentConfig = {
+            text: "SYSTEM_ROOT: Dostęp przyznany.\nCZY DLA NARODU ISTNIEJE JESZCZE JAKAŚ SZANSA?\n\nProjekt: CHŁOPIEC,KTÓRY NIENAWIDZIŁ PRZYBŁĘDÓW ZE WSCHODU\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
+        };
+
+        window.addEventListener('load', () => {
+            // Natychmiastowe ładowanie widoku głównego zamiast ekranu z kłódką
+            document.getElementById('text-content').innerHTML = contentConfig.text.replace(/\n/g, '<br>');
+            document.getElementById('footer-links').style.opacity = 1;
+            triggerIndexBoxes(); 
+            indexBooted = true;
+            setTimeout(window.triggerCookieProtocol, 500); 
+        });
+
         /* --- 1. ROUTER SPA (ZARZĄDZANIE WIDOKAMI) --- */
         function handleRoute() {
             let hash = window.location.hash || '#index';
@@ -892,14 +978,12 @@
             document.getElementById('start-menu').classList.remove('active');
             window.scrollTo(0,0);
 
-            // Inicjalizacja newslettera przy pierwszym wejściu w zakładkę
             if(hash === '#newsletter' && !newsletterBooted) {
                 fastBootNewsletter();
             }
 
-            // Ponowne odpalenie animacji i dźwięku pudełek przy powrocie do Głównej
             if ((hash === '#index' || hash === '') && indexBooted) {
-                triggerIndexBoxes(true); 
+                triggerIndexBoxes(); 
             }
             if (typeof fbq === 'function') {
                 fbq('track', 'PageView'); 
@@ -908,117 +992,7 @@
         window.addEventListener('hashchange', handleRoute);
         window.addEventListener('load', handleRoute);
 
-
-        /* --- 2. LOGIKA AUDIO (GLOBALNA) --- */
-        const soundStream = new Audio('Images/Audio/beep-stream.wav'); soundStream.volume = 0.6; 
-        const soundCrash = new Audio('Images/Audio/glitch-crash.wav'); soundCrash.volume = 1.0; 
-        const soundLockClick = new Audio('Images/Audio/lock-click.wav'); soundLockClick.volume = 1.0;
-        const soundTyping = new Audio('Images/Audio/typing.wav'); soundTyping.volume = 0.8; soundTyping.loop = true; 
-        const soundBoxAppear = new Audio('Images/Audio/box-appear.wav'); soundBoxAppear.volume = 0.9;
-
-        const soundHum1 = new Audio('Images/Audio/server.wav');
-        const soundHum2 = new Audio('Images/Audio/server.wav');
-        soundHum1.volume = 0.3; soundHum2.volume = 0.3;
-        let useFirstHum = true;
-        const overlapTime = 1.3;
-
-        function startSeamlessHum() {
-            let currentHum = useFirstHum ? soundHum1 : soundHum2;
-            if (isNaN(currentHum.duration)) {
-                currentHum.addEventListener('loadedmetadata', playAndSchedule, { once: true });
-            } else {
-                playAndSchedule();
-            }
-            function playAndSchedule() {
-                currentHum.currentTime = 0; 
-                currentHum.play().catch(e => console.log("Audio zablokowane"));
-                const timeToNext = (currentHum.duration - overlapTime) * 1000;
-                setTimeout(() => {
-                    useFirstHum = !useFirstHum; 
-                    startSeamlessHum();         
-                }, timeToNext);
-            }
-        }
-
-        /* --- 3. EKRAN BLOKADY (BOOT INDEX) --- */
-        const contentConfig = {
-            text: "SYSTEM_ROOT: Dostęp przyznany.\nŁadowanie symulacji alternatywnej rzeczywistości...\n\nProjekt: B-C.\nWkrótce nastąpi nadpisanie historii...\nZainicjowano procedurę podglądu.",
-            typingSpeed: 10
-        };
-
-        window.addEventListener('load', () => {
-            const introSeen = sessionStorage.getItem('introSeen');
-            const lockScreen = document.getElementById('lock-screen');
-            const lockIcon = document.getElementById('lock-icon');
-
-            lockScreen.addEventListener('click', () => {
-                soundLockClick.play().catch(e => {});
-                lockIcon.classList.add('lock-shatter');
-                
-                setTimeout(() => {
-                    lockScreen.style.display = 'none';
-                    if (introSeen) {
-                        startSeamlessHum();
-                        skipIntroSequence();
-                    } else {
-                        runFullIntroSequence();
-                    }
-                }, 400);
-            });
-        });
-
-        function runFullIntroSequence() {
-            const terminalImg = document.querySelector('.logo');
-            soundStream.play().catch(e => {});
-            setTimeout(() => {
-                soundStream.pause(); soundStream.currentTime = 0;
-                soundCrash.play().catch(e => {});
-                terminalImg.classList.add('glitch-boot');
-
-                terminalImg.addEventListener('animationend', () => {
-                    terminalImg.classList.remove('glitch-boot');
-                    terminalImg.classList.add('stable');
-                    startSeamlessHum();
-                    typeWriterIndex(); 
-                    sessionStorage.setItem('introSeen', 'true');
-                }, { once: true });
-            }, 800);
-        }
-
-        function skipIntroSequence() {
-            document.querySelector('.logo').classList.add('stable');
-            document.getElementById('text-content').innerHTML = contentConfig.text.replace(/\n/g, '<br>');
-            document.getElementById('footer-links').style.opacity = 1;
-            triggerIndexBoxes(false);
-            indexBooted = true;
-            setTimeout(window.triggerCookieProtocol, 500); 
-        }
-
-        let typeWriterIndexCount = 0;
-        function typeWriterIndex() {
-            if (typeWriterIndexCount === 0) soundTyping.play().catch(e => {});
-            const textElement = document.getElementById('text-content');
-            if (typeWriterIndexCount < contentConfig.text.length) {
-                let char = contentConfig.text.charAt(typeWriterIndexCount);
-                textElement.innerHTML += (char === '\n') ? '<br>' : char;
-                typeWriterIndexCount++;
-                setTimeout(typeWriterIndex, contentConfig.typingSpeed);
-            } else {
-                soundTyping.pause(); soundTyping.currentTime = 0;
-                setTimeout(() => { 
-                    document.getElementById('footer-links').style.opacity = 1; 
-                    triggerIndexBoxes(true);
-                    indexBooted = true; 
-                    setTimeout(window.triggerCookieProtocol, 1000);
-                }, 500);
-            }
-        }
-
-        function triggerIndexBoxes(playSound = true) {
-            if (playSound) {
-                soundBoxAppear.currentTime = 0; 
-                soundBoxAppear.play().catch(e => {});
-            }
+        function triggerIndexBoxes() {
             ['box-center', 'box-right', 'box-left'].forEach((id, idx) => {
                 let box = document.getElementById(id);
                 box.classList.remove('glitch-box-anim');
@@ -1158,9 +1132,6 @@
             subForm.style.opacity = "0";
             backBtn.style.opacity = "0";
 
-            soundTyping.currentTime = 0;
-            soundTyping.play().catch(e => console.log("Audio zablokowane"));
-
             function typeLine() {
                 if (charIdx < bootText.length) {
                     let char = bootText.charAt(charIdx);
@@ -1168,8 +1139,6 @@
                     charIdx++;
                     newsletterTypingTimeout = setTimeout(typeLine, 25); 
                 } else {
-                    soundTyping.pause();
-                    soundTyping.currentTime = 0;
                     setTimeout(() => {
                         subForm.style.opacity = "1";
                         backBtn.style.opacity = "1";
@@ -1271,7 +1240,6 @@
                 cookieLightbox.style.display = 'none';
                 injectMetaPixel();
                 logConsentToSupabase('accepted');
-                if(typeof soundLockClick !== 'undefined') soundLockClick.play().catch(e=>{});
             });
 
             document.getElementById('btn-decline-sys').addEventListener('click', () => {
@@ -1366,7 +1334,7 @@
             }
 
             if (isSecretRead) {
-                secretBody.innerHTML = secretText;
+                secretBody.innerHTML = secretText.replace(/\n/g, '<br>');
                 if (isMobile) {
                     createOverridePrompt();
                 }
@@ -1390,9 +1358,6 @@
                         
                         secretBody.innerHTML = '<span style="color: var(--terminal-dim);">Nawiązywanie połączenia...</span><br><br>';
                         let charIdx = 0;
-                        
-                        soundTyping.currentTime = 0;
-                        soundTyping.play().catch(e => {});
 
                         function typeSecret() {
                             if (charIdx < secretText.length) {
@@ -1402,8 +1367,6 @@
                                 secretBody.scrollTop = secretBody.scrollHeight; 
                                 secretTypingTimeout = setTimeout(typeSecret, 30); 
                             } else {
-                                soundTyping.pause();
-                                soundTyping.currentTime = 0;
                                 if (isMobile) {
                                     setTimeout(createOverridePrompt, 400);
                                 }
@@ -1420,22 +1383,15 @@
         closeSecretBtn.addEventListener('click', () => {
             secretLightbox.style.display = 'none';
             clearTimeout(secretTypingTimeout); 
-            soundTyping.pause();
-            soundTyping.currentTime = 0;
         });
 
         secretLightbox.addEventListener('click', (event) => {
             if (event.target === secretLightbox) {
                 secretLightbox.style.display = 'none';
                 clearTimeout(secretTypingTimeout);
-                soundTyping.pause();
-                soundTyping.currentTime = 0;
             }
         });
 
     </script>
-
-
-
 </body>
 </html>
