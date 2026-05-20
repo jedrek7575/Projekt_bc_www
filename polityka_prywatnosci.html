@@ -1,0 +1,212 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projekt B-C — Polityka Prywatności</title>
+    <meta name="robots" content="noindex, nofollow"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
+
+    <style>
+        :root {
+            --matrix-green: #007e8c;
+            --muted-green: #a3b8aa;
+            --border-dim: rgba(0, 126, 140, 0.4);
+            --bg-color: #050806;
+            --panel-bg: rgba(5, 12, 8, 0.6);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            overflow-wrap: anywhere; 
+            word-break: break-word; 
+            hyphens: auto;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--muted-green);
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Scanlines - CRT Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(0, 20, 10, 0.2) 50%),
+                        linear-gradient(90deg, rgba(0, 126, 140, 0.03), rgba(0, 0, 0, 0.02), rgba(0, 126, 140, 0.05));
+            z-index: 9999;
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            animation: subtle-flicker 0.2s infinite;
+            will-change: opacity; 
+        }
+
+        @keyframes subtle-flicker { 0% { opacity: 0.93; } 50% { opacity: 1; } 100% { opacity: 0.96; } }
+
+        .docs-wrapper { 
+            width: 100%; 
+            max-width: 800px; 
+            z-index: 5; 
+            text-align: left; 
+            padding: 40px 20px; 
+            margin: 0 auto;
+        }
+        
+        .docs-wrapper h1, .docs-wrapper h2 { 
+            text-transform: uppercase; 
+            border-bottom: 1px solid var(--border-dim); 
+            padding-bottom: 5px; 
+            color: var(--matrix-green); 
+        }
+        
+        .docs-wrapper h1 { 
+            text-shadow: 0 0 10px rgba(0, 126, 140, 0.6); 
+            margin-bottom: 30px; 
+            font-size: 2.5rem; 
+        }
+        
+        .docs-wrapper h2 { 
+            margin-top: 30px; 
+            margin-bottom: 15px; 
+            font-size: 1.6rem;
+        }
+        
+        .docs-wrapper p, .docs-wrapper li { 
+            font-size: 1.2rem; 
+            color: var(--muted-green); 
+            margin-bottom: 15px; 
+            line-height: 1.5;
+        }
+        
+        .docs-wrapper strong { 
+            color: #ffffff; 
+            text-shadow: 0 0 5px rgba(0, 126, 140, 0.4);
+        }
+        
+        .docs-wrapper ul { 
+            list-style: none; 
+            padding-left: 0; 
+        }
+        
+        .docs-wrapper ul li::before { 
+            content: "> "; 
+            color: var(--matrix-green); 
+            font-weight: bold;
+        }
+        
+        .docs-wrapper a { 
+            color: var(--matrix-green); 
+            text-decoration: none; 
+            border-bottom: 1px dashed var(--border-dim); 
+            transition: 0.2s;
+        }
+
+        .docs-wrapper a:hover {
+            color: #ffffff;
+            border-color: var(--matrix-green);
+            text-shadow: 0 0 8px var(--matrix-green);
+        }
+        
+        .system-frame { 
+            border: 1px dashed var(--border-dim); 
+            padding: 30px; 
+            box-shadow: 0 0 30px rgba(0, 126, 140, 0.05), inset 0 0 20px rgba(0, 126, 140, 0.05); 
+            margin-bottom: 30px; 
+            background: var(--panel-bg); 
+            border-radius: 4px;
+        }
+        
+        .return-btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            border: 1px solid var(--matrix-green); 
+            color: var(--matrix-green); 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+            margin-bottom: 20px; 
+            cursor: pointer; 
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--matrix-green) !important;
+        }
+        
+        .return-btn:hover { 
+            background: var(--matrix-green); 
+            color: #000000; 
+            box-shadow: 0 0 15px var(--matrix-green); 
+            text-shadow: none;
+        }
+
+        @media (max-width: 600px) {
+            .docs-wrapper h1 { font-size: 2rem; }
+            .docs-wrapper h2 { font-size: 1.4rem; }
+            .docs-wrapper p, .docs-wrapper li { font-size: 1.1rem; }
+            .system-frame { padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="docs-wrapper">
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
+        
+        <h1>/SYSTEM/DOCS/PRIVACY_POLICY.TXT</h1>
+        
+        <div class="system-frame">
+            <p style="color: var(--matrix-green);">STATUS: DOKUMENT JAWNY<br>DATA_AKTUALIZACJI: 2026-03-24</p>
+            
+            <h2>1. ADMINISTRATOR DANYCH (ROOT)</h2>
+            <p>Głównym Administratorem Twoich danych osobowych jest:</p>
+            <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Adres: Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+
+            <h2>2. CEL I PODSTAWA PRZETWARZANIA</h2>
+            <p>Twoje dane w systemie przetwarzane są w celu zapewnienia prawidłowego funkcjonowania węzła B-C:</p>
+            <ul>
+                <li><strong>Realizacja zamówień:</strong> Niezbędna do dostarczenia treści cyfrowych (Art. 6 ust. 1 lit. b RODO).</li>
+                <li><strong>Ochrona zasobów (Watermarking):</strong> Unikalne oznaczenie plików danymi nabywcy w celu zabezpieczenia praw autorskich (prawnie uzasadniony interes, Art. 6 ust. 1 lit. f RODO).</li>
+                <li><strong>Komunikacja (Newsletter):</strong> Przesyłanie aktualizacji systemu i meldunków, o ile wyraziłeś dobrowolną zgodę (Art. 6 ust. 1 lit. a RODO).</li>
+                <li><strong>Analityka:</strong> Zbieranie zagregowanych, statystycznych informacji o ruchu w celu optymalizacji wydajności serwera.</li>
+            </ul>
+
+            <h2>3. ODBIORCY DANYCH</h2>
+            <p>Dane mogą być powierzane wyłącznie zaufanym partnerom technologicznym (operatorzy płatności, infrastruktura chmurowa, obsługa księgowa). W przypadku korzystania z dostawców globalnych, stosujemy Standardowe Klauzule Umowne Komisji Europejskiej, aby zapewnić bezpieczeństwo Twoich danych również poza EOG.</p>
+
+            <h2>4. TECHNOLOGIE ANALITYCZNE</h2>
+            <p>Administrator informuje, że nie wykorzystuje danych do podejmowania zautomatyzowanych decyzji wpływających na sytuację prawną Obywatela. Stosowane narzędzia zewnętrzne (np. Meta Pixel) służą wyłącznie do dopasowania wyświetlanych komunikatów promocyjnych do zainteresowań odbiorcy na podstawie jego wcześniejszej aktywności (retargeting).</p>
+
+            <h2>5. CZAS PRZECHOWYWANIA</h2>
+            <p>Dane transakcyjne przechowujemy przez 5 lat (wymóg skarbowy). Dane subskrypcyjne (newsletter) przetwarzamy do momentu wycofania zgody – możesz wypisać się z bazy w każdej chwili jednym kliknięciem.</p>
+
+            <h2>6. TWOJE PRAWA (PROTOKÓŁ RODO)</h2>
+            <p>Masz prawo do wglądu w swoje dane, ich sprostowania, żądania usunięcia ("prawo do bycia zapomnianym") oraz ograniczenia przetwarzania. Możesz również wnieść skargę do organu nadzorczego (PUODO). W celu realizacji tych praw, skontaktuj się z Centralą.</p>
+
+            <h2>7. PLIKI COOKIES I OPTYMALIZACJA DOŚWIADCZEŃ</h2>
+            <p>System wykorzystuje ciasteczka (cookies) do obsługi sesji oraz narzędzia telemetryczne firm trzecich.</p>
+            <ul>
+                <li><strong>Meta Pixel:</strong> Wykorzystujemy ten kod w celu analizy efektywności naszych komunikatów w mediach społecznościowych. Pozwala nam to unikać wyświetlania Ci nieistotnych treści i lepiej dopasować ofertę do Twoich preferencji.</li>
+                <li><strong>Blokada:</strong> Możesz zarządzać ciasteczkami w ustawieniach swojej przeglądarki lub korzystać z trybu incognito, jeśli chcesz ograniczyć zbieranie danych statystycznych.</li>
+            </ul>
+        </div>
+
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
+    </main>
+
+</body>
+</html>

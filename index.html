@@ -184,7 +184,7 @@
         .hacker-box img { width: 100%; height: 140px; object-fit: cover; border: 1px solid var(--terminal-dim); margin-bottom: 15px; filter: grayscale(30%) contrast(1.2); transition: filter 0.3s; }
         .hacker-box:hover img { filter: grayscale(0%) contrast(1); border-color: var(--terminal-green); }
         .hacker-box .box-title { font-size: 1.3rem; text-transform: uppercase; margin-bottom: 5px; color: var(--terminal-green); text-shadow: 0 0 5px var(--terminal-dim); }
-        .hacker-box .box-desc { font-size: 1rem; color: #aaa; text-align: center; }
+        .hacker-box .box-desc { font-size: 1rem; color: #33ff00; text-align: center; }
         #box-center { transform: scale(1.1) !important; }
         #box-right:hover { background-image: none !important; box-shadow: 0 0 15px #ff3333, inset 0 0 15px rgba(255, 51, 51, 0.2); }
         #box-right::after {
@@ -207,6 +207,8 @@
         .side-img:hover { filter: grayscale(0%); border-color: var(--terminal-green); transform: scale(1.05); }
         .main-img { width: 450px; height: 300px; object-fit: cover; border: 1px solid var(--terminal-green); box-shadow: 0 0 20px var(--terminal-dim); }
         .lb-title { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
+        .lb-subtitle { font-size: 1.5rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
+        
         .lb-desc { font-size: 1.2rem; color: #ccc; margin-bottom: 25px; line-height: 1.4; }
         .btn-link, #footer-links a { color: var(--terminal-green); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid var(--terminal-dim); padding: 8px 25px; background: rgba(0, 20, 0, 0.4); transition: all 0.2s ease-in-out; cursor: pointer; display: inline-block; }
         .btn-link:hover, #footer-links a:hover { background: var(--terminal-green); color: var(--bg-color); border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green); }
@@ -285,7 +287,7 @@
         .dossier-card { display: flex; flex-direction: row; gap: 20px; background: rgba(0, 15, 0, 0.4); border: 1px dashed var(--terminal-dim); padding: 20px; transition: 0.3s; margin-bottom: 20px;}
         .dossier-card:hover { border-color: var(--terminal-green); background: rgba(0, 30, 0, 0.6); box-shadow: 0 0 20px rgba(51, 255, 0, 0.1); }
         .dossier-photo-wrapper { flex-shrink: 0; width: 200px; height: 250px; border: 2px solid var(--terminal-dim); position: relative; overflow: hidden; }
-        .dossier-photo-wrapper::after { content: "ODTAJNIONE"; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #ff3333; color: black; font-weight: bold; padding: 2px 10px; font-size: 1.2rem; letter-spacing: 2px; }
+        .dossier-photo-wrapper::after { content: "ODTAJNIONE"; position: absolute; bottom: 10px; left: 50%; transform: translateX(-50%); background: #ff3333; color: black; font-weight: bold; padding: 2px 10px; font-size: 0.9rem; letter-spacing: 2px; }
         .dossier-photo { width: 100%; height: 100%; object-fit: cover; filter: grayscale(50%) contrast(1.2); transition: 0.3s; }
         .dossier-card:hover .dossier-photo { filter: grayscale(0%) contrast(1); }
         .dossier-info { flex-grow: 1; display: flex; flex-direction: column; justify-content: center;}
@@ -590,7 +592,7 @@
         <a href="#newsletter" class="start-menu-item">Newsletter</a>
     </div>
 
-    <h1 class="sr-only">Powieść Biało-Czerwoni - Historia Alternatywna PRL</h1>
+    <h1 class="sr-only">Powieść Biało-Czerwoni - Chłopiec, który nienawidził przybłędów ze wschodu</h1>
 
 
     <div id="app-views">
@@ -605,12 +607,12 @@
                 </div>
 
                 <div id="boxes-container">
-                    <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni - ebook" data-desc="Powieść jest co najmniej średnia, więc warto ją przeczytać. &#10; ,,Pan Tadeusz'' to to nie jest - to są Biało-Czerwoni. "data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/eVqcN7ggf9vXcQo3HD8ww00">
+                    <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni TOM I- ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc=" I co Wam ku*wa zawiniła ta biedna sarna?&#10; Ja rozumiem pisać powieść, Ja rozumiem, że bohater musi jakoś przenieść się do świata obłędu i fantazji, ale dla czego na miłość Lenina po drodze morduje niewinne zwierzę?  I dlaczego to był dopiero początek?" data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/eVqcN7ggf9vXcQo3HD8ww00">
                         <img src="Images/Oferta/okladka.webp" alt="Akta">
                         <div class="box-title">29.99 zł</div>
                         <div class="box-desc">Czysta historia - dla tych, co chcą czytać, a nie oglądać widokówki.</div>
                     </div>
-                    <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni - ilustrowany ebook" data-desc="Historia nie byłaby całością bez niecodziennych ilustracji autorstwa Dominika Sikory.  &#10; Może i faktycznie zdają się one nie w pełni pasować do klimatu, ale na pewno są lepsze od sztampowych czarno-białych szkiców tak chętnie drukowanych w co drugiej powieści." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/dRm3cx3ttcI9g2A5PL8ww01">
+                    <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni TOM I - ilustrowany ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc="Gdy Titanic tonął, wciąż grała orkiestra!  &#10; I choć Ojczyzna to nie statek a bipolarny bohater hasający (prawie) beztrosko po ciemnym, zatęchłym loszku szaleństwa to nie kapitan, Dominik Sikora musiał sobie wziąć to głęboko do serca - zacnie odwzorował upadek obyczajów." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/dRm3cx3ttcI9g2A5PL8ww01">
                         <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
                         <div class="box-title">49.99 zł</div>
                         <div class="box-desc">Opowieść wzbogacona niekonwencjonalnymi grafikami. Idealny wybór dla tych, którzy do kawy jedzą ciastko.</div>
@@ -814,6 +816,7 @@
                 <img src="" class="main-img" id="lb-img-main">
                 <img src="" class="side-img" id="lb-img-right">
             </div>
+            <div class="lb-subtitle" id="lb-subtitle"></div>
             <div class="lb-desc" id="lb-desc">Opis zawartości modułu...</div>
             <div class="consent-container" id="consent-box">
                 <label class="consent-label">
@@ -1053,6 +1056,7 @@
         document.querySelectorAll('.hacker-box:not(#box-right)').forEach(box => {
             box.addEventListener('click', () => {
                 document.getElementById('lb-title').innerText = box.getAttribute('data-title');
+                document.getElementById('lb-subtitle').innerText = box.getAttribute('data-subtitle');
                 document.getElementById('lb-desc').innerText = box.getAttribute('data-desc');
                 lbLink.href = box.getAttribute('data-link');
                 lbImgMain.src = box.getAttribute('data-img1');

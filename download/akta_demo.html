@@ -9,178 +9,333 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="../icon512.png">
+
+    <!-- Ikony Google -->
+    <link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Material+Symbols+Outlined:opsz,wght,FILL,GRAD@20..48,100..700,0..1,-50..200" />
     
     <style>
         :root {
-            --blood-red: #ff0033;
-            --dark-red: #800000;
-            --bg-color: #020000;
+            --matrix-green: #007e8c;
+            --muted-green: #a3b8aa;
+            --bg-color: #090d0a;
+            --panel-bg: rgba(13, 22, 16, 0.95);
             --taskbar-width: 65px;
         }
 
         * { box-sizing: border-box; margin: 0; padding: 0; }
 
+        html, body {
+            max-width: 100%;
+            overflow-x: hidden;
+        }
+
         body {
             background-color: var(--bg-color);
-            color: var(--blood-red);
+            color: var(--muted-green);
             font-family: 'VT323', monospace;
-            min-height: 100vh;
+            min-height: 100dvh;
             display: flex;
             flex-direction: column;
             align-items: center;
-            overflow-x: hidden;
-            text-align: center;
             position: relative;
+            width: calc(100% - var(--taskbar-width));
             margin-left: var(--taskbar-width);
         }
 
         /* Scanlines - CRT Effect */
         body::before {
-            content: " "; display: block; position: fixed; top: 0; left: 0; bottom: 0; right: 0;
-            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(20, 0, 0, 0.4) 50%),
-                        linear-gradient(90deg, rgba(255, 0, 0, 0.08), rgba(50, 0, 0, 0.02), rgba(0, 0, 0, 0.06));
-            z-index: 2; background-size: 100% 3px, 3px 100%; pointer-events: none;
-            animation: subtle-flicker 0.15s infinite;
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(0, 20, 10, 0.2) 50%),
+                        linear-gradient(90deg, rgba(0, 126, 140, 0.03), rgba(0, 0, 0, 0.02), rgba(0, 0, 0, 0.05));
+            z-index: 9999;
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            animation: subtle-flicker 0.2s infinite;
+            will-change: opacity; 
         }
 
-        @keyframes subtle-flicker { 0% { opacity: 0.90; } 50% { opacity: 1; } 100% { opacity: 0.95; } }
+        a { text-decoration: none; color: inherit; }
 
-        .glow { text-shadow: 0 0 5px var(--dark-red), 0 0 15px var(--blood-red); }
+        .material-symbols-outlined {
+            font-family: 'Material Symbols Outlined';
+            font-weight: 300; 
+            font-style: normal;
+            font-size: 1.25rem; 
+            display: inline-block;
+            line-height: 1;
+            text-transform: none;
+            letter-spacing: normal;
+            word-wrap: normal;
+            white-space: nowrap;
+            direction: ltr;
+            -webkit-font-smoothing: antialiased;
+            color: var(--matrix-green); 
+            text-shadow: 0 0 5px rgba(0, 126, 140, 0.6);
+            vertical-align: middle;
+        }
 
-        /* --- SKORUMPOWANY TASKBAR --- */
+        .glow { text-shadow: 0 0 8px var(--matrix-green), 0 0 20px rgba(0, 126, 140, 0.5); }
+
+        /* --- SKORUMPOWANY TASKBAR Z ZIELONYM AKCENTEM SZEFA --- */
         #linux-taskbar {
-            position: fixed; top: 0; left: 0; width: var(--taskbar-width); height: 100vh;
-            background: rgba(10, 0, 0, 0.85); border-right: 1px solid var(--dark-red); z-index: 1000;
+            position: fixed; top: 0; left: 0; bottom: 0; width: var(--taskbar-width);
+            background: rgba(5, 10, 7, 0.95); backdrop-filter: blur(8px);
+            border-right: 1px solid rgba(0, 126, 140, 0.2); z-index: 1000;
             display: flex; flex-direction: column; justify-content: space-between; align-items: center; padding: 15px 0;
-            box-shadow: 2px 0 20px rgba(255,0,51,0.2);
+            box-shadow: 2px 0 20px rgba(0, 126, 140, 0.05);
         }
+
+        .taskbar-top, .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; position: relative;}
 
         .taskbar-logo-btn {
-            width: 45px; height: 45px; border-radius: 8px; background: var(--blood-red); color: black; font-size: 2rem;
-            display: flex; justify-content: center; align-items: center; font-weight: bold; box-shadow: 0 0 10px var(--blood-red);
+            width: 45px; height: 45px; cursor: pointer; transition: 0.3s; border-radius: 8px; border: 2px solid transparent; background: transparent;
+            font-size: 2rem; color: var(--matrix-green); font-weight: bold; display: flex; justify-content: center; align-items: center;
         }
 
-        .taskbar-bottom { display: flex; flex-direction: column; align-items: center; gap: 15px; width: 100%; }
-        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.8; color: var(--blood-red); }
-        .tray-placeholder { font-size: 1.2rem; font-weight: bold; }
+        .taskbar-logo-btn img {
+            height: 100%; width: auto;
+            filter: brightness(0) saturate(100%) invert(34%) sepia(97%) saturate(1828%) hue-rotate(164deg) brightness(92%) contrast(101%);
+        }
 
-        #sys-clock { color: var(--blood-red); font-size: 0.9rem; text-align: center; padding-bottom: 10px; border-bottom: 1px dashed var(--dark-red); width: 80%; text-shadow: 0 0 5px red; }
+        .taskbar-logo-btn:hover { border-color: var(--matrix-green); transform: scale(1.1); box-shadow: 0 0 10px var(--matrix-green); }
+
+        .social-placeholder {
+            width: 35px; height: 35px; border-radius: 8px; border: 1px solid rgba(0, 126, 140, 0.2);
+            background: rgba(0, 15, 5, 0.5); display: flex; justify-content: center; align-items: center;
+            cursor: pointer; transition: 0.3s; overflow: hidden;
+        }
+
+        .social-placeholder:hover { background: rgba(0, 126, 140, 0.1); border-color: var(--matrix-green); box-shadow: 0 0 10px var(--matrix-green); }
+        
+        .social-placeholder img { 
+            width: 100%; height: 100%; object-fit: contain; border-radius: 4px; 
+            filter: brightness(0) saturate(100%) invert(34%) sepia(97%) saturate(1828%) hue-rotate(164deg) brightness(92%) contrast(101%);
+            transition: all 0.3s;
+        }
+        
+        .social-placeholder:hover img { 
+            filter: brightness(0) saturate(100%) invert(34%) sepia(97%) saturate(1828%) hue-rotate(164deg) brightness(120%) contrast(110%) drop-shadow(0 0 5px var(--matrix-green)); 
+        }
+
+        .tray-icons { display: flex; flex-direction: column; gap: 8px; opacity: 0.8; color: var(--matrix-green); align-items: center; }
+
+        #sys-clock {
+            color: var(--matrix-green); font-size: 0.9rem; text-align: center; line-height: 1.1;
+            padding-bottom: 10px; border-bottom: 1px dashed rgba(0, 126, 140, 0.3); width: 80%;
+            text-shadow: 0 0 5px rgba(0, 126, 140, 0.5);
+        }
 
         /* --- GLOWNA ZAWARTOSC --- */
         #terminal-container {
-            max-width: 900px; width: 100%; z-index: 10; display: flex; flex-direction: column;
-            align-items: center; justify-content: center; flex-grow: 1; padding: 40px 20px;
+            min-height: 100vh;
+            max-width: 900px;
+            width: 100%;
+            z-index: 10;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            flex-grow: 1;
+            padding: 40px 20px;
         }
 
-        .extraction-box {
-            background: rgba(15, 0, 0, 0.95); border: 2px dashed var(--blood-red); width: 100%;
-            padding: 40px; position: relative; box-shadow: 0 0 30px rgba(255, 0, 51, 0.3), inset 0 0 20px rgba(255, 0, 51, 0.2);
-            display: flex; flex-direction: column; text-align: left;
+        .system-status-bar {
+            display: flex;
+            justify-content: space-between;
+            width: 100%;
+            border-bottom: 1px solid rgba(0, 126, 140, 0.2);
+            padding-bottom: 8px;
+            font-size: 1.1rem;
+            letter-spacing: 1px;
+            margin-bottom: 30px;
+        }
+
+        .status-badge { color: var(--matrix-green); font-weight: bold; }
+
+        /* ZAADAPTOWANE PUDEŁKO EKSTRAKCJI */
+        .secure-form-box {
+            width: 100%;
+            background: var(--panel-bg);
+            border: 1px solid var(--matrix-green);
+            box-shadow: 0 0 35px rgba(0, 126, 140, 0.1);
+            padding: 45px 35px;
+            display: flex;
+            flex-direction: column;
+            border-radius: 4px;
             animation: box-appear 0.6s forwards;
         }
 
         @keyframes box-appear { 0% { opacity: 0; transform: translateY(20px); filter: blur(5px); } 100% { opacity: 1; transform: translateY(0); filter: none; } }
 
-        .extraction-header { font-size: 2.5rem; color: white; margin-bottom: 20px; border-bottom: 1px dashed var(--dark-red); padding-bottom: 10px; }
-        .extraction-desc { color: #ccc; font-size: 1.3rem; line-height: 1.5; margin-bottom: 40px; }
+        .form-header { margin-bottom: 30px; border-bottom: 1px dashed rgba(0, 126, 140, 0.3); padding-bottom: 20px; text-align: left; }
         
-        .downloads-container { display: flex; gap: 20px; flex-wrap: wrap; justify-content: center; margin-bottom: 30px;}
-
-        .dl-btn {
-            background: rgba(20, 0, 0, 0.8); border: 1px dashed var(--blood-red);
-            color: var(--blood-red); padding: 20px 40px; flex: 1; min-width: 250px;
-            font-family: 'VT323', monospace; font-size: 1.8rem; text-decoration: none; text-align: center; text-transform: uppercase;
-            transition: all 0.2s; cursor: crosshair; display: flex; flex-direction: column; gap: 10px; align-items: center;
+        .form-header h3 {
+            font-size: 2.5rem;
+            color: #ffffff;
+            margin-bottom: 15px;
+            text-shadow: 0 0 8px var(--matrix-green);
+            text-transform: uppercase;
         }
 
-        .dl-btn:hover {
-            background: rgba(255, 0, 51, 0.15); border: 1px solid white;
-            color: white; text-shadow: 0 0 10px var(--blood-red);
-            box-shadow: 0 0 20px rgba(255, 0, 51, 0.6), inset 0 0 15px rgba(255, 0, 51, 0.3);
-            transform: scale(1.02);
+        .form-header p {
+            font-size: 1.3rem;
+            line-height: 1.5;
+            color: var(--muted-green);
+            margin-bottom: 10px;
         }
 
-        .dl-icon { font-size: 2.5rem; }
+        .downloads-container {
+            display: flex;
+            gap: 20px;
+            flex-wrap: wrap;
+            justify-content: center;
+            margin-top: 20px;
+            margin-bottom: 10px;
+        }
 
-        /* Footer */
-        #footer-links { width: 100%; background: #010000; border-top: 2px dashed var(--dark-red); padding: 3rem 2rem; z-index: 3; }
+        /* POTĘŻNE ZIELONE PRZYCISKI POBIERANIA */
+        .dl-btn-final {
+            background: var(--matrix-green); 
+            border: none;
+            color: #ffffff; 
+            padding: 20px;
+            font-family: 'VT323', monospace; 
+            font-size: 1.8rem;
+            font-weight: bold;
+            text-transform: uppercase;
+            transition: all 0.2s cubic-bezier(0.175, 0.885, 0.32, 1.275); 
+            cursor: pointer;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            box-shadow: 0 4px 20px rgba(0, 126, 140, 0.3);
+            border-radius: 4px;
+            letter-spacing: 1px;
+            flex: 1;
+            min-width: 250px;
+        }
+
+        .dl-btn-final:hover {
+            background: #ffffff;
+            color: #000000;
+            box-shadow: 0 6px 25px rgba(255, 255, 255, 0.5);
+            transform: translateY(-2px);
+        }
+
+        /* --- STOPKA --- */
+        #footer-links { width: 100%; background: #040805; border-top: 1px solid rgba(0, 126, 140, 0.2); padding: 3rem 2rem; opacity: 1; z-index: 3; box-shadow: 0 -5px 25px rgba(0, 0, 0, 0.6); margin-top: auto; }
         .footer-content { max-width: 1100px; margin: 0 auto; display: flex; justify-content: space-between; align-items: end; flex-wrap: wrap; gap: 2rem; }
-        .copyright { color: var(--dark-red); font-size: 1rem; text-align: start; text-transform: uppercase; letter-spacing: 2px; }
+        
+        .footer-logo-copy { display: flex; flex-direction: column; align-items: flex-start; flex: 1; min-width: 250px; }
+        .copyright { color: #556e5f; font-size: 1rem; line-height: 1.4; text-align: start; text-transform: uppercase; letter-spacing: 1px; }
+        
         .footer-nav-group { display: flex; flex-direction: column; align-items: flex-end; justify-content: end; text-align: right; flex: 1; min-width: 200px; gap: 8px; }
-        .footer-btn { color: var(--dark-red); text-decoration: none; font-size: 1.2rem !important; text-transform: uppercase; transition: 0.2s; }
+        .footer-nav-title { color: rgba(0, 126, 140, 0.4); font-size: 0.9rem; text-transform: uppercase; border-bottom: 1px solid rgba(0, 126, 140, 0.1); padding-bottom: 3px; margin-bottom: 5px; }
+        
+        .footer-btn { color: #7d9687; text-decoration: none; font-size: 1.1rem !important; text-transform: uppercase; transition: 0.2s; }
         .footer-btn::before { content: "> "; opacity: 0.3; transition: 0.2s; }
-        .footer-btn:hover { color: var(--blood-red); }
+        .footer-btn:hover { color: var(--matrix-green); text-shadow: 0 0 5px var(--matrix-green); }
+        .footer-btn:hover::before { opacity: 1; color: var(--matrix-green); }
 
-        @media (max-width: 850px) {
-            body { margin-left: 50px; }
+        @keyframes subtle-flicker { 0% { opacity: 0.93; } 50% { opacity: 1; } 100% { opacity: 0.96; } }
+
+        @media (max-width: 900px) {
+            body { margin-left: 50px; width: calc(100% - 50px); }
             #linux-taskbar { width: 50px; padding: 10px 0; }
             .taskbar-logo-btn { width: 35px; height: 35px; font-size: 1.5rem; }
-            .extraction-box { padding: 25px 15px; }
-            .extraction-header { font-size: 1.8rem; }
-            .dl-btn { min-width: 100%; font-size: 1.5rem; padding: 15px; }
-            .footer-content { flex-direction: column; align-items: center; text-align: center; }
-            .footer-nav-group { align-items: center; text-align: center; }
+            .social-placeholder { width: 30px; height: 30px; }
+            #sys-clock { font-size: 0.7rem; }
+
+            .form-header h3 { font-size: 2rem; }
+            .secure-form-box { padding: 25px 20px; }
+            .dl-btn-final { min-width: 100%; font-size: 1.5rem; padding: 15px; }
+
+            .footer-content { flex-direction: column; align-items: flex-start; text-align: left; }
+            .footer-nav-group { align-items: flex-start; justify-content: flex-start; text-align: left; }
         }
     </style>
 </head>
-<body>
+<body id="top">
 
     <nav id="linux-taskbar">
         <div class="taskbar-top">
-            <div class="taskbar-logo-btn" title="SYSTEM ACTIVE">✓</div>
+            <a href="#" class="taskbar-logo-btn" title="SYSTEM SECURE"> <img src="../icon128.png"> </a>
+            <a href="https://www.facebook.com/profile.php?id=61587612428002" class="social-placeholder" title="Facebook"><img src="../Images/Icons/fb.webp" alt="Facebook" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/007e8c?text=FB'"></a>
+            <a href="https://www.instagram.com/marekdworski26/" class="social-placeholder" title="Instagram"><img src="../Images/Icons/ig.webp" alt="Instagram" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/007e8c?text=IG'"></a>
+            <a href="https://www.tiktok.com/@dworski_marek_" class="social-placeholder" title="TikTok"><img src="../Images/Icons/tt.webp" alt="TikTok" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/007e8c?text=TT'"></a>
+            <a href="https://www.youtube.com/@marekdworski-x3s" class="social-placeholder" title="YouTube"><img src="../Images/Icons/yt.webp" alt="YouTube" onerror="this.onerror=null; this.src='https://via.placeholder.com/35/000/007e8c?text=YT'"></a>
         </div>
+
         <div class="taskbar-bottom">
             <div class="tray-icons">
-                <div class="tray-placeholder" title="Siec aktywna">▲</div>
+                <span class="material-symbols-outlined icon">cloud_download</span>
+                <span class="material-symbols-outlined icon">lock_open</span>
             </div>
+
             <div id="sys-clock">
-                <span id="sys-time">??:??</span><br>
-                <span id="sys-date">SEC</span>
+                <span id="sys-time">00:00</span><br>
+                <span id="sys-date">00.00</span>
             </div>
         </div>
     </nav>
 
     <main id="terminal-container">
-        <div class="extraction-box">
-            <h1 class="extraction-header glow">> ACCES_GRANTED</h1>
-            <p class="extraction-desc">
-                Twoja tożsamość została zweryfikowana pozytywnie. Pliki demonstracyjne są gotowe do ekstrakcji na Twój lokalny dysk. Pamiętaj, udostępnianie tych materiałów osobom niepowołanym grozi dekonspiracją.<br><br>
-                Wybierz odpowiedni nośnik:
-            </p>
+        <div class="system-status-bar">
+            <span class="status-badge">● PROTOKÓŁ DOSTĘPU: AUTORYZOWANY</span>
+            <span class="clearance-level">TRANSFER DANYCH</span>
+        </div>
+
+        <div class="secure-form-box">
+            <div class="form-header">
+                <h3>&gt;_ DOSTĘP PRZYZNANY</h3>
+                <p>Twoja tożsamość została zweryfikowana pozytywnie. Pliki demonstracyjne są gotowe do ekstrakcji na Twój lokalny dysk. Pamiętaj, udostępnianie tych materiałów osobom niepowołanym grozi dekonspiracją.</p>
+                <br>
+                <p>Wybierz odpowiedni format:</p>
+            </div>
 
             <div class="downloads-container">
-                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn" id="dl-pdf">
-                    
+                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.pdf" download class="dl-btn-final" id="dl-pdf">
                     <span>> POBIERZ [.PDF]</span>
                 </a>
                 
-                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn" id="dl-epub">
-                    
+                <a href="../Images/Rescoures/Demo/AKTA_BC_DEMO.epub" download class="dl-btn-final" id="dl-epub">
                     <span>> POBIERZ [.EPUB]</span>
                 </a>
             </div>
 
-            <p style="color: var(--dark-red); font-size: 1.1rem; text-align: center; margin-top: 20px;">
-                //  //
+            <p style="color: var(--matrix-green); font-size: 1.1rem; text-align: center; margin-top: 20px; opacity: 0.6;">
+                // POŁĄCZENIE SZYFROWANE // SEKTOR_ZERO //
             </p>
         </div>
     </main>
 
     <footer id="footer-links">
         <div class="footer-content">
-            <p class="copyright">
-                DOSTĘP AUTORYZOWANY<br>
-                - PRAWDA NAS NIE WYZWOLI<br>
-                - ALE POZWOLI ZROZUMIEĆ
-            </p>
+            <div class="footer-logo-copy">
+                <p class="copyright">
+                    OMNIS Anna Kiersznowska-Jąderko<br>
+                    NIP: 569-157-06-12<br>
+                    [&copy; 2026 WSZELKIE PRAWA ZASTRZEŻONE]<br>
+                </p>
+            </div>
+            
             <div class="footer-nav-group">
-                <span style="color: var(--dark-red); font-size: 0.9rem; text-transform: uppercase;">/SYSTEM/NAWIGACJA/</span>
-                <a href="../../index.html" class="footer-btn">zakończ_połączenie_i_wróć</a>
+                <span class="footer-nav-title">/SYSTEM/DOCS/</span>
+                <a href="regulamin_sprzedazy.html" class="footer-btn">regulamin_sprzedazy</a>
+                <a href="polityka_prywatnosci.html" class="footer-btn">polityka_prywatnosci</a>
+            </div>
+
+            <div class="footer-nav-group">
+                <span class="footer-nav-title">/SYSTEM/EXT/</span>
+                <a href="../../index.html" class="footer-btn">powrot_do_systemu_glownego</a>
             </div>
         </div>
     </footer>
-
-<!-- PAMIĘTAJ ABY DO ZNACZNIKÓW <a> Z POBIERANIEM DODAĆ ODPOWIEDNIO: id="dl-pdf" ORAZ id="dl-epub" -->
 
 <script type="module">
     import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
@@ -248,13 +403,17 @@
         });
     }
 
-    // Reszta Twojego kodu (zegar, pixel FB) pozostaje bez zmian
+    // LOGIKA ZEGARA SYSTEMOWEGO (ZAKTUALIZOWANA ABY OBSŁUGIWAĆ DATĘ NA PASKU)
     function updateClock() {
         const now = new Date();
         document.getElementById('sys-time').innerText = `${String(now.getHours()).padStart(2, '0')}:${String(now.getMinutes()).padStart(2, '0')}`;
+        const dateEl = document.getElementById('sys-date');
+        if (dateEl) dateEl.innerText = `${String(now.getDate()).padStart(2, '0')}.${String(now.getMonth() + 1).padStart(2, '0')}`;
     }
-    setInterval(updateClock, 1000); updateClock();
+    setInterval(updateClock, 1000); 
+    updateClock();
 
+    // SYSTEM CIASTECZEK I WERYFIKACJA ZGODY
     const pixelConsent = localStorage.getItem('bc_pixel_consent');
     if (pixelConsent === 'accepted') {
         !function(f,b,e,v,n,t,s)

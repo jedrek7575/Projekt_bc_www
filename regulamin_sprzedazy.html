@@ -1,0 +1,211 @@
+<!DOCTYPE html>
+<html lang="pl">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Projekt B-C — Regulamin Sprzedaży</title>
+    <meta name="robots" content="noindex, nofollow"> 
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=VT323&display=swap" rel="stylesheet">
+    <link rel="icon" type="image/png" sizes="128x128" href="icon128.png">
+
+    <style>
+        :root {
+            --matrix-green: #007e8c;
+            --muted-green: #a3b8aa;
+            --border-dim: rgba(0, 126, 140, 0.4);
+            --bg-color: #050806;
+            --panel-bg: rgba(5, 12, 8, 0.6);
+        }
+
+        * { box-sizing: border-box; margin: 0; padding: 0; }
+        
+        html, body {
+            max-width: 100vw;
+            overflow-x: hidden;
+            overflow-wrap: anywhere; 
+            word-break: break-word; 
+            hyphens: auto;
+        }
+
+        body {
+            background-color: var(--bg-color);
+            color: var(--muted-green);
+            font-family: 'VT323', monospace;
+            min-height: 100vh;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            position: relative;
+        }
+
+        /* Scanlines - CRT Effect */
+        body::before {
+            content: " ";
+            display: block;
+            position: fixed;
+            top: 0; left: 0; bottom: 0; right: 0;
+            background: linear-gradient(rgba(18, 0, 0, 0) 50%, rgba(0, 20, 10, 0.2) 50%),
+                        linear-gradient(90deg, rgba(0, 126, 140, 0.03), rgba(0, 0, 0, 0.02), rgba(0, 126, 140, 0.05));
+            z-index: 9999;
+            background-size: 100% 4px, 4px 100%;
+            pointer-events: none;
+            animation: subtle-flicker 0.2s infinite;
+            will-change: opacity; 
+        }
+
+        @keyframes subtle-flicker { 0% { opacity: 0.93; } 50% { opacity: 1; } 100% { opacity: 0.96; } }
+
+        .docs-wrapper { 
+            width: 100%; 
+            max-width: 800px; 
+            z-index: 5; 
+            text-align: left; 
+            padding: 40px 20px; 
+            margin: 0 auto;
+        }
+        
+        .docs-wrapper h1, .docs-wrapper h2 { 
+            text-transform: uppercase; 
+            border-bottom: 1px solid var(--border-dim); 
+            padding-bottom: 5px; 
+            color: var(--matrix-green); 
+        }
+        
+        .docs-wrapper h1 { 
+            text-shadow: 0 0 10px rgba(0, 126, 140, 0.6); 
+            margin-bottom: 30px; 
+            font-size: 2.5rem; 
+        }
+        
+        .docs-wrapper h2 { 
+            margin-top: 30px; 
+            margin-bottom: 15px; 
+            font-size: 1.6rem;
+        }
+        
+        .docs-wrapper p, .docs-wrapper li { 
+            font-size: 1.2rem; 
+            color: var(--muted-green); 
+            margin-bottom: 15px; 
+            line-height: 1.5;
+        }
+        
+        .docs-wrapper strong { 
+            color: #ffffff; 
+            text-shadow: 0 0 5px rgba(0, 126, 140, 0.4);
+        }
+        
+        .docs-wrapper ul { 
+            list-style: none; 
+            padding-left: 0; 
+        }
+        
+        .docs-wrapper ul li::before { 
+            content: "> "; 
+            color: var(--matrix-green); 
+            font-weight: bold;
+        }
+        
+        .docs-wrapper a { 
+            color: var(--matrix-green); 
+            text-decoration: none; 
+            border-bottom: 1px dashed var(--border-dim); 
+            transition: 0.2s;
+        }
+
+        .docs-wrapper a:hover {
+            color: #ffffff;
+            border-color: var(--matrix-green);
+            text-shadow: 0 0 8px var(--matrix-green);
+        }
+        
+        .system-frame { 
+            border: 1px dashed var(--border-dim); 
+            padding: 30px; 
+            box-shadow: 0 0 30px rgba(0, 126, 140, 0.05), inset 0 0 20px rgba(0, 126, 140, 0.05); 
+            margin-bottom: 30px; 
+            background: var(--panel-bg); 
+            border-radius: 4px;
+        }
+        
+        .return-btn { 
+            display: inline-block; 
+            padding: 10px 20px; 
+            border: 1px solid var(--matrix-green); 
+            color: var(--matrix-green); 
+            text-transform: uppercase; 
+            transition: 0.3s; 
+            margin-bottom: 20px; 
+            cursor: pointer; 
+            font-size: 1.2rem;
+            border-bottom: 1px solid var(--matrix-green) !important;
+        }
+        
+        .return-btn:hover { 
+            background: var(--matrix-green); 
+            color: #000000; 
+            box-shadow: 0 0 15px var(--matrix-green); 
+            text-shadow: none;
+        }
+
+        @media (max-width: 600px) {
+            .docs-wrapper h1 { font-size: 2rem; }
+            .docs-wrapper h2 { font-size: 1.4rem; }
+            .docs-wrapper p, .docs-wrapper li { font-size: 1.1rem; }
+            .system-frame { padding: 20px 15px; }
+        }
+    </style>
+</head>
+<body>
+
+    <main class="docs-wrapper">
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
+        
+        <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
+        
+        <div class="system-frame">
+            <p style="color: var(--matrix-green);">STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
+            
+            <h2>1. POSTANOWIENIA OGÓLNE</h2>
+            <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
+            <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+            <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu i zawarciem umowy sprzedaży na odległość.</p>
+            
+            <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
+            <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
+            <p>2.2. Proces nadania uprawnień następuje automatycznie po pozytywnej autoryzacji i zaksięgowaniu wpłaty przez operatora płatności.</p>
+            <p>2.3. Kupujący otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz zabezpieczonym linkiem do pobrania treści.</p>
+            <p>2.4. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru i zapisanie go na własnym nośniku.</p>
+            
+            <h2>3. WYMOGI TECHNICZNE</h2>
+            <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
+            <ul>
+                <li>Stabilne połączenie z internetem.</li>
+                <li>Aktywny, poprawnie skonfigurowany adres poczty elektronicznej (e-mail).</li>
+                <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
+            </ul>
+            
+            <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
+            <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez wyraźnej, pisemnej zgody Administratora stanowi rażące naruszenie prawa i będzie ścigane.</p>
+            <p>4.2. <strong style="color: #ff3344;">OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania cyfrowego (Watermarking). W metadanych oraz w sposób widoczny na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres e-mail oraz unikalne ID transakcji). W przypadku wykrycia nielegalnego rozpowszechniania, Administrator użyje tych danych do natychmiastowej identyfikacji sprawcy i pociągnięcia go do odpowiedzialności cywilno-prawnej.</p>
+            
+            <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
+            <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta).</p>
+            <p>5.2. Akceptując niniejszy regulamin i klikając przycisk zakupu (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża wyraźną zgodę na natychmiastowe dostarczenie treści cyfrowej i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu towaru (odstąpienia od umowy).</strong></p>
+            
+            <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
+            <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem regulaminowych 24 godzin, Obywatel ma obowiązek niezwłocznie zgłosić usterkę na adres: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>.</p>
+            <p>6.2. Zgłoszenia reklamacyjne rozpatrywane są w trybie pilnym, nie później niż w terminie 14 dni od ich wpłynięcia. Pozytywnie rozpatrzona reklamacja skutkuje ponownym, ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego (przesłaniem nowego linku do pobrania pełnowartościowego pliku).</p>
+        </div>
+
+        <div style="text-align: start;">
+            <a href="index.html" class="return-btn">&lt; POWRÓT_DO_BAZY</a>
+        </div>
+    </main>
+
+</body>
+</html>
