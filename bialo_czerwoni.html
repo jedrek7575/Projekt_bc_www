@@ -223,31 +223,80 @@
             border-radius: 4px;
         }
 
+/* --- Zmodyfikowany wrapper --- */
         .book-mockup-wrapper {
             position: relative;
             width: 100%;
             max-width: 280px;
             margin: 0 auto;
-            box-shadow: 0 0 30px rgba(0, 0, 0, 0.8);
-            border: 1px solid var(--matrix-green);
+            /* Usunięto ramkę i cień, przeniesiono na karty */
         }
 
-        .secure-image {
+
+
+        /* --- STOS KARTEK (CAROUSEL) DOPASOWANY DO NOWEGO MOTYWU --- */
+        .a4-stack-preview {
+            position: relative;
             width: 100%;
-            height: auto;
-            display: block;
-            filter: grayscale(10%2) contrast(1.1);
+            aspect-ratio: 1 / 1.414; /* Format A4 */
+            perspective: 1000px;
+            margin-bottom: 35px; /* Miejsce na strzałki */
+            display: flex;
+            justify-content: center;
+            align-items: center;
         }
 
-        .secure-overlay {
+        .a4-page {
             position: absolute;
-            bottom: 10px; left: 10px;
-            background: var(--matrix-green);
-            color: #000;
-            padding: 2px 8px;
-            font-size: 0.9rem;
-            font-weight: bold;
-            letter-spacing: 1px;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            object-fit: contain; 
+            border: 2px solid rgba(0, 126, 140, 0.3); /* Ciemny turkus */
+            box-shadow: 0 0 15px rgba(0,0,0,0.9);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            filter: grayscale(50%) contrast(1.1);
+            background: var(--bg-color);
+        }
+
+        .a4-page.top {
+            z-index: 10;
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            border-color: var(--matrix-green); /* Jasny turkus na wierzchu */
+            filter: grayscale(0%) contrast(1.1);
+            box-shadow: 0 10px 30px rgba(0, 126, 140, 0.2);
+        }
+
+        .a4-page.mid-1 { z-index: 9; transform: translate(12px, 8px) rotate(2.5deg) scale(0.98); opacity: 0.8; }
+        .a4-page.mid-2 { z-index: 8; transform: translate(-8px, 15px) rotate(-1.5deg) scale(0.95); opacity: 0.5; }
+        .a4-page.hidden { z-index: 1; transform: translate(0, 0) scale(0.8); opacity: 0; pointer-events: none; }
+
+        /* STRZAŁKI W KARUZELI */
+        .card-arrows {
+            position: absolute;
+            bottom: -30px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 20;
+        }
+
+        .card-arrow {
+            background: rgba(5, 12, 8, 0.9);
+            color: var(--matrix-green);
+            border: 1px dashed var(--matrix-green);
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+            font-size: 1.4rem; 
+            padding: 2px 15px;
+        }
+
+        .card-arrow:hover { 
+            background: var(--matrix-green); 
+            color: #000; 
+            box-shadow: 0 0 15px var(--matrix-green); 
         }
 
         .file-specs {
@@ -507,9 +556,11 @@
             
             <!-- LEWA STRONA: WIZUALIZACJA I DETALE -->
             <div class="reward-visual">
-                <div class="book-mockup-wrapper">
-                    <img src="Images/Oferta/okladka-DS.webp" alt="Oficjalne Akta Projektu B-C" class="secure-image" onerror="this.onerror=null; this.src='https://via.placeholder.com/450x300/030905/007e8c?text=AKTA_PROJEKTU'">
-                    <div class="secure-overlay">ZWERYFIKOWANO</div>
+                <div class="book-mockup-wrapper" id="carousel-wrapper" data-images="Images/Oferta/okladka-DS.webp, Images/Oferta/18.webp, Images/Oferta/okladka_tyl.webp">
+                    <div class="a4-stack-preview" id="book-stack">
+                        <!-- JS wygeneruje tutaj stos i strzałki -->
+                    </div>
+                    
                 </div>
                 <div class="file-specs">
                     <p><strong>ZAWARTOŚĆ:</strong> BIAŁO-CZERWONI TOM&nbsp;I</p>
@@ -665,6 +716,68 @@
             demoSubmitBtn.innerHTML = '<span class="btn-text">PONÓW PRÓBĘ TRANSFERU</span><span class="btn-subtext">Sprawdź połączenie</span>';
         }
     });
+
+    // --- LOGIKA KARUZELI (STOS A4) ---
+    const carouselWrapper = document.getElementById('carousel-wrapper');
+    const stackContainer = document.getElementById('book-stack');
+    
+    // Pobieramy obrazki ze znacznika HTML (data-images)
+    const rawImages = carouselWrapper.getAttribute('data-images');
+    const carouselImages = rawImages ? rawImages.split(',').map(s => s.trim()) : [];
+    let carouselIndex = 0;
+
+    function renderCarouselStack(container, imagesArray, index) {
+        if (imagesArray.length === 0) return;
+        
+        container.innerHTML = '';
+        const total = imagesArray.length;
+
+        // Renderowanie obrazków
+        imagesArray.forEach((src, i) => {
+            const img = document.createElement('img');
+            img.src = src;
+            img.className = 'a4-page';
+            
+            // Fallback, jeśli ścieżka do zdjęcia jest zła
+            img.onerror = function() { 
+                this.src = 'https://via.placeholder.com/800x1131/030905/007e8c?text=BRAK+PLIKU'; 
+            };
+
+            let offset = (i - index + total) % total;
+
+            if (offset === 0) img.classList.add('top');
+            else if (offset === 1) img.classList.add('mid-1');
+            else if (offset === 2 && total > 2) img.classList.add('mid-2');
+            else img.classList.add('hidden');
+
+            container.appendChild(img);
+        });
+
+        // Dodanie strzałek
+        const arrowsDiv = document.createElement('div');
+        arrowsDiv.className = 'card-arrows';
+        arrowsDiv.innerHTML = `
+            <button class="card-arrow prev-btn" type="button">[ &lt; ]</button>
+            <button class="card-arrow next-btn" type="button">[ &gt; ]</button>
+        `;
+        container.appendChild(arrowsDiv);
+
+        // Obsługa kliknięć
+        arrowsDiv.querySelector('.prev-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            carouselIndex = (carouselIndex - 1 + total) % total;
+            renderCarouselStack(container, imagesArray, carouselIndex);
+        });
+        
+        arrowsDiv.querySelector('.next-btn').addEventListener('click', (e) => {
+            e.preventDefault();
+            carouselIndex = (carouselIndex + 1) % total;
+            renderCarouselStack(container, imagesArray, carouselIndex);
+        });
+    }
+
+    // Inicjalizacja karuzeli na start
+    renderCarouselStack(stackContainer, carouselImages, carouselIndex);
 </script>
 </body>
 </html>
