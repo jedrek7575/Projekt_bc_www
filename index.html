@@ -144,7 +144,6 @@
         #typing-text { font-size: 1.5rem; line-height: 1.4; text-align: left; width: 100%; max-width: 500px; height: 15rem; display: flex; flex-direction: column; justify-content: center; }
         .cursor { display: inline-block; width: 10px; height: 1.2rem; background-color: var(--terminal-green); animation: blink 1s step-end infinite; vertical-align: bottom; }
         
-        /* Zmienione właściwości dla kart (Hacker Boxes) */
         #boxes-container { 
             display: flex; 
             gap: 3.5rem; 
@@ -179,10 +178,12 @@
             background: rgba(0, 30, 0, 0.9); 
         }
         
-        .hacker-box img { 
+.hacker-box img { 
             width: 100%; 
-            height: 240px; 
-            object-fit: cover; 
+            height: auto; /* Usunięto sztywne 240px */
+            aspect-ratio: 1 / 1.414; /* Pionowe proporcje okładki */
+            object-fit: contain; /* Zapobiega ucinaniu */
+            background: var(--bg-color); /* Maskuje puste marginesy, jeśli grafika jest węższa */
             border: 1px solid var(--terminal-dim); 
             margin-bottom: 20px; 
             filter: grayscale(30%) contrast(1.2); 
@@ -273,27 +274,138 @@
         #box-right:hover img { filter: grayscale(100%) brightness(0.2) !important; border-color: var(--error-red); }
         #box-right:hover .box-title { color: var(--error-red); text-shadow: 0 0 10px var(--error-red); }
 
-        /* --- LIGHTBOX (GLOBALNY) --- */
-        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; overflow-y: auto; height: 100dvh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; flex-direction: column; backdrop-filter: blur(5px); max-height: 99vh; }
-        .lightbox-content { width: 90%; max-width: 800px; position: relative; padding: 30px; border: 1px solid var(--terminal-green); background: #000; box-shadow: 0 0 40px rgba(51, 255, 0, 0.15); text-align: center; }
-        .close-btn { position: absolute; top: 10px; right: 20px; font-size: 2rem; cursor: pointer; color: var(--terminal-green); transition: 0.2s; font-weight: bold; }
+        /* ========================================================================== */
+        /* ======================== STOS KARTEK A4 (CAROUSEL) ======================= */
+        /* ========================================================================== */
+
+        
+/* Wspólne dla podglądu na karcie i w lightboxie */
+        .a4-stack-preview, .a4-lightbox-stack-container {
+            position: relative;
+            width: 100%;
+            aspect-ratio: 1 / 1.414; /* Wydłużone proporcje typowej okładki książki */
+            perspective: 1000px;
+            margin-bottom: 20px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+
+        /* W lightboxie dajemy sztywny max-width dla desktopu */
+        .a4-lightbox-stack-container {
+            max-width: 400px; 
+            margin: 0 auto 20px auto;
+        }
+
+        .a4-page {
+            position: absolute;
+            top: 0; left: 0;
+            width: 100%; 
+            height: 100%;
+            object-fit: contain; /* Najważniejsze: obraz w całości zmieści się w pudełku, 0 obcinania */
+            border: 2px solid var(--terminal-dim);
+            box-shadow: 0 0 15px rgba(0,0,0,0.9);
+            transition: all 0.5s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+            filter: grayscale(40%) contrast(1.1);
+            background: var(--bg-color);
+        }
+
+        /* "Fade" w stylu terminalowym (wewnętrzny cień maskujący krawędzie) */
+        .a4-page::after {
+            content: "";
+            position: absolute;
+            inset: 0;
+            box-shadow: inset 0 0 40px rgba(0, 15, 0, 0.9);
+            pointer-events: none;
+        }
+
+        /* Karta na samym wierzchu */
+        .a4-page.top {
+            z-index: 10;
+            transform: translate(0, 0) rotate(0deg) scale(1);
+            border-color: var(--terminal-green);
+            filter: grayscale(0%) contrast(1.2);
+            box-shadow: 0 10px 30px rgba(26, 128, 0, 0.2);
+        }
+
+        /* Karty pod spodem - imitacja rozrzuconego stosu */
+        .a4-page.mid-1 { z-index: 9; transform: translate(12px, 8px) rotate(2.5deg) scale(0.98); opacity: 0.8; }
+        .a4-page.mid-2 { z-index: 8; transform: translate(-8px, 15px) rotate(-1.5deg) scale(0.95); opacity: 0.5; }
+        .a4-page.hidden { z-index: 1; transform: translate(0, 0) scale(0.8); opacity: 0; pointer-events: none; }
+
+        /* Mini strzałki na kartach (Hacker Box) */
+        .card-arrows {
+            position: absolute;
+            bottom: -15px;
+            width: 100%;
+            display: flex;
+            justify-content: space-between;
+            z-index: 20;
+            padding: 0 10px;
+        }
+
+        .card-arrow, .t-arrow {
+            background: rgba(0, 15, 0, 0.9);
+            color: var(--terminal-green);
+            border: 1px dashed var(--terminal-green);
+            font-family: 'VT323', monospace;
+            cursor: pointer;
+            transition: 0.3s;
+            text-transform: uppercase;
+        }
+
+        .card-arrow { font-size: 1.2rem; padding: 2px 10px; }
+        .card-arrow:hover, .t-arrow:hover { background: var(--terminal-green); color: var(--bg-color); box-shadow: 0 0 10px var(--terminal-green); }
+
+        /* Strzałki w Lightboxie */
+        .terminal-arrows {
+            display: flex;
+            justify-content: center;
+            gap: 20px;
+            margin-bottom: 25px;
+            width: 100%;
+        }
+        .t-arrow { font-size: 1.5rem; padding: 8px 20px; }
+
+
+/* --- LIGHTBOX (GLOBALNY) --- */
+        #lightbox { position: fixed; top: 0; left: 0; width: 100vw; height: 100dvh; background: rgba(0, 5, 0, 0.95); z-index: 9999; display: none; justify-content: center; align-items: center; backdrop-filter: blur(5px); padding: 20px; }
+        
+        .lightbox-content { width: 100%; max-width: 950px; max-height: 95dvh; overflow-y: auto; position: relative; padding: 40px; border: 1px solid var(--terminal-green); background: #000; box-shadow: 0 0 40px rgba(51, 255, 0, 0.15); display: flex; flex-direction: column; gap: 20px; }
+        
+        .close-btn { position: absolute; top: 15px; right: 25px; font-size: 2rem; cursor: pointer; color: var(--terminal-green); transition: 0.2s; font-weight: bold; z-index: 10; }
         .close-btn:hover { text-shadow: 0 0 15px var(--terminal-green); transform: scale(1.2); }
-        .carousel { display: flex; align-items: center; justify-content: center; gap: 20px; margin-bottom: 25px; }
-        .side-img { width: 120px; height: 120px; object-fit: cover; cursor: pointer; border: 1px solid var(--terminal-dim); filter: grayscale(100%); transition: all 0.3s; }
-        .side-img:hover { filter: grayscale(0%); border-color: var(--terminal-green); transform: scale(1.05); }
-        .main-img { width: 450px; height: 300px; object-fit: cover; border: 1px solid var(--terminal-green); box-shadow: 0 0 20px var(--terminal-dim); }
-        .lb-title { font-size: 2rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
-        .lb-subtitle { font-size: 1.5rem; margin-bottom: 10px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
+        
+        .lb-header { border-bottom: 1px dashed var(--terminal-dim); padding-bottom: 15px; margin-bottom: 10px; text-align: center; }
+        .lb-title { font-size: 2.2rem; margin-bottom: 5px; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); }
+        .lb-subtitle { font-size: 1.3rem; text-transform: uppercase; text-shadow: 0 0 5px var(--terminal-green); color: var(--terminal-dim); }
+        
+        .lb-body { display: flex; flex-direction: row; align-items: center; justify-content: space-between; gap: 40px; }
+        .lb-left { flex: 1; display: flex; flex-direction: column; align-items: center; max-width: 50%; }
+        .lb-right { flex: 1.2; display: flex; flex-direction: column; justify-content: center; text-align: left; }
+        
+        
+.a4-lightbox-stack-container { width: 100%; max-width: 320px; aspect-ratio: 1 / 1.414; position: relative; perspective: 1000px; margin: 0 auto 20px auto; display: flex; justify-content: center; align-items: center; }
+
+        .terminal-arrows { display: flex; justify-content: center; gap: 15px; width: 100%; }
+        .t-arrow { font-size: 1.3rem; padding: 8px 25px; }
         
         .lb-desc { font-size: 1.2rem; color: #ccc; margin-bottom: 25px; line-height: 1.4; }
-        .btn-link, #footer-links a { color: var(--terminal-green); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid var(--terminal-dim); padding: 8px 25px; background: rgba(0, 20, 0, 0.4); transition: all 0.2s ease-in-out; cursor: pointer; display: inline-block; }
+        .btn-link, #footer-links a { color: var(--terminal-green); text-decoration: none; font-family: 'VT323', monospace; font-size: 1.4rem; text-transform: uppercase; letter-spacing: 2px; border: 1px solid var(--terminal-dim); padding: 8px 25px; background: rgba(0, 20, 0, 0.4); transition: all 0.2s ease-in-out; cursor: pointer; display: inline-block; text-align: center; }
         .btn-link:hover, #footer-links a:hover { background: var(--terminal-green); color: var(--bg-color); border-color: var(--terminal-green); box-shadow: 0 0 15px var(--terminal-green); }
-        .consent-container { margin: 20px 0; padding: 15px; border: 1px dashed var(--terminal-dim); background: rgba(20, 0, 0, 0.2); text-align: left; transition: all 0.3s; }
+        
+        .consent-container { margin: 0 0 25px 0; padding: 15px; border: 1px dashed var(--terminal-dim); background: rgba(20, 0, 0, 0.2); text-align: left; transition: all 0.3s; }
         .consent-container.error-blink { border-color: #ff3333; box-shadow: 0 0 15px #ff3333; background: rgba(50, 0, 0, 0.6); }
         .consent-label { display: flex; align-items: flex-start; gap: 10px; cursor: pointer; font-size: 0.95rem; color: #ccc; }
         .consent-label input { margin-top: 4px; accent-color: var(--terminal-green); transform: scale(1.2); }
         .error-text { color: #ff3333; font-size: 0.8rem; display: none; margin-top: 5px; text-transform: uppercase; }
         .error-blink .error-text { display: block; }
+
+
+
+
+
+
 
         /* --- STOPKA (GLOBALNA DLA WIDOKÓW, ALE GŁÓWNIE INDEX) --- */
         #footer-links { width: 100%; background: #020802; border-top: 2px solid var(--terminal-dim); padding: 3rem 2rem; opacity: 0; transition: opacity 1s ease-in; z-index: 3; box-shadow: 0 -5px 15px rgba(26, 128, 0, 0.05); }
@@ -410,6 +522,7 @@
                 justify-content: center; 
                 padding: 40px; 
             }
+            
             /* Index mobile */
             .top-section { flex-direction: column; height: auto; text-align: center; padding-top: 20px;}
             #typing-text { text-align: center; height: auto; min-height: 250px; }
@@ -423,19 +536,19 @@
             /* KARTY NA MOBILE - wypełniają niemal cały ekran */
             .hacker-box { 
                 width: 90%; 
-                height: 85dvh; /* Karta zajmuje 85% wysokości ekranu */
+                height: 85dvh; 
                 min-height: 550px;
                 max-height: 800px;
                 margin-bottom: 1rem;
             }
             
-            .hacker-box img {
-                height: 80%; /* Obrazek dopasowuje się do ogromnej karty */
-                max-height: 500px;
-            }
+            .a4-stack-preview { max-width: 80%; max-height: 60dvh; margin: 0 auto 30px auto; }
+            .a4-lightbox-stack-container { width: 90%; max-width: 350px; }
+            .terminal-arrows { flex-direction: row; justify-content: space-between; }
+            .t-arrow { font-size: 1.2rem; padding: 10px; }
             
             #box-center { 
-                transform: none !important; /* Na mobile wyłączamy skalowanie środkowej karty by nie wystawała za ekran */
+                transform: none !important; 
             }
             
             #box-center:hover, #box-left:hover, #box-right:hover {
@@ -446,15 +559,28 @@
             .footer-logo-copy, .footer-nav-group { align-items: center; text-align: center; }
             .footer-newsletter-group { order: -1; width: 100%; margin-bottom: 20px; }
             
-            /* Lightbox mobile */
-            #lightbox { align-items: flex-start; overflow-y: auto; padding: 20px 0; }
-            .lightbox-content { width: 100%; max-width: 100%; min-height: 100vh; border: none; padding: 60px 15px 40px; }
-            .main-img { width: 100% !important; height: auto !important; max-height: 50vh; object-fit: contain; }
-            .side-img { width: 60px; height: 60px; }
-            .carousel { flex-wrap: wrap; gap: 10px; }
-            .lb-desc { font-size: 1.1rem; text-align: left; }
-            .close-btn { position: fixed; top: 10px; right: 20px; z-index: 10001; background: rgba(0,0,0,0.8); padding: 5px 10px; border-radius: 5px; }
-            .btn-link { margin-bottom: 15%; }
+/* Lightbox mobile */
+            #lightbox { padding: 15px; } /* Zachowuje oddech od krawędzi ekranu */
+            .lightbox-content { padding: 50px 20px 30px; border: 1px solid var(--terminal-green); border-radius: 5px; }
+            .lb-header { margin-bottom: 0; padding-bottom: 10px; }
+            .lb-title { font-size: 1.8rem; }
+            .lb-subtitle { font-size: 1.1rem; }
+            
+            .lb-body { flex-direction: column; gap: 25px; }
+            .lb-left, .lb-right { max-width: 100%; width: 100%; text-align: center; }
+            
+            .a4-lightbox-stack-container { max-width: 250px; }
+            .terminal-arrows { justify-content: space-between; }
+            .t-arrow { font-size: 1.2rem; padding: 10px; flex: 1; margin: 0 5px; }
+            
+            .lb-desc { text-align: left; }
+            .btn-link { margin-bottom: 0; width: 100%; }
+            .close-btn { top: 10px; right: 15px; position: absolute; background: rgba(0,0,0,0.9); padding: 2px 8px; border-radius: 4px; }
+
+
+
+
+
 
             /* Pozostałe mobile */
             .dossier-card { flex-direction: column; align-items: center; text-align: center; }
@@ -462,7 +588,8 @@
             
             /* Poprawki dla powiadomienia na mobile */
             #secret-notification { left: 60px !important; }
-            /* --- LATA DLA BANERA COOKIES NA MOBILE --- */
+            
+            /* LATA DLA BANERA COOKIES NA MOBILE */
             #sys-protocol-modal { padding: 15px; }
             .sys-protocol-box {
                 width: 100%;
@@ -575,7 +702,6 @@
             font-family: 'VT323', monospace; font-size: 1.4rem; outline: none; flex-grow: 1; text-transform: lowercase;
         }
         
-        /*cookies*/
         /* --- PROTOKÓŁ CIASTECZEK (LIGHTBOX) --- */
         #sys-protocol-modal {
             background: rgba(0, 5, 0, 0.80); 
@@ -667,8 +793,17 @@
                 <div id="boxes-container">
                     
                     <!-- LEWA KARTA -->
-                    <div class="hacker-box" id="box-left" data-title="Biało-Czerwoni TOM I- ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc=" I co Wam ku*wa zawiniła ta biedna sarna?&#10; Ja rozumiem pisać powieść, Ja rozumiem, że bohater musi jakoś przenieść się do świata obłędu i fantazji, ale dla czego na miłość Lenina po drodze morduje niewinne zwierzę?  I dlaczego to był dopiero początek?" data-img1="Images/Oferta/okladka.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/eVqcN7ggf9vXcQo3HD8ww00">
-                        <img src="Images/Oferta/okladka.webp" alt="Akta">
+                    <div class="hacker-box" id="box-left" 
+                         data-title="Biało-Czerwoni TOM I- ebook" 
+                         data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" 
+                         data-desc=" I co Wam ku*wa zawiniła ta biedna sarna?&#10; Ja rozumiem pisać powieść, Ja rozumiem, że bohater musi jakoś przenieść się do świata obłędu i fantazji, ale dla czego na miłość Lenina po drodze morduje niewinne zwierzę?  I dlaczego to był dopiero początek?" 
+                         data-link="https://buy.stripe.com/eVqcN7ggf9vXcQo3HD8ww00" 
+                         data-images="Images/Oferta/okladka-chlopiec.webp,Images/Oferta/okladka_tyl.webp">
+                        
+                        <div class="a4-stack-preview">
+                            <!-- JS wygeneruje tutaj obrazki i strzałki -->
+                        </div>
+
                         <div class="box-text-wrapper">
                             <div class="box-title">29.99 zł</div>
                             <div class="box-desc">CZY TO DOBRZE, ŻE KOMUNIZM W POLSCE UPADŁ?<br><br>A na jego zgliszczach narodziła się... dyktatura?</div>
@@ -677,8 +812,17 @@
                     </div>
                     
                     <!-- ŚRODKOWA KARTA -->
-                    <div class="hacker-box" id="box-center" data-title="Biało-Czerwoni TOM I - ilustrowany ebook" data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" data-desc="Gdy Titanic tonął, wciąż grała orkiestra!  &#10; I choć Ojczyzna to nie statek a bipolarny bohater hasający (prawie) beztrosko po ciemnym, zatęchłym loszku szaleństwa to nie kapitan, Dominik Sikora musiał sobie wziąć to głęboko do serca - zacnie odwzorował upadek obyczajów." data-img1="Images/Oferta/okladka_ilustracje.webp" data-img2="Images/Oferta/fragment.webp" data-img3="Images/Oferta/tyl_grafika.webp" data-link="https://buy.stripe.com/dRm3cx3ttcI9g2A5PL8ww01">
-                        <img src="Images/Oferta/okladka_ilustracje.webp" alt="System">
+                    <div class="hacker-box" id="box-center" 
+                         data-title="Biało-Czerwoni TOM I - ilustrowany ebook" 
+                         data-subtitle="Chłopiec, który nienawidził przybłędów ze wschodu" 
+                         data-desc="Gdy Titanic tonął, wciąż grała orkiestra!  &#10; I choć Ojczyzna to nie statek a bipolarny bohater hasający (prawie) beztrosko po ciemnym, zatęchłym loszku szaleństwa to nie kapitan, Dominik Sikora musiał sobie wziąć to głęboko do serca - zacnie odwzorował upadek obyczajów." 
+                         data-link="https://buy.stripe.com/dRm3cx3ttcI9g2A5PL8ww01" 
+                         data-images="Images/Oferta/okladka-DS.webp,Images/Oferta/18.webp, Images/Oferta/okladka_tyl.webp">
+                         
+                        <div class="a4-stack-preview">
+                            <!-- JS wygeneruje tutaj obrazki i strzałki -->
+                        </div>
+
                         <div class="box-text-wrapper">
                             <div class="box-title">49.99 zł</div>
                             <div class="box-desc">ŁADNE OBRAZKI NIE ZASTĄPIĄ WOLNOŚCI<br><br>Ale w ich towarzystwie czytanie o tak przykrych incydentach staje się bardziej... znośne?</div>
@@ -687,7 +831,12 @@
                     </div>
                     
                     <!-- PRAWA KARTA -->
-                    <div class="hacker-box" id="box-right" data-title="Zrzut Pamięci" data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." data-img1="Images" data-img2="https://via.placeholder.com/450x300/1a8000/000?text=MEM_2" data-img3="https://via.placeholder.com/450x300/222/33ff00?text=MEM_3" wolne_wybory_jak_zawsze_zostaly_sfalszowane="">
+                    <!-- Karta premium pozostaje tradycyjnym pojedynczym obrazkiem -->
+                    <div class="hacker-box" id="box-right" 
+                         data-title="Zrzut Pamięci" 
+                         data-desc="Zdekompilowane fragmenty wspomnień. Ryzyko infekcji." 
+                         wolne_wybory_jak_zawsze_zostaly_sfalszowane="">
+                         
                         <img src="Images/Oferta/okladka_premium.webp" alt="Zrzut">
                         <div class="box-text-wrapper">
                             <div class="box-title">79.99 zł</div>
@@ -800,48 +949,48 @@
         </section>
 
 
-<section id="view-polityka" class="view-section">
-    <div class="docs-wrapper">
-        <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
-        <h1>/SYSTEM/DOCS/PRIVACY_POLICY.TXT</h1>
-        <div class="system-frame">
-            <p>STATUS: DOKUMENT JAWNY<br>DATA_AKTUALIZACJI: 2026-03-24</p>
-            
-            <h2>1. ADMINISTRATOR DANYCH (ROOT)</h2>
-            <p>Głównym Administratorem Twoich danych osobowych jest:</p>
-            <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Adres: Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
+        <section id="view-polityka" class="view-section">
+            <div class="docs-wrapper">
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
+                <h1>/SYSTEM/DOCS/PRIVACY_POLICY.TXT</h1>
+                <div class="system-frame">
+                    <p>STATUS: DOKUMENT JAWNY<br>DATA_AKTUALIZACJI: 2026-03-24</p>
+                    
+                    <h2>1. ADMINISTRATOR DANYCH (ROOT)</h2>
+                    <p>Głównym Administratorem Twoich danych osobowych jest:</p>
+                    <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Adres: Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
 
-            <h2>2. CEL I PODSTAWA PRZETWARZANIA</h2>
-            <p>Twoje dane w systemie przetwarzane są w celu zapewnienia prawidłowego funkcjonowania węzła B-C:</p>
-            <ul>
-                <li><strong>Realizacja zamówień:</strong> Niezbędna do dostarczenia treści cyfrowych (Art. 6 ust. 1 lit. b RODO).</li>
-                <li><strong>Ochrona zasobów (Watermarking):</strong> Unikalne oznaczenie plików danymi nabywcy w celu zabezpieczenia praw autorskich (prawnie uzasadniony interes, Art. 6 ust. 1 lit. f RODO).</li>
-                <li><strong>Komunikacja (Newsletter):</strong> Przesyłanie aktualizacji systemu i meldunków, o ile wyraziłeś dobrowolną zgodę (Art. 6 ust. 1 lit. a RODO).</li>
-                <li><strong>Analityka:</strong> Zbieranie zagregowanych, statystycznych informacji o ruchu w celu optymalizacji wydajności serwera.</li>
-            </ul>
+                    <h2>2. CEL I PODSTAWA PRZETWARZANIA</h2>
+                    <p>Twoje dane w systemie przetwarzane są w celu zapewnienia prawidłowego funkcjonowania węzła B-C:</p>
+                    <ul>
+                        <li><strong>Realizacja zamówień:</strong> Niezbędna do dostarczenia treści cyfrowych (Art. 6 ust. 1 lit. b RODO).</li>
+                        <li><strong>Ochrona zasobów (Watermarking):</strong> Unikalne oznaczenie plików danymi nabywcy w celu zabezpieczenia praw autorskich (prawnie uzasadniony interes, Art. 6 ust. 1 lit. f RODO).</li>
+                        <li><strong>Komunikacja (Newsletter):</strong> Przesyłanie aktualizacji systemu i meldunków, o ile wyraziłeś dobrowolną zgodę (Art. 6 ust. 1 lit. a RODO).</li>
+                        <li><strong>Analityka:</strong> Zbieranie zagregowanych, statystycznych informacji o ruchu w celu optymalizacji wydajności serwera.</li>
+                    </ul>
 
-            <h2>3. ODBIORCY DANYCH</h2>
-            <p>Dane mogą być powierzane wyłącznie zaufanym partnerom technologicznym (operatorzy płatności, infrastruktura chmurowa, obsługa księgowa). W przypadku korzystania z dostawców globalnych, stosujemy Standardowe Klauzule Umowne Komisji Europejskiej, aby zapewnić bezpieczeństwo Twoich danych również poza EOG.</p>
+                    <h2>3. ODBIORCY DANYCH</h2>
+                    <p>Dane mogą być powierzane wyłącznie zaufanym partnerom technologicznym (operatorzy płatności, infrastruktura chmurowa, obsługa księgowa). W przypadku korzystania z dostawców globalnych, stosujemy Standardowe Klauzule Umowne Komisji Europejskiej, aby zapewnić bezpieczeństwo Twoich danych również poza EOG.</p>
 
-            <h2>4. TECHNOLOGIE ANALITYCZNE</h2>
-            <p>Administrator informuje, że nie wykorzystuje danych do podejmowania zautomatyzowanych decyzji wpływających na sytuację prawną Obywatela. Stosowane narzędzia zewnętrzne (np. Meta Pixel) służą wyłącznie do dopasowania wyświetlanych komunikatów promocyjnych do zainteresowań odbiorcy na podstawie jego wcześniejszej aktywności (retargeting).</p>
+                    <h2>4. TECHNOLOGIE ANALITYCZNE</h2>
+                    <p>Administrator informuje, że nie wykorzystuje danych do podejmowania zautomatyzowanych decyzji wpływających na sytuację prawną Obywatela. Stosowane narzędzia zewnętrzne (np. Meta Pixel) służą wyłącznie do dopasowania wyświetlanych komunikatów promocyjnych do zainteresowań odbiorcy na podstawie jego wcześniejszej aktywności (retargeting).</p>
 
-            <h2>5. CZAS PRZECHOWYWANIA</h2>
-            <p>Dane transakcyjne przechowujemy przez 5 lat (wymóg skarbowy). Dane subskrypcyjne (newsletter) przetwarzamy do momentu wycofania zgody – możesz wypisać się z bazy w każdej chwili jednym kliknięciem.</p>
+                    <h2>5. CZAS PRZECHOWYWANIA</h2>
+                    <p>Dane transakcyjne przechowujemy przez 5 lat (wymóg skarbowy). Dane subskrypcyjne (newsletter) przetwarzamy do momentu wycofania zgody – możesz wypisać się z bazy w każdej chwili jednym kliknięciem.</p>
 
-            <h2>6. TWOJE PRAWA (PROTOKÓŁ RODO)</h2>
-            <p>Masz prawo do wglądu w swoje dane, ich sprostowania, żądania usunięcia ("prawo do bycia zapomnianym") oraz ograniczenia przetwarzania. Możesz również wnieść skargę do organu nadzorczego (PUODO). W celu realizacji tych praw, skontaktuj się z Centralą.</p>
+                    <h2>6. TWOJE PRAWA (PROTOKÓŁ RODO)</h2>
+                    <p>Masz prawo do wglądu w swoje dane, ich sprostowania, żądania usunięcia ("prawo do bycia zapomnianym") oraz ograniczenia przetwarzania. Możesz również wnieść skargę do organu nadzorczego (PUODO). W celu realizacji tych praw, skontaktuj się z Centralą.</p>
 
-            <h2>7. PLIKI COOKIES I OPTYMALIZACJA DOŚWIADCZEŃ</h2>
-            <p>System wykorzystuje ciasteczka (cookies) do obsługi sesji oraz narzędzia telemetryczne firm trzecich.</p>
-            <ul>
-                <li><strong>Meta Pixel:</strong> Wykorzystujemy ten kod w celu analizy efektywności naszych komunikatów w mediach społecznościowych. Pozwala nam to unikać wyświetlania Ci nieistotnych treści i lepiej dopasować ofertę do Twoich preferencji.</li>
-                <li><strong>Blokada:</strong> Możesz zarządzać ciasteczkami w ustawieniach swojej przeglądarki lub korzystać z trybu incognito, jeśli chcesz ograniczyć zbieranie danych statystycznych.</li>
-            </ul>
-        </div>
-        <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
-    </div>
-</section>
+                    <h2>7. PLIKI COOKIES I OPTYMALIZACJA DOŚWIADCZEŃ</h2>
+                    <p>System wykorzystuje ciasteczka (cookies) do obsługi sesji oraz narzędzia telemetryczne firm trzecich.</p>
+                    <ul>
+                        <li><strong>Meta Pixel:</strong> Wykorzystujemy ten kod w celu analizy efektywności naszych komunikatów w mediach społecznościowych. Pozwala nam to unikać wyświetlania Ci nieistotnych treści i lepiej dopasować ofertę do Twoich preferencji.</li>
+                        <li><strong>Blokada:</strong> Możesz zarządzać ciasteczkami w ustawieniach swojej przeglądarki lub korzystać z trybu incognito, jeśli chcesz ograniczyć zbieranie danych statystycznych.</li>
+                    </ul>
+                </div>
+                <div style="text-align: start;"><a href="#index" class="return-btn">&lt; POWRÓT_DO_BAZY</a></div>
+            </div>
+        </section>
 
 
         <section id="view-regulamin" class="view-section">
@@ -850,15 +999,18 @@
                 <h1>/SYSTEM/DOCS/TERMS_OF_SERVICE.TXT</h1>
                 <div class="system-frame">
                     <p>STATUS: REGULAMIN DYSTRYBUCJI ZASOBÓW<br>DATA_WPROWADZENIA: 2026-03-24</p>
+                    
                     <h2>1. POSTANOWIENIA OGÓLNE</h2>
                     <p>1.1. Niniejszy protokół (Regulamin) określa zasady sprzedaży dóbr cyfrowych (treści elektronicznych) przez stronę internetową obsługiwaną przez:</p>
                     <p><strong>Omnis Anna Kiersznowska-Jąderko</strong><br>Podgródkowa 59, 42-470 Dziewki<br>NIP: 569-157-06-12<br>Kontakt: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a></p>
                     <p>1.2. Dokonanie zakupu jest równoznaczne z akceptacją regulaminu i zawarciem umowy sprzedaży na odległość.</p>
+                    
                     <h2>2. ZAMÓWIENIA I WYDAWANIE ZASOBÓW</h2>
                     <p>2.1. System dystrybuuje wyłącznie pliki cyfrowe (treści elektroniczne niemające nośnika fizycznego), takie jak dokumenty PDF, EPUB czy archiwa ZIP.</p>
                     <p>2.2. Proces nadania uprawnień następuje automatycznie po pozytywnej autoryzacji i zaksięgowaniu wpłaty przez operatora płatności.</p>
                     <p>2.3. Kupujący otrzymuje wiadomość e-mail z wygenerowanym, unikalnym numerem identyfikacyjnym zamówienia oraz zabezpieczonym linkiem do pobrania treści.</p>
                     <p>2.4. Link do pobrania treści wygasa bezpowrotnie po 24 godzinach od momentu jego dostarczenia. Obowiązkiem Kupującego jest terminowe pobranie towaru i zapisanie go na własnym nośniku.</p>
+                    
                     <h2>3. WYMOGI TECHNICZNE</h2>
                     <p>3.1. Do poprawnego odbioru dóbr cyfrowych wymagane jest:</p>
                     <ul>
@@ -866,12 +1018,15 @@
                         <li>Aktywny, poprawnie skonfigurowany adres poczty elektronicznej (e-mail).</li>
                         <li>Zainstalowane oprogramowanie zdolne do odczytu plików .pdf, .epub lub rozpakowywania archiwów .zip.</li>
                     </ul>
+                    
                     <h2>4. LICENCJA I SYSTEM ZNAKOWANIA</h2>
                     <p>4.1. Zakupione dobra cyfrowe przeznaczone są wyłącznie do użytku osobistego. Kopiowanie, dystrybucja, odsprzedaż lub udostępnianie osobom trzecim bez wyraźnej, pisemnej zgody Administratora stanowi rażące naruszenie prawa i będzie ścigane.</p>
                     <p>4.2. <strong>OSTRZEŻENIE BEZPIECZEŃSTWA:</strong> Każdy pobierany plik poddawany jest procesowi oznaczania cyfrowego (Watermarking). W metadanych oraz w sposób widoczny na stronach dokumentów trwale zapisywane są dane nabywcy (Imię, Nazwisko, adres e-mail oraz unikalne ID transakcji). W przypadku wykrycia nielegalnego rozpowszechniania, Administrator użyje tych danych do natychmiastowej identyfikacji sprawcy i pociągnięcia go do odpowiedzialności cywilno-prawnej.</p>
+                    
                     <h2>5. ODSTĄPIENIE OD UMOWY (ZASADY ZWROTÓW)</h2>
                     <p>5.1. Prawo do odstąpienia od umowy zawartej na odległość <strong>nie przysługuje</strong> konsumentowi w odniesieniu do umów o dostarczanie treści cyfrowych, które nie są zapisane na nośniku materialnym, jeżeli spełnianie świadczenia rozpoczęło się za wyraźną zgodą konsumenta przed upływem terminu do odstąpienia od umowy i po poinformowaniu go przez Administratora o utracie prawa do odstąpienia od umowy (zgodnie z art. 38 pkt 13 ustawy z dnia 30 maja 2014 r. o prawach konsumenta).</p>
                     <p>5.2. Akceptując niniejszy regulamin i klikając przycisk zakupu (wykonanie umowy przed upływem terminu do odstąpienia), <strong>Kupujący wyraża wyraźną zgodę na natychmiastowe dostarczenie treści cyfrowej i przyjmuje do wiadomości, że w ten sposób traci prawo do zwrotu towaru (odstąpienia od umowy).</strong></p>
+                    
                     <h2>6. REKLAMACJE (AWARIE SYSTEMU)</h2>
                     <p>6.1. W przypadku otrzymania uszkodzonego pliku lub awarii linku pobierania przed upływem regulaminowych 24 godzin, Obywatel ma obowiązek niezwłocznie zgłosić usterkę na adres: <a href="mailto:centrala@alternatywny-prl.pl">centrala@alternatywny-prl.pl</a>.</p>
                     <p>6.2. Zgłoszenia reklamacyjne rozpatrywane są w trybie pilnym, nie później niż w terminie 14 dni od ich wpłynięcia. Pozytywnie rozpatrzona reklamacja skutkuje ponownym, ręcznym wygenerowaniem dostępu do węzła dystrybucyjnego (przesłaniem nowego linku do pobrania pełnowartościowego pliku).</p>
@@ -880,28 +1035,45 @@
             </div>
         </section>
 
-    </div> <div id="lightbox">
+    </div> 
+    
+<div id="lightbox">
         <div class="lightbox-content glow">
             <span class="close-btn" id="close-lightbox-btn">[X]</span>
-            <div class="lb-title" id="lb-title">Tytuł Moduł</div>
-            <div class="carousel">
-                <img src="" class="side-img" id="lb-img-left">
-                <img src="" class="main-img" id="lb-img-main">
-                <img src="" class="side-img" id="lb-img-right">
+            
+            <div class="lb-header">
+                <div class="lb-title" id="lb-title">Tytuł Moduł</div>
+                <div class="lb-subtitle" id="lb-subtitle"></div>
             </div>
-            <div class="lb-subtitle" id="lb-subtitle"></div>
-            <div class="lb-desc" id="lb-desc">Opis zawartości modułu...</div>
-            <div class="consent-container" id="consent-box">
-                <label class="consent-label">
-                    <input type="checkbox" id="legal-consent">
-                    <span>
-                        Wyrażam zgodę na dostarczenie treści cyfrowej przed upływem terminu do odstąpienia od umowy.
-                        Przyjmuję do wiadomości, że wraz z uzyskaniem dostępu do pliku tracę prawo do odstąpienia od umowy.
-                    </span>
-                </label>
-                <div class="error-text">! WYMAGANA AUTORYZACJA ZGODY !</div>
+            
+            <div class="lb-body">
+                <!-- LEWA KOLUMNA: Stos i strzałki -->
+                <div class="lb-left">
+                    <div class="a4-lightbox-stack-container" id="lb-stack-container">
+                        <!-- JS wrzuci tutaj obrazki -->
+                    </div>
+                    <div class="terminal-arrows">
+                        <button class="t-arrow" id="lb-prev-btn">[ &lt; ]</button>
+                        <button class="t-arrow" id="lb-next-btn">[ &gt; ]</button>
+                    </div>
+                </div>
+                
+                <!-- PRAWA KOLUMNA: Opis, zgody, przycisk -->
+                <div class="lb-right">
+                    <div class="lb-desc" id="lb-desc">Opis zawartości modułu...</div>
+                    <div class="consent-container" id="consent-box">
+                        <label class="consent-label">
+                            <input type="checkbox" id="legal-consent">
+                            <span>
+                                Wyrażam zgodę na dostarczenie treści cyfrowej przed upływem terminu do odstąpienia od umowy.
+                                Przyjmuję do wiadomości, że wraz z uzyskaniem dostępu do pliku tracę prawo do odstąpienia od umowy.
+                            </span>
+                        </label>
+                        <div class="error-text">! WYMAGANA AUTORYZACJA ZGODY !</div>
+                    </div>
+                    <a href="#" class="btn-link" id="lb-link">Kup_Teraz</a>
+                </div>
             </div>
-            <a href="#" class="btn-link" id="lb-link">Kup_Teraz</a>
         </div>
     </div>
 
@@ -915,12 +1087,12 @@
     </div>
 
 
-<div id="sys-protocol-modal">
+    <div id="sys-protocol-modal">
         <div class="sys-protocol-box glow">
             <div style="font-size: 2rem; color: var(--terminal-green); margin-bottom: 20px; letter-spacing: 2px;">KOMUNIKAT SYSTEMOWY</div>
             <div style="font-size: 1.3rem; color: #ccc; margin-bottom: 30px; line-height: 1.4;">
                 Węzeł B-C wykorzystuje pakiety śledzące w celach analitycznych. <br>
-                Akceptacja protokołu jest rekomendowana do pełnej synchronizacji z Centralą. 
+                Akceptacja protokołu jest rekomendowana do pełnej synchronizacji z Centralą.  
                 Szczegóły w <a href="#polityka" style="color: var(--terminal-dim);">Polityce Prywatności</a>.
             </div>
             <button id="btn-accept-sys" class="btn-accept-main">ZAAKCEPTUJ WSZYSTKIE</button>
@@ -949,7 +1121,6 @@
         };
 
         window.addEventListener('load', () => {
-            // Natychmiastowe ładowanie widoku głównego zamiast ekranu z kłódką
             document.getElementById('text-content').innerHTML = contentConfig.text.replace(/\n/g, '<br>');
             document.getElementById('footer-links').style.opacity = 1;
             triggerIndexBoxes(); 
@@ -1003,7 +1174,6 @@
             });
         }
 
-
         /* --- 4. GLOBALNY TASKBAR --- */
         const startBtn = document.getElementById('taskbar-start-btn');
         const startMenu = document.getElementById('start-menu');
@@ -1018,39 +1188,103 @@
         setInterval(updateClock, 1000); updateClock();
 
 
-        /* --- 5. LIGHTBOX (WIDOK INDEX) --- */
+        /* --- 5. LIGHTBOX & STOS KARTEK A4 --- */
         const lightbox = document.getElementById('lightbox');
-        const lbImgMain = document.getElementById('lb-img-main');
-        const lbImgLeft = document.getElementById('lb-img-left');
-        const lbImgRight = document.getElementById('lb-img-right');
         const consentBox = document.getElementById('consent-box');
         const legalCheckbox = document.getElementById('legal-consent');
         const lbLink = document.getElementById('lb-link');
+        const lbStackContainer = document.getElementById('lb-stack-container');
+        
+        let lbImages = [];
+        let lbCurrentIndex = 0;
 
-        document.querySelectorAll('.hacker-box:not(#box-right)').forEach(box => {
+        // Główna funkcja renderująca stos
+        function updateStackDOM(container, imagesArray, currentIndex) {
+            container.innerHTML = ''; 
+            const total = imagesArray.length;
+
+            imagesArray.forEach((src, i) => {
+                const img = document.createElement('img');
+                img.src = src;
+                img.className = 'a4-page';
+
+                let offset = (i - currentIndex + total) % total;
+
+                if (offset === 0) img.classList.add('top');
+                else if (offset === 1) img.classList.add('mid-1');
+                else if (offset === 2 && total > 2) img.classList.add('mid-2');
+                else img.classList.add('hidden');
+
+                container.appendChild(img);
+            });
+        }
+
+        function initLightboxStack(imagesArray, startIndex) {
+            lbImages = imagesArray;
+            lbCurrentIndex = startIndex;
+            updateStackDOM(lbStackContainer, lbImages, lbCurrentIndex);
+        }
+
+        // Inicjalizacja kart (Hacker Boxes)
+        document.querySelectorAll('.hacker-box').forEach(box => {
+            const imagesStr = box.getAttribute('data-images');
+            if (!imagesStr) return; // Pomija karty premium (brak stosu)
+            
+            const images = imagesStr.split(',').map(s => s.trim());
+            let boxCurrentIndex = 0;
+            const stackContainer = box.querySelector('.a4-stack-preview');
+            
+            updateStackDOM(stackContainer, images, boxCurrentIndex);
+
+            const arrowsDiv = document.createElement('div');
+            arrowsDiv.className = 'card-arrows';
+            arrowsDiv.innerHTML = `
+                <button class="card-arrow box-prev">[ &lt; ]</button>
+                <button class="card-arrow box-next">[ &gt; ]</button>
+            `;
+            stackContainer.appendChild(arrowsDiv);
+
+            arrowsDiv.querySelector('.box-prev').addEventListener('click', (e) => {
+                e.stopPropagation(); 
+                boxCurrentIndex = (boxCurrentIndex - 1 + images.length) % images.length;
+                updateStackDOM(stackContainer, images, boxCurrentIndex);
+                stackContainer.appendChild(arrowsDiv); 
+            });
+            
+            arrowsDiv.querySelector('.box-next').addEventListener('click', (e) => {
+                e.stopPropagation();
+                boxCurrentIndex = (boxCurrentIndex + 1) % images.length;
+                updateStackDOM(stackContainer, images, boxCurrentIndex);
+                stackContainer.appendChild(arrowsDiv);
+            });
+
+            // Kliknięcie w kartę ładuje Lightbox
             box.addEventListener('click', () => {
                 document.getElementById('lb-title').innerText = box.getAttribute('data-title');
                 document.getElementById('lb-subtitle').innerText = box.getAttribute('data-subtitle');
                 document.getElementById('lb-desc').innerText = box.getAttribute('data-desc');
                 lbLink.href = box.getAttribute('data-link');
-                lbImgMain.src = box.getAttribute('data-img1');
-                lbImgLeft.src = box.getAttribute('data-img2');
-                lbImgRight.src = box.getAttribute('data-img3');
+                
+                if(legalCheckbox) legalCheckbox.checked = false;
+                if(consentBox) consentBox.classList.remove('error-blink');
 
-                legalCheckbox.checked = false;
-                consentBox.classList.remove('error-blink');
+                initLightboxStack(images, boxCurrentIndex);
                 lightbox.style.display = 'flex';
             });
         });
 
-        function swapImage(clickedImg) {
-            const tempSrc = lbImgMain.src;
-            lbImgMain.src = clickedImg.src;
-            clickedImg.src = tempSrc;
-        }
-        lbImgLeft.addEventListener('click', function() { swapImage(this); });
-        lbImgRight.addEventListener('click', function() { swapImage(this); });
+        // Obsługa strzałek wewnątrz Lightboxa
+        document.getElementById('lb-prev-btn').addEventListener('click', () => {
+            lbCurrentIndex = (lbCurrentIndex - 1 + lbImages.length) % lbImages.length;
+            updateStackDOM(lbStackContainer, lbImages, lbCurrentIndex);
+        });
 
+        document.getElementById('lb-next-btn').addEventListener('click', () => {
+            lbCurrentIndex = (lbCurrentIndex + 1) % lbImages.length;
+            updateStackDOM(lbStackContainer, lbImages, lbCurrentIndex);
+        });
+
+        // Przycisk "Kup_Teraz" (zgody i Pixel)
         lbLink.addEventListener('click', (e) => {
             if (!legalCheckbox.checked) {
                 e.preventDefault(); 
@@ -1072,7 +1306,10 @@
             }
         });
 
-        legalCheckbox.addEventListener('change', () => { if (legalCheckbox.checked) consentBox.classList.remove('error-blink'); });
+        legalCheckbox.addEventListener('change', () => { 
+            if (legalCheckbox.checked) consentBox.classList.remove('error-blink'); 
+        });
+        
         document.getElementById('close-lightbox-btn').addEventListener('click', () => lightbox.style.display = 'none');
         lightbox.addEventListener('click', (event) => { if (event.target === lightbox) lightbox.style.display = 'none'; });
 
